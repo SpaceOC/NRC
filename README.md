@@ -1,2 +1,2 @@
 # NRC
-NRC (Not Real Core) - a kernel created to facilitate and speed up creation of pseudo-OS in C++.
+NRC (Not Real Core) is a kernel designed to make it easier and faster to create pseudo-OS in C/C++.
