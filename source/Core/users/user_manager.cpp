@@ -3,140 +3,139 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <cmath>
 #include <map>
-#include <filesystem>
-#include "../extra/VectorTools.cpp"
 
-std::string Current_User;
-std::vector<std::string> Users;
-std::map<std::string, std::string> Users_Permissions, Users_Language, Users_Passwords;
-
-class UsersManager {
+class userManager {
+    private:
+        static inline bool userNotLogout = false;
+        static inline std::string currentUser;
+        static inline std::map<std::string, std::string> users;
+        static inline std::map<std::string, std::string> usersPermissions;
+        static inline std::map<std::string, std::string> usersPasswords;
     public:
-        bool userExists(std::string UserName) {
-            int i = 0;
-            bool Temp = false;
-            while (i <= (Users.size() - 1)) {
-                if (Users[i] == UserName) {
-                    Temp = true;
-                    break;
+        bool userIsYou(std::string username) const {
+            if (username == currentUser && userNotLogout) {
+                return true;
+            }
+            else {
+                return false;
+            }
+        }
+
+        bool userExist(std::string username) const {
+            if (users.count(username)) {
+                return true;
+            }
+            else {
+                std::cout << "This user doesn't exist" << std::endl;
+                return false;
+            }
+        }
+
+        bool havePassword(std::string username) const {
+            if (usersPasswords.count(username)) {
+                return true;
+            }
+            else {
+                return false;
+            }
+        }
+
+        bool permissionsCheck(std::string permissions) const {
+            if (permissions == "Ghost" || permissions == "User" || permissions == "Admin" || permissions == "Root") {
+                return true;
+            }
+            else {
+                std::cout << "This type of authorization does not exist" << std::endl;
+                return false;
+            }
+        }
+
+        // Права текущего пользователя ниже другого
+        bool permissionsHighCurrentUser(std::string username) const {
+            if (((usersPermissions[currentUser] == "Ghost" || usersPermissions[currentUser] == "User") && (username == "Root" || username == "Admin")) || (usersPermissions[currentUser] == "Admin" && username == "Root")) {
+                std::cout << "The current user has less rights than the other user" << std::endl;
+                return true;
+            }
+            else {
+                return false;
+            }
+        }
+
+        std::string YourUsername() const {
+            return currentUser;
+        }
+
+        void getAllInfoUsers() {
+            std::cout << "--- [ User - Permissions --- ] " << std::endl;
+            for (auto& element : usersPermissions) {
+                std::cout << element.first + " - " + element.second << '\n';
+            }
+        }
+
+        std::vector<std::string> getInfoUser(std::string username) {
+            if (userExist(username)) {
+                std::vector<std::string> Temp;
+                Temp.push_back("User: "+ username);
+                Temp.push_back("Permissions: " + usersPermissions[username]);
+                return Temp;
+            }
+        }
+
+        void system_addUser(std::string username) const {
+            users[username] = username;
+            usersPermissions[username] = "Root";
+            currentUser = users[username];
+            userNotLogout = true;
+        }
+
+        void addUser(std::string username, std::string permissions) const {
+            if (!userExist(username) && permissionsCheck(permissions)) {
+                users[username] = username;
+                usersPermissions[username] = permissions;
+            }
+            else {
+                std::cout << "Failed to create a user" << std::endl;
+            }
+        }
+
+        void deleteUser(std::string username) const {
+            try {
+                if (userExist(username) && !permissionsHighCurrentUser(username) && !userIsYou(username)) {
+                    users.erase(username);
+                    usersPermissions.erase(username);
+                    if (havePassword(username)) { usersPasswords.erase(username); }
                 }
                 else {
-                    Temp = false;
-                }
-                i++;
-            }
-            std::cout << Temp << std::endl;
-            return Temp;
-        };
-        bool passwordUserExists(std::string UserName) {
-            int i = 0;
-            bool Temp = false;
-            std::vector<std::string> TempUsersPasswords;
-            for (auto &p : Users_Passwords) {
-                TempUsersPasswords.push_back(p.first);
-            }
-            while (i <= (TempUsersPasswords.size() - 1)) {
-                if (UserName == TempUsersPasswords[i]) {
-                    Temp = true;
-                    break;
-                }
-                else {
-                    Temp = false;
-                }
-                i++;
-            }
-            return Temp;
-        };
-        std::string userHavePermissions(std::string UserName) {
-            if (userExists(UserName)) {
-                return Users_Permissions[UserName];
-            }
-            else {
-                std::cout << "User not found" << std::endl;
-                return NULL;
-            }
-        };
-        int UserNumber(std::string UserName) {
-            int Temp = -1;
-            if (userExists(UserName)) {
-                int i = 0;
-                while (i <= (Users.size() - 1)) {
-                    if (UserName == Users[i]) {
-                        Temp = i;
-                        break;
-                    }
-                    i++;
+                    std::cout << "This user could not be deleted" << std::endl;
                 }
             }
-            else {
-                Temp = -1;
+            catch(const std::exception& e) {
+                std::cerr << e.what() << '\n';
             }
-            return Temp;
-        };
-
-        void system_addUser(std::string UserName) {
-            Users.push_back(UserName);
-            Users_Permissions[UserName] = "Root";
-            Users_Language[UserName] = "English";
-            Current_User = UserName;
+            
         }
-        void addUser(std::string UserName, std::string Language, std::string Permissions) {
-            if (userHavePermissions(Current_User) == "Admin" || userHavePermissions(Current_User) == "Root") {
-                Users.push_back(UserName);
-                Users_Permissions[UserName] = Permissions;
-                Users_Language[UserName] = Language;
-            }
+
+        void renameUser(std::string username, std::string new_username) {
+                if (userExist(username) && !permissionsHighCurrentUser(username) && !userIsYou(username)) {
+                    users.erase(username);
+                    users[new_username] = new_username;
+                    usersPermissions[new_username] = usersPermissions[username];
+                    usersPermissions.erase(username);
+                    if (havePassword(username)) { usersPasswords[new_username] = usersPasswords[username]; usersPasswords.erase(username); }
+                }
             else {
-                std::cout << "No" << std::endl;
+                std::cout << "This user could not be renamed" << std::endl;
             }
         }
-        /*
-        void removeUser(std::string UserName) {
-            if (userExists(UserName)) {
-                if (userHavePermissions(Current_User) == "Admin" || userHavePermissions(Current_User) == "Root") {
-                    if (userHavePermissions(Current_User) == "Admin" && userHavePermissions(UserName) == "Root") {
 
-                    }
-                    else if (Current_User == UserName) {
-                        std::cout << "No" << std::endl;
-                    }
-                    else {
-                        //removeVectorVar(Users, UserNumber(UserName));
-                        Users_Language.erase(UserName);
-                        Users_Permissions.erase(UserName);
-                        if (passwordUserExists(UserName)) {
-                            Users_Passwords.erase(UserName);
-                        }
-                    }
-                }
+        void changePermissionsUser(std::string username, std::string newPermissions) {
+            if (userExist(username) && !permissionsHighCurrentUser(username) && permissionsCheck(newPermissions)) {
+                usersPermissions[username] = newPermissions;
             }
             else {
-                
-            }
-        }
-        */
-        void userSetPermissions(std::string UserName, std::string Permissions) {
-            if (userExists(UserName)) {
-                if (userHavePermissions(Current_User) == "Admin" || userHavePermissions(Current_User) == "Root") {
-                    if (Current_User == UserName) {
-                        
-                    }
-                    else if (userHavePermissions(Current_User) == "Admin" && userHavePermissions(UserName) == "Root") {
-
-                    }
-                    else {
-                        Users_Permissions[UserName] = Permissions;
-                    }
-                }
+                std::cout << "This user failed to change permissions" << std::endl;
             }
         }
 };
-
-void OOBE() {
-    UsersManager UM;
-    std::string firstUsername;
-    std::cout << "Enter new username: ";
-    std::cin >> firstUsername;
-    UM.system_addUser(firstUsername);
-}

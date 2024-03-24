@@ -2,7 +2,9 @@
 #include <string>
 #include <map>
 #include <vector>
-#include "base/commands.cpp"
+#include "base/command/commands.cpp"
 #include "base/print.cpp"
+#include "extra/time_tools.cpp"
+#include "filesystem/data_manager.cpp"
+#include "users/OOBE.cpp"
 #include "Fix.cpp"
-#include "users/user_manager.cpp"
