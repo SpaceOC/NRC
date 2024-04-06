@@ -5,107 +5,144 @@
 #include <vector>
 #include <cmath>
 #include <map>
+#include "../data/data_manager.cpp"
 
 class userManager {
     private:
-        static inline bool userNotLogout = false;
+        static inline bool OOBE_Passed = false;
+        static inline bool userIsLogined = false; // Вошёл ли пользователь в свой аккаунт
+        static inline bool shutUp = false;
+        static inline int maxUsers = 20;
         static inline std::string currentUser;
         static inline std::map<std::string, std::string> users;
         static inline std::map<std::string, std::string> usersPermissions;
+        static inline std::map<std::string, std::string> usersLanguages;
         static inline std::map<std::string, std::string> usersPasswords;
+
+        const std::string mainDataFilePath = "Data/MainData.json";
+        const std::string usersListFilePath = "Data/Users.json";
+        const std::string usersFilesPath = "Data/Users/";
+        const std::vector<std::string> keys = {"Username", "Permissions", "Language", "Password"};
+
+        void userLists() {
+            readAllUsersData();
+            std::cout << " [ Users ]" << std::endl;
+            for (auto& user : users) {
+                std::cout << user.first << std::endl;
+            }
+            userLogic();
+        }
+
+        void userLogic() {
+            std::string usernameTemp; std::vector<std::string> temp;
+            std::cout << "Enter username: ";
+            std::cin >> usernameTemp;
+            for (auto& user : users) { temp.push_back(user.first); }
+            if (std::find(temp.begin(), temp.end(), usernameTemp )!= temp.end()) { userLogin(usernameTemp); } 
+            else { std::cout << "User not found" << std::endl; }
+        }
+
+        void userLogin(std::string username) {
+            currentUser = username; userIsLogined = true;
+        }
     public:
-        bool userIsYou(std::string username) const {
-            if (username == currentUser && userNotLogout) {
-                return true;
-            }
-            else {
-                return false;
-            }
+        userManager() {
+            checkOOBE_Passed();
         }
 
-        bool userExist(std::string username) const {
-            if (users.count(username)) {
-                return true;
-            }
-            else {
-                std::cout << "This user doesn't exist" << std::endl;
-                return false;
-            }
+        bool userIsYou(std::string username) {
+            return username == currentUser;
         }
 
-        bool havePassword(std::string username) const {
-            if (usersPasswords.count(username)) {
-                return true;
-            }
-            else {
-                return false;
-            }
+        bool userExist(std::string username) {
+            return users.count(username);
         }
 
-        bool permissionsCheck(std::string permissions) const {
-            if (permissions == "Ghost" || permissions == "User" || permissions == "Admin" || permissions == "Root") {
-                return true;
-            }
-            else {
-                std::cout << "This type of authorization does not exist" << std::endl;
-                return false;
-            }
+        bool havePassword(std::string username) {
+            return usersPasswords.count(username);
+        }
+
+        bool userHaveAdminPermissions(std::string username) {
+            return usersPermissions[username] == "Admin" || usersPermissions[username] == "Root";
+        }
+
+        bool permissionsCheck(std::string permissions) {
+            return permissions == "Ghost" || permissions == "User" || permissions == "Admin" || permissions == "Root";
         }
 
         // Права текущего пользователя ниже другого
         bool permissionsHighCurrentUser(std::string username) const {
-            if (((usersPermissions[currentUser] == "Ghost" || usersPermissions[currentUser] == "User") && (username == "Root" || username == "Admin")) || (usersPermissions[currentUser] == "Admin" && username == "Root")) {
-                std::cout << "The current user has less rights than the other user" << std::endl;
-                return true;
-            }
-            else {
-                return false;
-            }
+            return ((usersPermissions[currentUser] == "Ghost" || usersPermissions[currentUser] == "User") && (username == "Root" || username == "Admin")) || (usersPermissions[currentUser] == "Admin" && username == "Root");
+        }
+        
+        bool getOOBE_Passed() {
+            return OOBE_Passed;
         }
 
-        std::string YourUsername() const {
+        size_t numberofUsers() {
+            return users.size();
+        }
+
+        std::string YourUsername() {
             return currentUser;
         }
 
+        void checkOOBE_Passed() {
+            dataManager DM;
+            fileManager FM;
+            if (FM.fileExist(mainDataFilePath)) {
+                if (DM.readAllData(mainDataFilePath)["OOBE_Passed"] == "1") { OOBE_Passed = true; }
+                else { OOBE_Passed = false; }
+            }
+        }
+
         void getAllInfoUsers() {
-            std::cout << "--- [ User - Permissions --- ] " << std::endl;
             for (auto& element : usersPermissions) {
                 std::cout << element.first + " - " + element.second << '\n';
             }
         }
 
-        std::vector<std::string> getInfoUser(std::string username) {
-            if (userExist(username)) {
-                std::vector<std::string> Temp;
-                Temp.push_back("User: "+ username);
-                Temp.push_back("Permissions: " + usersPermissions[username]);
-                return Temp;
-            }
+        std::vector<std::string> getUserInfo(std::string username) {
+            std::vector<std::string> temp;
+            temp.push_back(username);
+            temp.push_back(usersPermissions[username]);
+            return temp;
         }
 
-        void system_addUser(std::string username) const {
+        void system_addUser(std::string username, std::string permissions) {
+            dataManager DM;
             users[username] = username;
-            usersPermissions[username] = "Root";
-            currentUser = users[username];
-            userNotLogout = true;
+            usersPermissions[username] = permissions;
+            if (!OOBE_Passed) { currentUser = username; }
+            userIsLogined = true;
+            if (!OOBE_Passed) { DM.createData(usersListFilePath, username, ""); }
+            saveUserData(username);
+            if (!OOBE_Passed) { DM.changeData(mainDataFilePath, "OOBE_Passed", "1", false); checkOOBE_Passed(); }
         }
 
-        void addUser(std::string username, std::string permissions) const {
-            if (!userExist(username) && permissionsCheck(permissions)) {
+        void addUser(std::string username, std::string permissions) {
+            dataManager DM;
+            if (!userExist(username) && permissionsCheck(permissions) && userHaveAdminPermissions(currentUser) && (numberofUsers() < maxUsers)) {
                 users[username] = username;
                 usersPermissions[username] = permissions;
+                if (!DM.keyExist(usersListFilePath, username)) { DM.addData(usersListFilePath, username, ""); }
+                saveUserData(username);
             }
             else {
                 std::cout << "Failed to create a user" << std::endl;
             }
         }
 
-        void deleteUser(std::string username) const {
+        void deleteUser(std::string username) {
             try {
-                if (userExist(username) && !permissionsHighCurrentUser(username) && !userIsYou(username)) {
+                fileManager FM;
+                dataManager DM;
+                if (userExist(username) && !permissionsHighCurrentUser(username) && userHaveAdminPermissions(currentUser) && !userIsYou(username)) {
                     users.erase(username);
                     usersPermissions.erase(username);
                     if (havePassword(username)) { usersPasswords.erase(username); }
+                    FM.deleteFile(usersFilesPath + username + ".json");
+                    DM.deleteData(usersListFilePath, username);
                 }
                 else {
                     std::cout << "This user could not be deleted" << std::endl;
@@ -118,24 +155,61 @@ class userManager {
         }
 
         void renameUser(std::string username, std::string new_username) {
-                if (userExist(username) && !permissionsHighCurrentUser(username) && !userIsYou(username)) {
-                    users.erase(username);
-                    users[new_username] = new_username;
-                    usersPermissions[new_username] = usersPermissions[username];
-                    usersPermissions.erase(username);
-                    if (havePassword(username)) { usersPasswords[new_username] = usersPasswords[username]; usersPasswords.erase(username); }
+            fileManager FM; dataManager DM;
+            if (userExist(username) && userHaveAdminPermissions(currentUser) && !permissionsHighCurrentUser(username) && !userIsYou(username)) {
+                users.erase(username);
+                users[new_username] = new_username;
+                usersPermissions[new_username] = usersPermissions[username];
+                usersPermissions.erase(username);
+                if (havePassword(username)) { 
+                    usersPasswords[new_username] = usersPasswords[username]; 
+                    usersPasswords.erase(username); 
                 }
+                FM.renameFile(usersFilesPath + username + ".json", usersFilesPath + new_username + ".json");
+                DM.changeData(usersListFilePath, username, new_username, true);
+                DM.changeData(usersFilesPath + new_username + ".json", "Username", new_username, false);
+            }
             else {
                 std::cout << "This user could not be renamed" << std::endl;
             }
         }
 
         void changePermissionsUser(std::string username, std::string newPermissions) {
-            if (userExist(username) && !permissionsHighCurrentUser(username) && permissionsCheck(newPermissions)) {
+            dataManager DM;
+            if (userExist(username) && !permissionsHighCurrentUser(username) && userHaveAdminPermissions(currentUser) && permissionsCheck(newPermissions)) {
                 usersPermissions[username] = newPermissions;
+                DM.changeData(usersFilesPath + username + ".json", "Permissions", newPermissions, false);
             }
             else {
                 std::cout << "This user failed to change permissions" << std::endl;
+            }
+        }
+
+        void userListManagerStart() {
+            userLists();
+        }
+
+        void userLogout() {
+            currentUser = ""; userIsLogined = false;
+            userLists();
+        }
+
+        void saveUserData(std::string username) {
+            dataManager DM; fileManager FM;
+            std::vector<std::string> values = {username, usersPermissions[username], "English", ""};
+            FM.createFile(usersFilesPath + username + ".json");
+            DM.createData(usersFilesPath + username + ".json", keys, values);
+        }
+
+        void readUserData(std::string username) {
+            dataManager DM;
+            system_addUser(username, DM.readAllData(usersFilesPath + username + ".json")["Permissions"]);
+        }
+
+        void readAllUsersData() {
+            dataManager DM;
+            for (auto& user : DM.readAllData(usersListFilePath)) {
+                readUserData(user.first);
             }
         }
 };

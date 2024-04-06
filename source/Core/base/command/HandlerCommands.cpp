@@ -8,14 +8,15 @@
 #include <sstream>
 #include "../../extra/variables.cpp"
 
-extern void CORE_help();
-extern void CORE_info_user();
-extern void CORE_rename_user();
-extern void CORE_all_info_users();
-extern void CORE_add_user();
-extern void CORE_delete_user();
-extern void CORE_set_permissions_user();
-extern void CORE_info();
+extern void CORE_COMMAND_help();
+extern void CORE_COMMAND_renameUser();
+extern void CORE_COMMAND_allInfoUsers();
+extern void CORE_COMMAND_addUser();
+extern void CORE_COMMAND_deleteUser();
+extern void CORE_COMMAND_setPermissionsUser();
+extern void CORE_COMMAND_info();
+extern void CORE_COMMAND_logout();
+extern void CORE_COMMAND_infoUser();
 
 class HandlerCommands {
     private:
@@ -24,15 +25,16 @@ class HandlerCommands {
     public:
         HandlerCommands() {
             if (commandMap.size() == 0 && commandMapDescription.size() == 0) {
-                addCommand("help", "shows a list of all commands" , CORE_help);
-                //addCommand("tree", "shows all files and folders in a tree view" , CORE_tree);
-                addCommand("add_user", "creating a new user in the system" , CORE_add_user);
-                addCommand("delete_user", "deleting a user in the system" , CORE_delete_user);
-                addCommand("set_user_permissions", "user permission change" , CORE_set_permissions_user);
-                addCommand("all_users_info", "shows all information about all users" , CORE_all_info_users);
-                addCommand("current_user_info", "shows information about the current user" , CORE_info_user);
-                addCommand("rename_user", "renames the user" , CORE_rename_user);
-                addCommand("core_info", "shows information about the core" , CORE_info);
+                addCommand("help", "shows a list of all commands" , CORE_COMMAND_help);
+                //addCommand("tree", "shows all files and folders in a tree view" , CORE_COMMAND_tree);
+                addCommand("add_user", "creating a new user in the system" , CORE_COMMAND_addUser);
+                addCommand("delete_user", "deleting a user in the system" , CORE_COMMAND_deleteUser);
+                addCommand("set_user_permissions", "user permission change" , CORE_COMMAND_setPermissionsUser);
+                addCommand("all_users_info", "shows all information about all users" , CORE_COMMAND_allInfoUsers);
+                addCommand("current_user_info", "shows information about the current user" , CORE_COMMAND_infoUser);
+                addCommand("rename_user", "renames the user" , CORE_COMMAND_renameUser);
+                addCommand("core_info", "shows information about the core" , CORE_COMMAND_info);
+                addCommand("logout", "logging out of the current user account", CORE_COMMAND_logout);
             }
         }
 

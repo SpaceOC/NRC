@@ -8,8 +8,8 @@
 #include <fstream>
 #include <filesystem>
 
-// Data Manager настоящей файловой системы
-class DataManager {
+// File Manager настоящей файловой системы
+class fileManager {
     private:
         static inline std::map<std::filesystem::path, bool> systemFiles, systemFolders;
     public:
@@ -23,7 +23,7 @@ class DataManager {
         }
 
         bool folderExist(std::filesystem::path folderPath) const {
-            return std::filesystem::exists(folderPath);
+            return std::filesystem::is_directory(folderPath);
         }
 
         bool folderIsEmpty(std::filesystem::path folderPath) const {
@@ -48,14 +48,14 @@ class DataManager {
             }
         }
 
-        void createFile(std::filesystem::path filePath) const {
+        void createFile(const std::filesystem::path filePath) const {
             if (!fileExist(filePath)) {
                 std::ofstream file(filePath);
                 file.close();
             }
         }
 
-        void createFile(std::filesystem::path filePath, std::string firstData) const {
+        void createFile(const std::filesystem::path filePath, std::string firstData) const {
             if (!fileExist(filePath)) {
                 std::ofstream file(filePath);
                 file << firstData << '\n';
@@ -63,7 +63,7 @@ class DataManager {
             }
         }
 
-        void createFiles(std::vector<std::filesystem::path> filePath) const {
+        void createFiles(const std::vector<std::filesystem::path> filePath) const {
             for (auto oneFile : filePath) {
                 if (!fileExist(oneFile)) {
                     std::ofstream file(oneFile);
@@ -72,35 +72,39 @@ class DataManager {
             }
         }
 
-        void deleteFile(std::filesystem::path filePath) const {
+        void deleteFile(const std::filesystem::path filePath) const {
             if (fileExist(filePath)) {
                 std::filesystem::remove(filePath);
             }
         }
 
-        void renameFile(std::filesystem::path filePath, std::filesystem::path newFileName) const {
+        void renameFile(const std::filesystem::path filePath, const std::filesystem::path newFileName) const {
             if (fileExist(filePath)) { std::filesystem::rename(filePath, newFileName); }
         }
 
-        virtual void readFile(std::filesystem::path filePath) const {
+        std::string readFile(const std::filesystem::path filePath) const {
+            std::string Temp;
             if (fileExist(filePath)) { 
                 std::ifstream file(filePath, std::ios::in);
                 std::string line;
-                while (std::getline(file, line)) { std::cout << line << std::endl; }
+                while (std::getline(file, line)) { Temp += line; }
+                file.close();
             }
+            else { Temp = "Null"; }
+            return Temp;
         }
 
-        void createFolder(std::filesystem::path folderPath) const {
+        void createFolder(const std::filesystem::path folderPath) const {
             if (!folderExist(folderPath)) { std::filesystem::create_directory(folderPath); }
         }
 
-        void createFolders(std::vector<std::filesystem::path> folderPath) const {
+        void createFolders(const std::vector<std::filesystem::path> folderPath) const {
             for (auto oneFolder : folderPath) {
                 if (!folderExist(oneFolder)) { std::filesystem::create_directory(oneFolder); }
             }
         }
 
-        void deleteFolder(std::filesystem::path folderPath) const {
+        void deleteFolder(const std::filesystem::path folderPath) const {
             if (folderExist(folderPath) && folderIsEmpty(folderPath)) {
                 std::filesystem::remove(folderPath);
             }

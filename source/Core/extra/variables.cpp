@@ -12,19 +12,21 @@ class systemVariables {
         static inline std::map<std::string, std::function<void()>> systemVariablesFunction, localVariablesFunction;
     public:
         virtual std::string getVariable(std::string VarName) const {
+            std::string Temp = "";
             if (systemVariablesData.size() == 0) {
 
             }
             else {
                 try
                 {
-                    return systemVariablesData[VarName];
+                    Temp = systemVariablesData[VarName];
                 }
                 catch(const std::exception& e)
                 {
                     std::cerr << e.what() << '\n';
                 }
             }
+            return Temp;
         }
 
         virtual void sendVariable(std::string variable) const {
