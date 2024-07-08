@@ -9,9 +9,9 @@
 
 void userManager::userLists() {
 	readAllUsersData();
-	std::cout << " [ Users ]" << std::endl;
+	std::cout << " [ Users ]" << '\n';
 	for (auto& user : users) {
-		std::cout << user.first << std::endl;
+		std::cout << user.first << '\n';
 	}
 	userLogic();
 }
@@ -22,7 +22,7 @@ void userManager::userLogic() {
 	std::cin >> usernameTemp;
 	for (auto& user : users) { temp.push_back(user.first); }
 	if (std::find(temp.begin(), temp.end(), usernameTemp) != temp.end()) { userLogin(usernameTemp); }
-	else { std::cout << "User not found" << std::endl; userLogic(); }
+	else { std::cout << "User not found" << '\n'; userLogic(); }
 }
 
 void userManager::userLogin(std::string username) {
@@ -151,7 +151,7 @@ void userManager::addUser(std::string username, std::string permissions) {
 		saveUserData(username);
 	}
 	else {
-		std::cout << "Failed to create a user" << std::endl;
+		std::cout << "Failed to create a user" << '\n';
 	}
 }
 
@@ -192,7 +192,7 @@ void userManager::renameUser(std::string username, std::string new_username) {
 		DM.changeData(usersFilesPath + new_username + ".json", "Username", new_username, false);
 	}
 	else {
-		std::cout << "This user could not be renamed" << std::endl;
+		std::cout << "This user could not be renamed" << '\n';
 	}
 }
 
@@ -203,7 +203,7 @@ void userManager::changePermissionsUser(std::string username, std::string newPer
 		DM.changeData(usersFilesPath + username + ".json", "Permissions", newPermissions, false);
 	}
 	else {
-		std::cout << "This user failed to change permissions" << std::endl;
+		std::cout << "This user failed to change permissions" << '\n';
 	}
 }
 

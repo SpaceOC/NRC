@@ -1,9 +1,9 @@
 extern void Init();
 extern void OS();
-extern void FixNOW();
+extern void fixNOW();
 
 int main() {
-    FixNOW();
+    fixNOW();
     Init();
     OS();
     return 0;

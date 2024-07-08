@@ -10,19 +10,18 @@
 #include "Core/users/user_manager.h"
 #include "Core/filesystem/pseudo_fs.h"
 
-void CORE_COMMAND_help(std::vector<std::string> vars) {
+void CORE_COMMAND_help(std::vector<std::string> args) {
     HandlerCommands HC;
     HC.getAllCommands();
 };
 
-void CORE_COMMAND_info(std::vector<std::string> vars) {
-    std::cout << CORE_NAME << " by " << CORE_DEVELOPER << std::endl;
-    std::cout << CORE_VERSION << std::endl;
+void CORE_COMMAND_info(std::vector<std::string> args) {
+    std::cout << CORE_NAME << " by " << CORE_DEVELOPER << '\n' << CORE_VERSION << '\n';
 };
 
 //   -------------- Pseudo FS Commands ---------------
 
-void CORE_COMMAND_cd(std::vector<std::string> vars) {
+void CORE_COMMAND_cd(std::vector<std::string> args) {
     /*s
     pseudoFSBase FS;
     std::string folderPath;
@@ -32,7 +31,7 @@ void CORE_COMMAND_cd(std::vector<std::string> vars) {
     */
 }
 
-void CORE_COMMAND_tree(std::vector<std::string> vars) {
+void CORE_COMMAND_tree(std::vector<std::string> args) {
     /*
     pseudoFSBase FS;
     if (!FS.getCurrentFSList().empty()) {
@@ -48,7 +47,7 @@ void CORE_COMMAND_tree(std::vector<std::string> vars) {
 
 //   -------------- Users "Manager" ---------------
 
-void CORE_COMMAND_addUser(std::vector<std::string> vars) {
+void CORE_COMMAND_addUser(std::vector<std::string> args) {
     userManager UM;
     std::string Username, Permissions;
     std::cout << "Enter username: ";
@@ -59,7 +58,7 @@ void CORE_COMMAND_addUser(std::vector<std::string> vars) {
 };
 
 
-void CORE_COMMAND_deleteUser(std::vector<std::string> vars) {
+void CORE_COMMAND_deleteUser(std::vector<std::string> args) {
     userManager UM;
     std::string Username;
     std::cout << "Enter username: ";
@@ -67,7 +66,7 @@ void CORE_COMMAND_deleteUser(std::vector<std::string> vars) {
     UM.deleteUser(Username);
 };
 
-void CORE_COMMAND_renameUser(std::vector<std::string> vars) {
+void CORE_COMMAND_renameUser(std::vector<std::string> args) {
     userManager UM;
     std::string Username, New_Username;
     std::cout << "Enter username: ";
@@ -77,7 +76,7 @@ void CORE_COMMAND_renameUser(std::vector<std::string> vars) {
     UM.renameUser(Username, New_Username);
 }
 
-void CORE_COMMAND_setPermissionsUser(std::vector<std::string> vars) {
+void CORE_COMMAND_setPermissionsUser(std::vector<std::string> args) {
     userManager UM;
     std::string Username, Permissions;
     std::cout << "Enter username: ";
@@ -89,29 +88,29 @@ void CORE_COMMAND_setPermissionsUser(std::vector<std::string> vars) {
 
 //   -------------- Users ---------------
 
-void CORE_COMMAND_infoUser(std::vector<std::string> vars) {
+void CORE_COMMAND_infoUser(std::vector<std::string> args) {
     userManager UM;
     if (!UM.getUserInfo(UM.YourUsername()).empty()) {
-        std::cout << "Username: " << UM.getUserInfo(UM.YourUsername())[0] << std::endl;
-        std::cout << "Permissions: " << UM.getUserInfo(UM.YourUsername())[1] << std::endl;
+        std::cout << "Username: " << UM.getUserInfo(UM.YourUsername())[0] << '\n';
+        std::cout << "Permissions: " << UM.getUserInfo(UM.YourUsername())[1] << '\n';
     }
 };
 
-void CORE_COMMAND_allInfoUsers(std::vector<std::string> vars) {
+void CORE_COMMAND_allInfoUsers(std::vector<std::string> args) {
     userManager UM;
-    std::cout << "  - [ All Users Info ] -  " << std::endl;
+    std::cout << "  - [ All Users Info ] -  " << '\n';
     std::map<std::string, std::map<std::string, std::string>> temp = {
         {"lang", UM.getLanguageMap()},
         {"permissions", UM.getPermissionsMap()}
     };
     for (auto& user : UM.getUserMap()) {
-        std::cout << " - " + user.first << std::endl;
-        std::cout << "Language: " << temp["lang"][user.first] << std::endl;
-        std::cout << "Permissions: " << temp["permissions"][user.first] << std::endl << std::endl;
+        std::cout << " - " + user.first << '\n';
+        std::cout << "Language: " << temp["lang"][user.first] << '\n';
+        std::cout << "Permissions: " << temp["permissions"][user.first] << "\n\n";
     }
 };
 
-void CORE_COMMAND_logout(std::vector<std::string> vars) {
+void CORE_COMMAND_logout(std::vector<std::string> args) {
     userManager UM;
     std::string choice;
     std::cout << "Are you sure you want to log out of your current user account? (Y/N): ";

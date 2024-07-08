@@ -2,7 +2,7 @@
     #include <windows.h>
 #endif
 
-void FixNOW() {
+void fixNOW() {
     #ifdef _WIN32
         SetConsoleOutputCP(65001);
         SetConsoleCP(65001);
