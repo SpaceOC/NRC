@@ -13,6 +13,7 @@ private:
 	static inline int maxUsers;
 	static inline std::string currentUser;
 	static inline std::map<std::string, std::string> users;
+	static inline std::string currentUser;
 	static inline std::map<std::string, std::string> usersPermissions;
 	static inline std::map<std::string, std::string> usersLanguages;
 	static inline std::map<std::string, std::string> usersPasswords;

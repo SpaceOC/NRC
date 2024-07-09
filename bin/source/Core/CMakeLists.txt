@@ -11,6 +11,7 @@ set(CORE_SOURCE_DIR ${CMAKE_SOURCE_DIR}/source/Core/src)
 add_library(NRC STATIC
                 ${CORE_SOURCE_DIR}/fix.cpp 
                 ${CORE_SOURCE_DIR}/users/OOBE.cpp 
+                ${CORE_SOURCE_DIR}/users/user.cpp 
                 ${CORE_SOURCE_DIR}/users/user_manager.cpp 
                 ${CORE_SOURCE_DIR}/filesystem/pseudo_fs.cpp 
                 ${CORE_SOURCE_DIR}/extra/variables.cpp 
