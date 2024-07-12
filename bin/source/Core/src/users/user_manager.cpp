@@ -130,9 +130,12 @@ std::vector<std::string> userManager::getUserInfo(std::string username) {
 
 void userManager::system_addUser(std::string username) {
 	dataManager DM;
+	/*
 	users[username] = username;
 	usersPermissions[username] = "Root";
 	usersLanguages[username] = "ENG";
+	*/
+	newUsers[username] = user(username, "English", "", permissionsEC::admin);
 	currentUser = username;
 	userIsLogined = true;
 	DM.createData(usersListFilePath, username, "");

@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include "Core/users/user.h"
 
 
 class userManager {
@@ -12,8 +13,8 @@ private:
 	static inline bool shutUp;
 	static inline int maxUsers;
 	static inline std::string currentUser;
+	static inline std::map<std::string, user> newUsers;
 	static inline std::map<std::string, std::string> users;
-	static inline std::string currentUser;
 	static inline std::map<std::string, std::string> usersPermissions;
 	static inline std::map<std::string, std::string> usersLanguages;
 	static inline std::map<std::string, std::string> usersPasswords;
