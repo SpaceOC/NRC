@@ -8,5 +8,4 @@ What is currently available:
 - And nobody needs the print class lol
 
 A branch where you can see the current unfinished version of the NRC: https://github.com/SpaceOC/NRC/tree/developed
-
 Documentation (needs full correspondence + only Russian version available at the moment) - https://spaceoc.gitbook.io/nrc-docs-ru/
