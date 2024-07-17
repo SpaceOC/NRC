@@ -1,5 +1,6 @@
 #pragma once
-
+#ifndef VARIABLES
+#define VARIABLES
 #include <iostream>
 #include <string>
 #include <functional>
@@ -18,3 +19,4 @@ public:
 
 	virtual void allVars() const;
 };
+#endif

@@ -1,22 +1,25 @@
 #pragma once
+#ifndef COMMANDS
+#define COMMANDS
 
-void CORE_COMMAND_help(std::vector<std::string> args);
-void CORE_COMMAND_info(std::vector<std::string> args);
+void CORE_COMMAND_help();
+void CORE_COMMAND_info();
 
 //   -------------- Pseudo FS Commands ---------------
 
-void CORE_COMMAND_cd(std::vector<std::string> args);
-void CORE_COMMAND_tree(std::vector<std::string> args);
+void CORE_COMMAND_cd();
+void CORE_COMMAND_tree();
 
 //   -------------- Users "Manager" ---------------
 
-void CORE_COMMAND_addUser(std::vector<std::string> args);
-void CORE_COMMAND_deleteUser(std::vector<std::string> args);
-void CORE_COMMAND_renameUser(std::vector<std::string> args);
-void CORE_COMMAND_setPermissionsUser(std::vector<std::string> args);
+void CORE_COMMAND_addUser();
+void CORE_COMMAND_deleteUser();
+void CORE_COMMAND_renameUser();
+void CORE_COMMAND_setPermissionsUser();
 
 //   -------------- Users ---------------
 
-void CORE_COMMAND_infoUser(std::vector<std::string> args);
-void CORE_COMMAND_allInfoUsers(std::vector<std::string> args);
-void CORE_COMMAND_logout(std::vector<std::string> args);
+void CORE_COMMAND_infoUser();
+void CORE_COMMAND_allInfoUsers();
+void CORE_COMMAND_logout();
+#endif

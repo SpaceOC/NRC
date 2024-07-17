@@ -10,18 +10,21 @@
 #include "Core/users/user_manager.h"
 #include "Core/filesystem/pseudo_fs.h"
 
-void CORE_COMMAND_help(std::vector<std::string> args) {
-    HandlerCommands HC;
+void CORE_COMMAND_help() {
+    handlerCommands HC;
     HC.getAllCommands();
 };
 
-void CORE_COMMAND_info(std::vector<std::string> args) {
+void CORE_COMMAND_info() {
     std::cout << CORE_NAME << " by " << CORE_DEVELOPER << '\n' << CORE_VERSION << '\n';
+    std::cout << "JSON library by nlohmann - https://github.com/nlohmann/json \n";
+    std::cout << "CC (Color Console) by aafulei - https://github.com/aafulei/color-console \n\n";
+    std::cout << " --- Special Thanks ---\nAlone Knight - migrating NRC from Makefile to CMake\n";
 };
 
 //   -------------- Pseudo FS Commands ---------------
 
-void CORE_COMMAND_cd(std::vector<std::string> args) {
+void CORE_COMMAND_cd() {
     /*s
     pseudoFSBase FS;
     std::string folderPath;
@@ -31,7 +34,7 @@ void CORE_COMMAND_cd(std::vector<std::string> args) {
     */
 }
 
-void CORE_COMMAND_tree(std::vector<std::string> args) {
+void CORE_COMMAND_tree() {
     /*
     pseudoFSBase FS;
     if (!FS.getCurrentFSList().empty()) {
@@ -47,18 +50,19 @@ void CORE_COMMAND_tree(std::vector<std::string> args) {
 
 //   -------------- Users "Manager" ---------------
 
-void CORE_COMMAND_addUser(std::vector<std::string> args) {
+void CORE_COMMAND_addUser() {
     userManager UM;
-    std::string Username, Permissions;
+    std::string username;
+    int permissions;
     std::cout << "Enter username: ";
-    std::cin >> Username;
-    std::cout << "Permissions (Ghost, User, Admin, Root): ";
-    std::cin >> Permissions;
-    UM.addUser(Username, Permissions);
+    std::cin >> username;
+    std::cout << "Permissions (Ghost (-1), User (0), Admin (1)) | ONLY NUMBERS: ";
+    std::cin >> permissions;
+    UM.addUser(username, static_cast<permissionsEC>(permissions));
 };
 
 
-void CORE_COMMAND_deleteUser(std::vector<std::string> args) {
+void CORE_COMMAND_deleteUser() {
     userManager UM;
     std::string Username;
     std::cout << "Enter username: ";
@@ -66,51 +70,49 @@ void CORE_COMMAND_deleteUser(std::vector<std::string> args) {
     UM.deleteUser(Username);
 };
 
-void CORE_COMMAND_renameUser(std::vector<std::string> args) {
+void CORE_COMMAND_renameUser() {
     userManager UM;
-    std::string Username, New_Username;
+    std::string username, newUsername;
     std::cout << "Enter username: ";
-    std::cin >> Username;
+    std::cin >> username;
     std::cout << "Enter new username: ";
-    std::cin >> New_Username;
-    UM.renameUser(Username, New_Username);
+    std::cin >> newUsername;
+    UM.renameUser(username, newUsername);
 }
 
-void CORE_COMMAND_setPermissionsUser(std::vector<std::string> args) {
+void CORE_COMMAND_setPermissionsUser() {
     userManager UM;
-    std::string Username, Permissions;
+    std::string username;
+    int permissions;
     std::cout << "Enter username: ";
-    std::cin >> Username;
-    std::cout << "Permissions (Ghost, User, Admin, Root): ";
-    std::cin >> Permissions;
-    UM.changePermissionsUser(Username, Permissions);
+    std::cin >> username;
+    std::cout << "Permissions (Ghost (-1), User (0), Admin (1)) | ONLY NUMBERS: ";
+    std::cin >> permissions;
+    UM.changePermissionsUser(username, static_cast<permissionsEC>(permissions));
 };
 
 //   -------------- Users ---------------
 
-void CORE_COMMAND_infoUser(std::vector<std::string> args) {
+void CORE_COMMAND_infoUser() {
     userManager UM;
-    if (!UM.getUserInfo(UM.YourUsername()).empty()) {
-        std::cout << "Username: " << UM.getUserInfo(UM.YourUsername())[0] << '\n';
-        std::cout << "Permissions: " << UM.getUserInfo(UM.YourUsername())[1] << '\n';
+    if (!UM.getUserMap()[UM.yourUsername()].empty()) {
+        std::cout << "Username: " << UM.yourUsername() << '\n';
+        std::cout << "Display Name: " << UM.getUserMap()[UM.yourUsername()] << '\n';
+        std::cout << "Permissions: " << permissionsS(UM.getPermissionsMap()[UM.yourUsername()]) << '\n';
     }
 };
 
-void CORE_COMMAND_allInfoUsers(std::vector<std::string> args) {
+void CORE_COMMAND_allInfoUsers() {
     userManager UM;
     std::cout << "  - [ All Users Info ] -  " << '\n';
-    std::map<std::string, std::map<std::string, std::string>> temp = {
-        {"lang", UM.getLanguageMap()},
-        {"permissions", UM.getPermissionsMap()}
-    };
     for (auto& user : UM.getUserMap()) {
-        std::cout << " - " + user.first << '\n';
-        std::cout << "Language: " << temp["lang"][user.first] << '\n';
-        std::cout << "Permissions: " << temp["permissions"][user.first] << "\n\n";
+        std::cout << " - " + user.first + " | " + user.second << '\n';
+        std::cout << "Language: " << UM.getLanguageMap()[user.first] << '\n';
+        std::cout << "Permissions: " << permissionsS(UM.getPermissionsMap()[user.first]) << "\n\n";
     }
 };
 
-void CORE_COMMAND_logout(std::vector<std::string> args) {
+void CORE_COMMAND_logout() {
     userManager UM;
     std::string choice;
     std::cout << "Are you sure you want to log out of your current user account? (Y/N): ";

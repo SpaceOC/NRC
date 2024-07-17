@@ -11,7 +11,7 @@ bool fileManager::fileExist(std::filesystem::path filePath) const {
 		file.close();
 		return true;
 	}
-	else { return false; }
+	return false;
 }
 
 bool fileManager::folderExist(std::filesystem::path folderPath) const {
@@ -23,21 +23,11 @@ bool fileManager::folderIsEmpty(std::filesystem::path folderPath) const {
 }
 
 bool fileManager::fileIsNotSystemFile(std::filesystem::path filePath) const {
-	if (systemFiles.count(filePath) && systemFiles[filePath] == true) {
-		return false;
-	}
-	else {
-		return true;
-	}
+	return (systemFiles.count(filePath) && systemFiles[filePath] == true);
 }
 
 bool fileManager::folderIsNotSystemFile(std::filesystem::path folderPath) const {
-	if (systemFolders.count(folderPath) && systemFolders[folderPath] == true) {
-		return false;
-	}
-	else {
-		return true;
-	}
+	return (systemFolders.count(folderPath) && systemFolders[folderPath]);
 }
 
 void fileManager::createFile(const std::filesystem::path filePath) const {
@@ -75,15 +65,14 @@ void fileManager::renameFile(const std::filesystem::path filePath, const std::fi
 }
 
 std::string fileManager::readFile(const std::filesystem::path filePath) const {
-	std::string Temp;
 	if (fileExist(filePath)) {
 		std::ifstream file(filePath, std::ios::in);
-		std::string line;
-		while (std::getline(file, line)) { Temp += line; }
+		std::string line, temp;
+		while (std::getline(file, line)) { temp += line; }
 		file.close();
+		return temp;
 	}
-	else { Temp = "Null"; }
-	return Temp;
+	return "NULL";
 }
 
 void fileManager::createFolder(const std::filesystem::path folderPath) const {
@@ -105,3 +94,16 @@ void fileManager::deleteFolder(const std::filesystem::path folderPath) const {
 	}
 }
 
+std::ifstream fileManager::getFileIfstream(std::filesystem::path filePath, std::ios_base::openmode mode) {
+	if (fileExist(filePath)) { 
+		std::ifstream file(filePath, mode); return file;
+	}
+}
+
+std::ofstream fileManager::getFileOfstream(std::filesystem::path filePath, std::ios_base::openmode mode) {
+	if (fileExist(filePath)) { std::ofstream file(filePath, mode); return file; }
+}
+
+std::fstream fileManager::getFileFstream(std::filesystem::path filePath, std::ios_base::openmode mode) {
+	if (fileExist(filePath)) { std::fstream file(filePath, mode); return file; }
+}

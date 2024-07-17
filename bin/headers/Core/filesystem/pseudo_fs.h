@@ -1,5 +1,6 @@
 #pragma once
-
+#ifndef PSEUDO_FS
+#define PSEUDO_FS
 #include <iostream>
 #include <string>
 #include <vector>
@@ -39,3 +40,4 @@ class pseudoFSBase {
 		time_t getFileDataCreate();
 		time_t getFileDataEdit();
 };
+#endif

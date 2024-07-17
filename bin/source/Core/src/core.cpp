@@ -8,10 +8,9 @@
 //#include "Core/experimental/python_script_support.h"
 
 void Init() {
-    pseudoFSBase FS;
     userManager UM;
     UM.checkOOBE_Passed();
-    if (!UM.getOOBE_Passed() && UM.YourUsername().empty()) {
+    if (!UM.getOOBE_Passed() && UM.yourUsername().empty()) {
         fileManager FM;
         const std::vector<std::filesystem::path> Folders = {"Data", "Data/Users", "Modules", "FS", "Temp"};
         FM.createFolders(Folders);
