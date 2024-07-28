@@ -5,10 +5,15 @@
 
 class print {
 	private:
-		bool colorCheck(std::string color);
-		void colorPrint(std::string color, std::string message);
 	public:
-		print(std::string color, std::string message);
+		enum colors {
+			black, white, blue, yellow,
+			red, aqua, purple, green, grey,
+			light_blue, light_green, light_aqua, light_red,
+			light_purple, light_yellow, bright_white 
+		};
+		print(colors color, std::string message);
 		print(std::string message);
 };
+
 #endif

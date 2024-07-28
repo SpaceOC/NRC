@@ -8,16 +8,21 @@
 #include <vector>
 #include <string>
 
+struct commandData {
+	std::string description;
+	std::function<void()> function;
+};
+
 class handlerCommands {
 	private:
-		static inline std::map<std::string, std::function<void()>> commandMap;
-		static inline std::map<std::string, std::string> commandMapDescription;
+		static inline std::map<std::string, commandData> commandMap;
 	public:
 		handlerCommands();
-		virtual bool systemVariable(std::string command) const;
+		virtual bool thisVariable(std::string command) const;
 		virtual std::vector<std::string> parsing(std::string& command) const;
 		virtual void sendCommand(std::string command) const;
-		void addCommand(std::string commandName, std::string commandDescription, std::function<void()> commandFunction) const;
-		virtual void getAllCommands() const;
+		void addCommand(std::string name, std::string description, std::function<void()> function) const;
+		virtual std::map<std::string, std::string> getCommand(std::string name) const;
+		virtual std::map<std::string, std::string> getAllCommands() const;
 };
 #endif

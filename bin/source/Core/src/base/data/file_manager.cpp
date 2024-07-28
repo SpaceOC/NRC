@@ -3,7 +3,7 @@
 #include <map>
 #include <fstream>
 #include <filesystem>
-#include "Core/data/file_manager.h"
+#include "Core/base/data/file_manager.h"
 
 bool fileManager::fileExist(std::filesystem::path filePath) const {
 	std::ifstream file(filePath, std::ios::in);
@@ -22,6 +22,7 @@ bool fileManager::folderIsEmpty(std::filesystem::path folderPath) const {
 	return std::filesystem::is_empty(folderPath);
 }
 
+/*
 bool fileManager::fileIsNotSystemFile(std::filesystem::path filePath) const {
 	return (systemFiles.count(filePath) && systemFiles[filePath] == true);
 }
@@ -29,6 +30,7 @@ bool fileManager::fileIsNotSystemFile(std::filesystem::path filePath) const {
 bool fileManager::folderIsNotSystemFile(std::filesystem::path folderPath) const {
 	return (systemFolders.count(folderPath) && systemFolders[folderPath]);
 }
+*/
 
 void fileManager::createFile(const std::filesystem::path filePath) const {
 	if (!fileExist(filePath)) {

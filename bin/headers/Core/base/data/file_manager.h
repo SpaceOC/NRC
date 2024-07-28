@@ -14,8 +14,8 @@ class fileManager {
 		bool fileExist(std::filesystem::path filePath) const;
 		bool folderExist(std::filesystem::path folderPath) const;
 		bool folderIsEmpty(std::filesystem::path folderPath) const;
-		bool fileIsNotSystemFile(std::filesystem::path filePath) const;
-		bool folderIsNotSystemFile(std::filesystem::path folderPath) const;
+		//bool fileIsNotSystemFile(std::filesystem::path filePath) const;
+		//bool folderIsNotSystemFile(std::filesystem::path folderPath) const;
 		void createFile(std::filesystem::path filePath) const;
 		void createFile(std::filesystem::path filePath, std::string firstData) const;
 		void createFiles(std::vector<std::filesystem::path> filePath) const;
@@ -28,6 +28,6 @@ class fileManager {
 
 		std::ifstream getFileIfstream(std::filesystem::path filePath, std::ios_base::openmode mode = std::ios::in);
 		std::ofstream getFileOfstream(std::filesystem::path filePath, std::ios_base::openmode mode = std::ios::out);
-		std::fstream getFileFstream(std::filesystem::path filePath, std::ios_base::openmode mode = std::ios::out);
+		std::fstream getFileFstream(std::filesystem::path filePath, std::ios_base::openmode mode = std::ios::out | std::ios::in);
 };
 #endif

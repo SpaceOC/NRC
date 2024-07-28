@@ -1,4 +1,4 @@
-#include "Core/users/permissions_enum_class.h"
+#include "Core/base/users/permissions_enum_class.h"
 
 std::string permissionsS(permissionsEC permissions) {
     std::vector<std::string> temp = {"Ghost", "User", "Admin"};

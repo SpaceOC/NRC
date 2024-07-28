@@ -6,17 +6,19 @@
 #include <functional>
 #include <map>
 
-class systemVariables {
-private:
-	static inline std::map<std::string, std::string> systemVariablesData, localVariablesData;
-	static inline std::map<std::string, std::function<void()>> systemVariablesFunction, localVariablesFunction;
-public:
-	virtual std::string getVariable(std::string VarName) const;
-
-	virtual void sendVariable(std::string variable) const;
-
-	virtual void addSystemVar(std::string Name, std::string Var, std::function<void()> VarFunction) const;
-
-	virtual void allVars() const;
+struct variableData {
+	std::string description;
+	std::function<void()> function;
 };
+
+class systemVariables {
+	private:
+		static inline std::map<std::string, variableData> systemVariablesData;
+	public:
+		virtual std::map<std::string, variableData> getVariable(std::string name) const;
+		virtual void sendVariable(std::string variable) const;
+		virtual void addSystemVar(std::string name, std::string description = "", std::function<void()> function = []{}) const;
+		virtual std::map<std::string, std::string> getAllVars() const;
+};
+
 #endif
