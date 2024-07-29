@@ -70,11 +70,11 @@ void handlerCommands::addCommand(std::string name, std::string description, std:
 
 std::map<std::string, std::string> handlerCommands::getCommand(std::string name) const {
 	if(commandMap.count(name)) return {{name, commandMap[name].description}};
-	return {{"NULL", "NULL"}};
+	return {};
 }
 
 std::map<std::string, std::string> handlerCommands::getAllCommands() const {
-	if (commandMap.empty()) return {{"NULL", "NULL"}};
+	if (commandMap.empty()) return {};
 	std::map<std::string, std::string> temp;
 	for (auto elements : commandMap) { temp[elements.first] = elements.second.description; }
 	return temp;
