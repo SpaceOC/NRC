@@ -169,6 +169,28 @@ void dataManager::addData(std::filesystem::path filePath, std::string key, std::
 	}
 }
 
+void dataManager::addData(std::filesystem::path filePath, std::vector<std::string> keys, std::vector<std::string> values) {
+	fileManager FM;
+	if (FM.fileExist(filePath)) {
+		std::map<std::string, std::string> notJsonTemp;
+		nlohmann::json data = nlohmann::json::parse(FM.readFile(filePath));
+		for (auto it = data.begin(); it != data.end(); ++it) { notJsonTemp[it.key()] = it.value(); }
+		std::ofstream file(filePathTemp);
+		size_t i = 0;
+		while (i <= (values.size() - 1)) {
+			for (auto key : keys) {
+				notJsonTemp[key] = values[i];
+				i++;
+			}
+		}
+		nlohmann::json newJsonData = notJsonTemp;
+		file << newJsonData.dump(4);
+		file.close();
+		FM.renameFile(filePathTemp, filePath);
+		countTemps++;
+	}
+}
+
 void dataManager::addVectorData(std::filesystem::path filePath, std::string value) {
 	fileManager FM;
 	if (FM.fileExist(filePath)) {
@@ -177,6 +199,22 @@ void dataManager::addVectorData(std::filesystem::path filePath, std::string valu
 		for (auto it = data.begin(); it != data.end(); ++it) { temp.push_back(it.value()); }
 		std::ofstream file(filePathTemp);
 		temp.push_back(value);
+		nlohmann::json newJsonData = temp;
+		file << newJsonData.dump(4);
+		file.close();
+		FM.renameFile(filePathTemp, filePath);
+		countTemps++;
+	}
+}
+
+void dataManager::addVectorData(std::filesystem::path filePath, std::vector<std::string> values) {
+	fileManager FM;
+	if (FM.fileExist(filePath)) {
+		std::vector<std::string> temp;
+		nlohmann::json data = nlohmann::json::parse(FM.readFile(filePath));
+		for (auto it = data.begin(); it != data.end(); ++it) { temp.push_back(it.value()); }
+		std::ofstream file(filePathTemp);
+		for (auto value : values) { temp.push_back(value); }
 		nlohmann::json newJsonData = temp;
 		file << newJsonData.dump(4);
 		file.close();

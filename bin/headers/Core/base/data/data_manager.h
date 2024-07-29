@@ -22,11 +22,13 @@ class dataManager {
 		void deleteData(std::filesystem::path filePath, std::string key);
 		void deleteVectorData(std::filesystem::path filePath, std::string value);
 		
-		void changeData(std::filesystem::path filePath, std::string key, std::string newValue, bool changeKey);
+		void changeData(std::filesystem::path filePath, std::string key, std::string newValue, bool changeKey = false);
 		void changeVectorData(std::filesystem::path filePath, std::string oldValue, std::string newValue);
 		
 		void addData(std::filesystem::path filePath, std::string key, std::string value);
+		void addData(std::filesystem::path filePath, std::vector<std::string> keys, std::vector<std::string> values);
 		void addVectorData(std::filesystem::path filePath, std::string value);
+		void addVectorData(std::filesystem::path filePath, std::vector<std::string> value);
 
 		std::string getValue(std::filesystem::path filePath, std::string key);
 		std::string getVectorValue(std::filesystem::path filePath, std::string value);

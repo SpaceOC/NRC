@@ -91,7 +91,7 @@ void userManager::system_addUser(std::string username) {
 	userIsLogined = true;
 	DM.createVectorData(usersListFilePath, {username});
 	saveUserData(username);
-	DM.changeData(mainDataFilePath, "OOBE_Passed", "1", false);
+	DM.changeData(mainDataFilePath, "OOBE_Passed", "1");
 	checkOOBE_Passed();
 }
 
@@ -128,7 +128,7 @@ void userManager::renameUser(std::string username, std::string newUsername) {
 		users[newUsername] = userTemp;
 		FM.renameFile(usersFilesPath + username + ".json", usersFilesPath + newUsername + ".json");
 		DM.changeVectorData(usersListFilePath, username, newUsername);
-		DM.changeData(usersFilesPath + newUsername + ".json", "Username", newUsername, false);
+		DM.changeData(usersFilesPath + newUsername + ".json", "Username", newUsername);
 	}
 	else {
 		print(print::colors::red, "This user could not be renamed\n");
@@ -139,7 +139,7 @@ void userManager::changePermissionsUser(std::string username, permissionsEC newP
 	dataManager DM;
 	if (userExist(username) && !permissionsHighCurrentUser(username) && userHaveAdminPermissions(currentUser)) {
 		users[username].editPermissions(newPermissions);
-		DM.changeData(usersFilesPath + username + ".json", "Permissions", std::to_string(static_cast<int>(newPermissions)), false);
+		DM.changeData(usersFilesPath + username + ".json", "Permissions", std::to_string(static_cast<int>(newPermissions)));
 	}
 	else {
 		print(print::colors::red, "This user failed to change permissions\n");

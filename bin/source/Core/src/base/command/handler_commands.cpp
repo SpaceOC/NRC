@@ -9,7 +9,7 @@
 #include "Core/base/command/handler_commands.h"
 
 handlerCommands::handlerCommands() {
-	if (handlerCommands::commandMap.size() == 0) {
+	if (handlerCommands::commandMap.empty()) {
 		addCommand("help", "shows a list of all commands", CORE_COMMAND_help);
 		//addCommand("exit", "exit", CORE_COMMAND_exit);
 		//addCommand("cd", "cd" , CORE_COMMAND_cd);
@@ -29,7 +29,7 @@ bool handlerCommands::thisVariable(std::string command) const {
 	return (command.substr(0, 1) == "%" && command.substr(command.length() - 1, command.length()) == "%");
 }
 
-std::vector<std::string> handlerCommands::parsing(std::string& command) const {
+commandBase handlerCommands::parsing(std::string& command) const {
 	/*
 	if (!command.empty()) {
 		std::vector<char> src(command.begin(), command.end() + ' ');
@@ -47,7 +47,7 @@ std::vector<std::string> handlerCommands::parsing(std::string& command) const {
 		return vectorTemp;
 	}
 	*/
-	return {""};
+	return {};
 }
 
 void handlerCommands::sendCommand(std::string command) const {
@@ -61,7 +61,7 @@ void handlerCommands::sendCommand(std::string command) const {
 
 void handlerCommands::addCommand(std::string name, std::string description, std::function<void()> function) const {
 	std::string temp;
-	int spacesToAdd = std::max(10, 24 - static_cast<int>(name.length()));
+	int spacesToAdd = std::max(14, 24 - static_cast<int>(name.length()));
 	temp += std::string(spacesToAdd, ' ');
 	temp += "\t  " + description;
 	commandMap[name].function = function;
@@ -69,7 +69,7 @@ void handlerCommands::addCommand(std::string name, std::string description, std:
 }
 
 std::map<std::string, std::string> handlerCommands::getCommand(std::string name) const {
-	if(!commandMap[name].description.empty()) return {{name, commandMap[name].description}};
+	if(commandMap.count(name)) return {{name, commandMap[name].description}};
 	return {{"NULL", "NULL"}};
 }
 

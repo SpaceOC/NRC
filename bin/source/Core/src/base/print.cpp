@@ -18,7 +18,7 @@ print::print(colors color, std::string message) {
 	if (color == colors::light_green) { std::cout << dye::light_green(message); }
 	if (color == colors::light_aqua) { std::cout << dye::light_aqua(message); }
 	if (color == colors::light_red) { std::cout << dye::light_red(message); }
-	if (color == colors::light_red) { std::cout << dye::light_purple(message); }
+	if (color == colors::light_purple) { std::cout << dye::light_purple(message); }
 	if (color == colors::light_yellow) { std::cout << dye::light_yellow(message); }
 	if (color == colors::bright_white) { std::cout << dye::bright_white(message); }
 }
