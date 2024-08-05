@@ -1,6 +1,8 @@
+// permissions enum class header
+// by SpaceOC
 #pragma once
-#ifndef PERMISSIONS_ENUM_CLASS
-#define PERMISSIONS_ENUM_CLASS
+#ifndef NRC_BASE_USERS_PERMISSIONS_ENUM_CLASS_H_
+#define NRC_BASE_USERS_PERMISSIONS_ENUM_CLASS_H_
 #include <string>
 #include <vector>
 

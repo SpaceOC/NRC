@@ -6,7 +6,7 @@ process::process(std::string firstThreadName, std::function<void()> func) {
 }
 
 void process::createThread(std::string threadName, std::function<void()> func) {
-    if((threads.size() - 1) < maxThreads) {
+    if ((threads.size() - 1) < maxThreads) {
         threads[threadName] = std::make_shared<std::thread>(func);
     }
 }

@@ -1,6 +1,9 @@
+// Pseudo-FS header
+// by SpaceOC
+// is not finished!
 #pragma once
-#ifndef PSEUDO_FS
-#define PSEUDO_FS
+#ifndef NRC_BASE_FILESYSTEM_PSEUDO_FS_H_
+#define NRC_BASE_FILESYSTEM_PSEUDO_FS_H_
 #include <iostream>
 #include <string>
 #include <vector>

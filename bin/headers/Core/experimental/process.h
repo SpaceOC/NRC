@@ -1,6 +1,9 @@
+// Process header
+// by SpaceOC
+// is not finished!
 #pragma once
-#ifndef PROCESS
-#define PROCESS
+#ifndef NRC_EXPERIMENTAL_PROCESS_H_
+#define NRC_EXPERIMENTAL_PROCESS_H_
 #include <map>
 #include <string>
 #include <atomic>

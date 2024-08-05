@@ -61,7 +61,7 @@ void handlerCommands::sendCommand(std::string command) const {
 
 void handlerCommands::addCommand(std::string name, std::string description, std::function<void()> function) const {
 	std::string temp;
-	int spacesToAdd = std::max(14, 24 - static_cast<int>(name.length()));
+	int spacesToAdd = std::max(10, 26 - static_cast<int>(name.length()));
 	temp += std::string(spacesToAdd, ' ');
 	temp += "\t  " + description;
 	commandMap[name].function = function;

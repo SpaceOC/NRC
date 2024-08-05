@@ -1,6 +1,8 @@
+// Variables header
+// by SpaceOC
 #pragma once
-#ifndef VARIABLES
-#define VARIABLES
+#ifndef NRC_EXTRA_VARIABLES_H_
+#define NRC_EXTRA_VARIABLES_H_
 #include <iostream>
 #include <string>
 #include <functional>

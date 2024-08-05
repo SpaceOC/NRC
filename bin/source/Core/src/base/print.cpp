@@ -1,7 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <map>
-#include "thirdPartyLibraries/include/color_console/color.hpp"
+#include <color_console/color.hpp>
 #include "Core/base/print.h"
 
 print::print(colors color, std::string message) {

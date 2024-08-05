@@ -1,6 +1,8 @@
+// File Manager header
+// by SpaceOC
 #pragma once
-#ifndef FILE_MANAGER
-#define FILE_MANAGER
+#ifndef NRC_BASE_DATA_FILE_MANAGER_H_
+#define NRC_BASE_DATA_FILE_MANAGER_H_
 #include <filesystem>
 #include <string>
 #include <vector>
@@ -14,8 +16,11 @@ class fileManager {
 		bool fileExist(std::filesystem::path filePath) const;
 		bool folderExist(std::filesystem::path folderPath) const;
 		bool folderIsEmpty(std::filesystem::path folderPath) const;
-		//bool fileIsNotSystemFile(std::filesystem::path filePath) const;
-		//bool folderIsNotSystemFile(std::filesystem::path folderPath) const;
+		// 
+		// bool fileIsNotSystemFile(std::filesystem::path filePath) const;
+		// bool folderIsNotSystemFile(std::filesystem::path folderPath) const;
+
+		//
 		void createFile(std::filesystem::path filePath) const;
 		void createFile(std::filesystem::path filePath, std::string firstData) const;
 		void createFiles(std::vector<std::filesystem::path> filePath) const;

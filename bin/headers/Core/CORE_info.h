@@ -1,8 +1,10 @@
+// Core Info header
+// by SpaceOC
 #pragma once
-#ifndef FILE_CORE_INFO
-#define FILE_CORE_INFO
+#ifndef NRC_CORE_INFO_H_
+#define NRC_CORE_INFO_H_
 
-#define CORE_VERSION            "0.4 Alpha"
+#define CORE_VERSION            "0.4.2 Alpha"
 #define CORE_NAME               "NRC"
 #define CORE_DEVELOPER          "SpaceOC"
 

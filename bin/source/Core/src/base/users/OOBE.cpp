@@ -4,8 +4,6 @@
 
 void OOBE() {
     userManager UM;
-    UM.checkOOBE_Passed();
-    if (UM.getOOBE_Passed()) return;
     std::string firstUsername;
     print(print::colors::aqua, "Enter username: ");
     std::cin >> firstUsername;

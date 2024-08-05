@@ -1,6 +1,8 @@
+// Commands header
+// by SpaceOC
 #pragma once
-#ifndef COMMANDS
-#define COMMANDS
+#ifndef NRC_BASE_COMMAND_COMMANDS_H_
+#define NRC_BASE_COMMAND_COMMANDS_H_
 
 void CORE_COMMAND_help();
 void CORE_COMMAND_info();

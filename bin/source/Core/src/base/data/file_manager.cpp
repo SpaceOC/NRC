@@ -32,6 +32,7 @@ bool fileManager::folderIsNotSystemFile(std::filesystem::path folderPath) const 
 }
 */
 
+//
 void fileManager::createFile(const std::filesystem::path filePath) const {
 	if (!fileExist(filePath)) {
 		std::ofstream file(filePath);

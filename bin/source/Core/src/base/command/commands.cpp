@@ -13,9 +13,8 @@
 
 void CORE_COMMAND_help() {
     handlerCommands HC;
-    for (auto command : HC.getAllCommands()) {
+    for (auto command : HC.getAllCommands())
         print(print::colors::light_green, command.first + command.second + '\n');
-    }
 };
 
 void CORE_COMMAND_info() {

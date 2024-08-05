@@ -1,6 +1,8 @@
+// Data Manager header
+// by SpaceOC
 #pragma once
-#ifndef DATA_MANAGER
-#define DATA_MANAGER
+#ifndef NRC_BASE_DATA_DATA_MANAGER_H_
+#define NRC_BASE_DATA_DATA_MANAGER_H_
 
 #include <string>
 #include <vector>
@@ -32,8 +34,6 @@ class dataManager {
 
 		std::string getValue(std::filesystem::path filePath, std::string key);
 		std::string getVectorValue(std::filesystem::path filePath, std::string value);
-
-		std::string getKey(std::filesystem::path filePath, std::string value);
 
 		std::map<std::string, std::string> readAllData(std::filesystem::path filePath);
 		std::vector<std::string> readAllVectorData(std::filesystem::path filePath);

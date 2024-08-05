@@ -1,6 +1,8 @@
+// user header
+// by SpaceOC
 #pragma once
-#ifndef USER
-#define USER
+#ifndef NRC_BASE_USERS_USER_H_
+#define NRC_BASE_USERS_USER_H_
 
 #include <string>
 #include "Core/extra/variables.h"

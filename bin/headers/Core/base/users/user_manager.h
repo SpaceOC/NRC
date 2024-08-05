@@ -1,6 +1,8 @@
+// User Manager header
+// by SpaceOC
 #pragma once
-#ifndef USER_MANAGER
-#define USER_MANAGER
+#ifndef NRC_BASE_USERS_USER_MANAGER_H_
+#define NRC_BASE_USERS_USER_MANAGER_H_
 
 #include <string>
 #include <vector>
@@ -45,8 +47,8 @@ class userManager {
 		void changePermissionsUser(std::string username, permissionsEC newPermissions);
 		void userLists();
 		void userLogout();
-		void saveUserData(std::string username) const;
-		void readUserData(std::string username) const;
+		void saveUserData(std::string username);
+		void readUserData(std::string username);
 		void readAllUsersData();
 };
 #endif

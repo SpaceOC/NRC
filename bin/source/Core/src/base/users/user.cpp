@@ -30,13 +30,13 @@ void user::editLanguage(std::string newLanguage) { this->language = newLanguage;
 void user::editPassword(std::string newPassword) { this->password = newPassword; }
 void user::editPermissions(permissionsEC newPermissions) { this->permissions = newPermissions; }
 void user::editVarFunction(std::string name, std::function<void()> function) {
-    if(varExist(name)) localVariables["%" + name + "%"].function = function;
+    if (varExist(name)) localVariables["%" + name + "%"].function = function;
 }
 void user::editVarDescription(std::string name, std::string description) {
-    if(varExist(name)) localVariables["%" + name + "%"].description = description;
+    if (varExist(name)) localVariables["%" + name + "%"].description = description;
 }
 void user::renameVar(std::string oldName, std::string newName) {
-    if(varExist(oldName) && !varExist(newName)) {
+    if (varExist(oldName) && !varExist(newName)) {
         localVariables[newName] = {localVariables[oldName].description, localVariables[oldName].function};
         localVariables.erase(oldName);
     }
@@ -48,15 +48,17 @@ bool user::havePassword() { return password.size() > 1 || password != ""; }
 std::map<std::string, std::string> user::getAllVars() {
     if (localVariables.empty()) return {{"NULL", "NULL"}};
 	std::map<std::string, std::string> temp;
-	for (auto elements : localVariables) { temp[elements.first] = elements.second.description; }
+	for (auto elements : localVariables) temp[elements.first] = elements.second.description;
 	return temp;
 }
-std::string user::getVarName() {}
-std::string user::getVarDescription() {}
+std::string user::getVarName() { return "NOTHING"; }
+std::string user::getVarDescription() { return "NOTHING"; }
 std::string user::getDisplayName() { return this->displayName; }
 std::string user::getLanguage() { return this->language; }
 permissionsEC user::getPermissions() { return this->permissions; }
 
+/*
 std::function<void()> user::varFuncStart(std::string name) {
     if(varExist(name)) localVariables[name].function();
 }
+*/
