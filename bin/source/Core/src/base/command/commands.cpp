@@ -1,18 +1,36 @@
+/*
+    Copyright (C) 2024-2024  SpaceOC
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
 #include <iostream>
 #include <filesystem>
 #include <string>
 #include <vector>
 #include <fstream>
 #include <map>
+#include "Core/base/print.h"
 #include "Core/base/command/commands.h"
 #include "Core/base/command/handler_commands.h"
 #include "Core/CORE_info.h"
-#include "Core/users/user_manager.h"
-#include "Core/filesystem/pseudo_fs.h"
+#include "Core/base/users/user_manager.h"
+#include "Core/base/filesystem/pseudo_fs.h"
 
 void CORE_COMMAND_help() {
     handlerCommands HC;
-    HC.getAllCommands();
+    for (auto command : HC.getAllCommands())
+        print(print::colors::light_green, command.first + command.second + '\n');
 };
 
 void CORE_COMMAND_info() {
@@ -22,20 +40,26 @@ void CORE_COMMAND_info() {
     std::cout << " --- Special Thanks ---\nAlone Knight - migrating NRC from Makefile to CMake\n";
 };
 
+/*
+void CORE_COMMAND_exit() {
+    work = false;
+}
+*/
+
 //   -------------- Pseudo FS Commands ---------------
 
+/*
 void CORE_COMMAND_cd() {
-    /*s
     pseudoFSBase FS;
     std::string folderPath;
     std::cout << "Enter folder: ";
     std::cin >> folderPath;
     FS.changeDirectory(folderPath);
-    */
 }
+*/
 
+/*
 void CORE_COMMAND_tree() {
-    /*
     pseudoFSBase FS;
     if (!FS.getCurrentFSList().empty()) {
         for (auto element : FS.getCurrentFSList()) {
@@ -45,8 +69,8 @@ void CORE_COMMAND_tree() {
     else {
         std::cout << "No folders/files" << std::endl;
     }
-    */
 }
+*/
 
 //   -------------- Users "Manager" ---------------
 
@@ -54,9 +78,9 @@ void CORE_COMMAND_addUser() {
     userManager UM;
     std::string username;
     int permissions;
-    std::cout << "Enter username: ";
+    print(print::colors::aqua, "Enter username: ");
     std::cin >> username;
-    std::cout << "Permissions (Ghost (-1), User (0), Admin (1)) | ONLY NUMBERS: ";
+    print(print::colors::aqua, "Permissions (Ghost (-1), User (0), Admin (1)) | ONLY NUMBERS: ");
     std::cin >> permissions;
     UM.addUser(username, static_cast<permissionsEC>(permissions));
 };
@@ -65,7 +89,7 @@ void CORE_COMMAND_addUser() {
 void CORE_COMMAND_deleteUser() {
     userManager UM;
     std::string Username;
-    std::cout << "Enter username: ";
+    print(print::colors::aqua, "Enter username: ");
     std::cin >> Username;
     UM.deleteUser(Username);
 };
@@ -73,9 +97,9 @@ void CORE_COMMAND_deleteUser() {
 void CORE_COMMAND_renameUser() {
     userManager UM;
     std::string username, newUsername;
-    std::cout << "Enter username: ";
+    print(print::colors::aqua, "Enter username: ");
     std::cin >> username;
-    std::cout << "Enter new username: ";
+   print(print::colors::aqua, "Enter new username: ");
     std::cin >> newUsername;
     UM.renameUser(username, newUsername);
 }
@@ -84,12 +108,17 @@ void CORE_COMMAND_setPermissionsUser() {
     userManager UM;
     std::string username;
     int permissions;
-    std::cout << "Enter username: ";
+    print(print::colors::aqua, "Enter username: ");
     std::cin >> username;
-    std::cout << "Permissions (Ghost (-1), User (0), Admin (1)) | ONLY NUMBERS: ";
+    print(print::colors::aqua, "Permissions (Ghost (-1), User (0), Admin (1)) | ONLY NUMBERS: ");
     std::cin >> permissions;
     UM.changePermissionsUser(username, static_cast<permissionsEC>(permissions));
 };
+
+//void CORE_COMMAND_addLocalVar() {}
+//void CORE_COMMAND_renameLocalVar() {}
+//void CORE_COMMAND_editLocalVarFunction() {}
+//void CORE_COMMAND_editLocalVarDescription() {}
 
 //   -------------- Users ---------------
 
@@ -115,11 +144,31 @@ void CORE_COMMAND_allInfoUsers() {
 void CORE_COMMAND_logout() {
     userManager UM;
     std::string choice;
-    std::cout << "Are you sure you want to log out of your current user account? (Y/N): ";
+    print(print::colors::yellow, "Are you sure you want to log out of your current user account? (Y/N): ");
     std::cin >> choice;
     while (true) {
         if (choice == "Y") { UM.userLogout(); break; }
         else if (choice == "N") { break; }
-        else { std::cout << "Error. Are you sure you want to log out of the current user account? (Y/N): "; }
+        else { print(print::colors::red, "Error. Are you sure you want to log out of the current user account? (Y/N): "); }
+    }
+}
+
+//   -------------- Other ---------------
+
+//void CORE_COMMAND_addSystemVar() {}
+
+void CORE_COMMAND_allSystemVars() {
+    systemVariables SV;
+    for (auto var : SV.getAllVars()) {
+        print(print::colors::light_aqua, var.first + " - ");
+        print(print::colors::light_blue, var.second + "\n");
+    }
+}
+
+void CORE_COMMAND_allLocalVars() {
+    userManager UM;
+    for (auto var : UM.getLocalVarsMap(UM.yourUsername())) {
+        print(print::colors::light_aqua, var.first + " - ");
+        print(print::colors::light_blue, var.second + "\n");
     }
 }

@@ -15,11 +15,16 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 #pragma once
-#ifndef NRC_CORE_INFO_H_
-#define NRC_CORE_INFO_H_
+#ifndef NRC_BASE_USERS_PERMISSIONS_ENUM_CLASS_H_
+#define NRC_BASE_USERS_PERMISSIONS_ENUM_CLASS_H_
+#include <string>
+#include <vector>
 
-#define CORE_VERSION            "0.4.2 Alpha"
-#define CORE_NAME               "NRC"
-#define CORE_DEVELOPER          "SpaceOC"
+enum class permissionsEC {
+    ghost = -1,
+    user,
+    admin
+};
 
+std::string permissionsS(permissionsEC permissions);
 #endif

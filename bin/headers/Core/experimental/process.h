@@ -14,27 +14,31 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
+// is not finished!
 #pragma once
-#ifndef NRC_EXTRA_VARIABLES_H_
-#define NRC_EXTRA_VARIABLES_H_
-#include <iostream>
-#include <string>
-#include <functional>
+#ifndef NRC_EXPERIMENTAL_PROCESS_H_
+#define NRC_EXPERIMENTAL_PROCESS_H_
 #include <map>
+#include <string>
+#include <atomic>
+#include <mutex>
+#include <thread>
+#include <functional>
+#include <memory>
 
-struct variableData {
-	std::string description;
-	std::function<void()> function;
-};
+class process {
+    private:
+        const int maxThreads = 10;
+        std::map<std::string, std::shared_ptr<std::thread>> threads;
+    public:
+        process();
+        process(std::string firstThreadName, std::function<void()> func = []{});
+        void createThread(std::string threadName, std::function<void()> func = []{});
+        void startThread(std::string threadName);
+        void stopThread(std::string threadName);
 
-class systemVariables {
-	private:
-		static inline std::map<std::string, variableData> systemVariablesData;
-	public:
-		virtual std::map<std::string, variableData> getVariable(std::string name) const;
-		virtual void sendVariable(std::string variable) const;
-		virtual void addSystemVar(std::string name, std::string description = "", std::function<void()> function = []{}) const;
-		virtual std::map<std::string, std::string> getAllVars() const;
+        std::shared_ptr<std::thread> &getThread(std::string threadName);
+        std::map<std::string, std::shared_ptr<std::thread>> &getAllThreads();
 };
 
 #endif

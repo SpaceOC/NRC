@@ -1,3 +1,19 @@
+/*
+    Copyright (C) 2024-2024  SpaceOC
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
 #include <iostream>
 #include <functional>
 #include <map>
@@ -9,8 +25,9 @@
 #include "Core/base/command/handler_commands.h"
 
 handlerCommands::handlerCommands() {
-	if (handlerCommands::commandMap.size() == 0 && commandMapDescription.size() == 0) {
+	if (handlerCommands::commandMap.empty()) {
 		addCommand("help", "shows a list of all commands", CORE_COMMAND_help);
+		//addCommand("exit", "exit", CORE_COMMAND_exit);
 		//addCommand("cd", "cd" , CORE_COMMAND_cd);
 		//addCommand("tree", "shows all files and folders in a tree view" , CORE_COMMAND_tree);
 		addCommand("add_user", "creating a new user in the system", CORE_COMMAND_addUser);
@@ -24,11 +41,11 @@ handlerCommands::handlerCommands() {
 	}
 }
 
-bool handlerCommands::systemVariable(std::string command) const {
+bool handlerCommands::thisVariable(std::string command) const {
 	return (command.substr(0, 1) == "%" && command.substr(command.length() - 1, command.length()) == "%");
 }
 
-std::vector<std::string> handlerCommands::parsing(std::string& command) const {
+commandBase handlerCommands::parsing(std::string& command) const {
 	/*
 	if (!command.empty()) {
 		std::vector<char> src(command.begin(), command.end() + ' ');
@@ -46,34 +63,35 @@ std::vector<std::string> handlerCommands::parsing(std::string& command) const {
 		return vectorTemp;
 	}
 	*/
-	return {""};
+	return {};
 }
 
 void handlerCommands::sendCommand(std::string command) const {
     auto it = commandMap.find(command);
-    if (it != commandMap.end()) { it->second(); }
-    else if (systemVariable(command)) {
+    if (it != commandMap.end()) { it->second.function(); }
+    else if (thisVariable(command)) {
         systemVariables SV; SV.sendVariable(command);
-        SV.sendVariable(command);
     }
-    else { std::cout << "Command not found" << std::endl; }
+    else { std::cout << "Command not found" << '\n'; }
 }
 
-void handlerCommands::addCommand(std::string commandName, std::string commandDescription, std::function<void()> commandFunction) const {
-	const int maxSpaces = 20;
-	std::string Temp;
-	int spacesToAdd = std::max(0, maxSpaces - static_cast<int>(commandName.length()));
-	Temp += std::string(spacesToAdd, ' ');
-	Temp += "\t  " + commandDescription;
-	commandMap[commandName] = commandFunction;
-	commandMapDescription[commandName] = Temp;
+void handlerCommands::addCommand(std::string name, std::string description, std::function<void()> function) const {
+	std::string temp;
+	int spacesToAdd = std::max(10, 26 - static_cast<int>(name.length()));
+	temp += std::string(spacesToAdd, ' ');
+	temp += "\t  " + description;
+	commandMap[name].function = function;
+	commandMap[name].description = temp;
 }
 
-void handlerCommands::getAllCommands() const {
-	std::vector<std::string> commandVectorName, commandVectorDescription;
-	for (auto elements : commandMap) { commandVectorName.push_back(elements.first); }
-	for (auto elements : commandMapDescription) { commandVectorDescription.push_back(elements.second); }
-	for (size_t i = 0; (commandVectorName.size() - 1) >= i && (commandVectorDescription.size() - 1) >= i; i++) {
-		std::cout << commandVectorName[i] + commandVectorDescription[i] << '\n';
-	}
+std::map<std::string, std::string> handlerCommands::getCommand(std::string name) const {
+	if(commandMap.count(name)) return {{name, commandMap[name].description}};
+	return {};
+}
+
+std::map<std::string, std::string> handlerCommands::getAllCommands() const {
+	if (commandMap.empty()) return {};
+	std::map<std::string, std::string> temp;
+	for (auto elements : commandMap) { temp[elements.first] = elements.second.description; }
+	return temp;
 }
