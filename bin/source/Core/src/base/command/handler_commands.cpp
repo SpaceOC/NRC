@@ -24,28 +24,13 @@
 #include "Core/base/command/commands.h"
 #include "Core/base/command/handler_commands.h"
 
-handlerCommands::handlerCommands() {
-	if (handlerCommands::commandMap.empty()) {
-		addCommand("help", "shows a list of all commands", CORE_COMMAND_help);
-		//addCommand("exit", "exit", CORE_COMMAND_exit);
-		//addCommand("cd", "cd" , CORE_COMMAND_cd);
-		//addCommand("tree", "shows all files and folders in a tree view" , CORE_COMMAND_tree);
-		addCommand("add_user", "creating a new user in the system", CORE_COMMAND_addUser);
-		addCommand("delete_user", "deleting a user in the system", CORE_COMMAND_deleteUser);
-		addCommand("set_user_permissions", "user permission change", CORE_COMMAND_setPermissionsUser);
-		addCommand("all_users_info", "shows all information about all users", CORE_COMMAND_allInfoUsers);
-		addCommand("whoim", "shows information about the current user", CORE_COMMAND_infoUser);
-		addCommand("rename_user", "renames the user", CORE_COMMAND_renameUser);
-		addCommand("core_info", "shows information about the core", CORE_COMMAND_info);
-		addCommand("logout", "logging out of the current user account", CORE_COMMAND_logout);
-	}
-}
+core::handlerCommands::handlerCommands() {}
 
-bool handlerCommands::thisVariable(std::string command) const {
+bool core::handlerCommands::thisVariable(const std::string& command) const {
 	return (command.substr(0, 1) == "%" && command.substr(command.length() - 1, command.length()) == "%");
 }
 
-commandBase handlerCommands::parsing(std::string& command) const {
+core::commandBase core::handlerCommands::parsing(std::string& command) const {
 	/*
 	if (!command.empty()) {
 		std::vector<char> src(command.begin(), command.end() + ' ');
@@ -66,7 +51,7 @@ commandBase handlerCommands::parsing(std::string& command) const {
 	return {};
 }
 
-void handlerCommands::sendCommand(std::string command) const {
+void core::handlerCommands::sendCommand(const std::string& command) const {
     auto it = commandMap.find(command);
     if (it != commandMap.end()) { it->second.function(); }
     else if (thisVariable(command)) {
@@ -75,7 +60,7 @@ void handlerCommands::sendCommand(std::string command) const {
     else { std::cout << "Command not found" << '\n'; }
 }
 
-void handlerCommands::addCommand(std::string name, std::string description, std::function<void()> function) const {
+void core::handlerCommands::addCommand(const std::string& name, const std::string& description, const std::function<void()>& function) {
 	std::string temp;
 	int spacesToAdd = std::max(10, 26 - static_cast<int>(name.length()));
 	temp += std::string(spacesToAdd, ' ');
@@ -84,12 +69,12 @@ void handlerCommands::addCommand(std::string name, std::string description, std:
 	commandMap[name].description = temp;
 }
 
-std::map<std::string, std::string> handlerCommands::getCommand(std::string name) const {
+std::map<std::string, std::string> core::handlerCommands::getCommand(const std::string& name) const {
 	if(commandMap.count(name)) return {{name, commandMap[name].description}};
 	return {};
 }
 
-std::map<std::string, std::string> handlerCommands::getAllCommands() const {
+std::map<std::string, std::string> core::handlerCommands::getAllCommands() const {
 	if (commandMap.empty()) return {};
 	std::map<std::string, std::string> temp;
 	for (auto elements : commandMap) { temp[elements.first] = elements.second.description; }

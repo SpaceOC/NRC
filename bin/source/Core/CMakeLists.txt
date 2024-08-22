@@ -9,7 +9,6 @@ project(NRC)
 set(CORE_SOURCE_DIR ${CMAKE_SOURCE_DIR}/source/Core/src)
 
 add_library(NRC STATIC
-                ${CORE_SOURCE_DIR}/fix.cpp 
                 ${CORE_SOURCE_DIR}/base/print.cpp
                 ${CORE_SOURCE_DIR}/base/users/OOBE.cpp 
                 ${CORE_SOURCE_DIR}/base/users/permissions_enum_class.cpp 
@@ -23,7 +22,8 @@ add_library(NRC STATIC
                 ${CORE_SOURCE_DIR}/experimental/process.cpp
                 ${CORE_SOURCE_DIR}/base/command/commands.cpp
                 ${CORE_SOURCE_DIR}/base/command/handler_commands.cpp
-                ${CORE_SOURCE_DIR}/core.cpp)
+                ${CORE_SOURCE_DIR}/fix.cpp 
+                ${CORE_SOURCE_DIR}/main.cpp)
 
 
 

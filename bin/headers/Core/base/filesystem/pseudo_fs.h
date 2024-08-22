@@ -24,36 +24,39 @@
 #include <map>
 #include "Core/base/filesystem/nrfs.h"
 
-class pseudoFSBase {
-	private:
-		static inline NRFS nrfs;
-		static inline int tempID = 0;
-		std::vector<std::string> pathParser(std::string path);
-		folderData searchFolderHelper(std::vector<std::string> path); // bad
-		fileData searchFileHelper(std::vector<std::string> path); // bad
-		bool isFile(std::string path);
-		//bool exist(std::string path); not finished
+namespace core {
+	class pseudoFSBase {
+		private:
+			static inline NRFS nrfs;
+			static inline int tempID = 0;
+			std::vector<std::string> pathParser(std::string path);
+			folderData searchFolderHelper(std::vector<std::string> path); // bad
+			fileData searchFileHelper(std::vector<std::string> path); // bad
+			bool isFile(std::string path);
+			//bool exist(std::string path); not finished
 
-		void __createFolderHelper(std::vector<std::string> path, std::vector<folderData>& folders);
-		
-		void __createFileHelper(std::vector<std::string> path, std::vector<folderData>& folders);
-		void __setFileContentHelper(std::vector<std::string> path, std::vector<folderData>& folders, const std::string& content); // not working - The 'content' variable in 'file' doesn't change...? 
-	public:
-		void createFolder(std::string path);
-		void renameFolder(std::string path, std::string newName);
-		void deleteFolder(std::string path);
-		//void moveFolder(std::string path); // its hard
+			void __createFolderHelper(std::vector<std::string> path, std::vector<folderData>& folders);
+			
+			void __createFileHelper(std::vector<std::string> path, std::vector<folderData>& folders);
+			void __setFileContentHelper(std::vector<std::string> path, std::vector<folderData>& folders, const std::string& content); // not working - The 'content' variable in 'file' doesn't change...? 
+		public:
+			void createFolder(std::string path);
+			void renameFolder(std::string path, std::string newName);
+			void deleteFolder(std::string path);
+			//void moveFolder(std::string path); // its hard
 
-		folderData getFolderData(std::string path); // not working?? maybe
+			folderData getFolderData(std::string path); // not working?? maybe
 
-		void createFile(std::string path);
-		void setFileContent(std::string path, std::string content); // not working
-		void renameFile(std::string path, std::string newName);
-		void deleteFile(std::string path);
-		//void moveFile(std::string path);  // its hard
+			void createFile(std::string path);
+			void setFileContent(std::string path, std::string content); // not working
+			void renameFile(std::string path, std::string newName);
+			void deleteFile(std::string path);
+			//void moveFile(std::string path);  // its hard
 
-		fileData getFileData(std::string path); // not working - returning nothing
+			fileData getFileData(std::string path); // not working - returning nothing
 
-		const NRFS& getNRFS();
-};
+			const NRFS& getNRFS();
+	};
+}
+
 #endif

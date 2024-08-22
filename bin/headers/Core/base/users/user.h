@@ -22,39 +22,44 @@
 #include "Core/extra/variables.h"
 #include "permissions_enum_class.h"
 
-class user {
-    private:
-        std::map<std::string, variableData> localVariables;
-        std::string displayName, language, password;
-        permissionsEC permissions;
-        bool userCreated = false;
-        bool varExist(std::string name);
-    public:
-        user();
-        user(std::string displayName, permissionsEC permissions, std::string language = "English", std::string password = "");
-        
-        void addVar(std::string name, std::string description, std::function<void()> varFunction);
+namespace core {
+    class user {
+        private:
+            std::map<std::string, variableData> localVariables;
+            std::string username, displayName, language, password;
+            permissionsEC permissions;
+            bool userCreated = false;
+            bool varExist(const std::string& name);
+        public:
+            user();
+            user(const std::string& username, const permissionsEC& permissions, const std::string& language = "English", const std::string& password = "");
+            
+            void addVar(const std::string& name, const std::string& description, const std::function<void()>& varFunction);
 
-        void editDisplayName(std::string newDisplayName);
-        void editLanguage(std::string newLanguage);
-        void editPassword(std::string password);
-        void editPermissions(permissionsEC newPermissions);
-        void editVarFunction(std::string name, std::function<void()> function);
-        void editVarDescription(std::string name, std::string description);
-        void renameVar(std::string oldName, std::string newName);
+            void editUsername(const std::string& newUsername);
+            void editDisplayName(const std::string& newDisplayName);
+            void editLanguage(const std::string& newLanguage);
+            void editPassword(const std::string& password);
+            void editPermissions(const permissionsEC& newPermissions);
+            void editVarFunction(const std::string& name, const std::function<void()>& function);
+            void editVarDescription(const std::string& name, const std::string& description);
+            void renameVar(const std::string& oldName, const std::string& newName);
 
-        bool havePassword();
-        bool truePassword(std::string password);
-        //bool trueKey(std::string longUserKey);
+            bool havePassword();
+            bool truePassword(const std::string& password);
+            //bool trueKey(std::string longUserKey);
 
-        std::map<std::string, std::string> getAllVars();
-        std::string getVarName();
-        std::string getVarDescription();
-        std::string getDisplayName();
-        std::string getLanguage();
-        permissionsEC getPermissions();
+            std::map<std::string, std::string> getAllVars();
+            std::string getVarName();
+            std::string getVarDescription();
 
-        std::function<void()> varFuncStart(std::string name);
-};
+            std::string getUsername();
+            std::string getDisplayName();
+            std::string getLanguage();
+            permissionsEC getPermissions();
+
+            std::function<void()> varFuncStart(const std::string& name);
+    };
+}
 
 #endif

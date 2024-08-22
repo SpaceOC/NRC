@@ -17,22 +17,22 @@
 #include "Core/base/filesystem/nrfs.h"
 #include <iostream>
 
-const int& NRFSDisk::getFilesSize() {
+const int& core::NRFSDisk::getFilesSize() {
     this->update();
     return this->filesSize;
 }
 
-const int& NRFSDisk::getFoldersSize() {
+const int& core::NRFSDisk::getFoldersSize() {
     this->update();
     return this->foldersSize;
 }
 
-const int& NRFSDisk::getDiskSize() {
+const int& core::NRFSDisk::getDiskSize() {
     this->update();
     return this->diskSize;
 }
 
-int NRFSDisk::updateHelper(const std::vector<folderData>& folders) {
+int core::NRFSDisk::updateHelper(const std::vector<folderData>& folders) {
     int temp = 0;
     for (const folderData& folder : folders) {
         foldersSize++;
@@ -46,7 +46,7 @@ int NRFSDisk::updateHelper(const std::vector<folderData>& folders) {
     return temp;
 }
 
-void NRFSDisk::update() {
+void core::NRFSDisk::update() {
     filesSize = 0;
     foldersSize = 0;
     int temp = 0;
@@ -58,18 +58,18 @@ void NRFSDisk::update() {
     this->diskSize += this->updateHelper(folders);
 }
 
-NRFS::NRFS() {
+core::NRFS::NRFS() {
     this->root = NRFSDisk();
     this->root.directory = "";
     this->root.update();
 }
 
-void NRFS::pushFiles(const std::vector<fileData>& files) {
+void core::NRFS::pushFiles(const std::vector<fileData>& files) {
     this->root.files = files;
     this->root.update();
 }
 
-void NRFS::printAllHelper(const std::vector<folderData>& folders) {
+void core::NRFS::printAllHelper(const std::vector<folderData>& folders) {
     for (const folderData& folder : folders) {
         std::cout << "Folder: " << folder.name << '\n';
         for (const fileData& file : folder.files)
@@ -78,16 +78,16 @@ void NRFS::printAllHelper(const std::vector<folderData>& folders) {
     }
 }
 
-void NRFS::printAll() {
+void core::NRFS::printAll() {
     for (const fileData& file : root.files)
         std::cout << "./" << file.name << '\n';
     printAllHelper(root.folders);
 }
 
-void NRFS::printDiskSize() {
+void core::NRFS::printDiskSize() {
     std::cout << root.getDiskSize() << '\n';
 }
 
-NRFSDisk& NRFS::getRoot() {
+core::NRFSDisk& core::NRFS::getRoot() {
     return root;
 }

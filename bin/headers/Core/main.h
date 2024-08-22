@@ -15,7 +15,17 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 #pragma once
-#ifndef NRC_FIX_H_
-#define NRC_FIX_H_
-void fixNOW();
+#ifndef NRC_BASE_MAIN_H_
+#define NRC_BASE_MAIN_H_
+
+namespace core {
+    class main {
+        private:
+            static void fixNOW();
+            static void addCommands();
+        public:
+            static void init();
+    };
+}
+
 #endif

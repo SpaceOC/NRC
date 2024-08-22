@@ -20,11 +20,13 @@
 #include <string>
 #include <vector>
 
-enum class permissionsEC {
-    ghost = -1,
-    user,
-    admin
-};
+namespace core {
+    enum class permissionsEC {
+        ghost = -1,
+        user,
+        admin
+    };
 
-std::string permissionsS(permissionsEC permissions);
+    std::string permissionsS(permissionsEC permissions);
+}
 #endif

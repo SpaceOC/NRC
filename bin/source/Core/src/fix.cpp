@@ -17,8 +17,9 @@
 #ifdef _WIN32
     #include <windows.h>
 #endif
+#include "core/main.h"
 
-void fixNOW() {
+void core::main::fixNOW() {
     #ifdef _WIN32
         SetConsoleOutputCP(65001);
         SetConsoleCP(65001);

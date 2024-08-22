@@ -27,13 +27,13 @@
 #include "Core/base/users/user_manager.h"
 #include "Core/base/filesystem/pseudo_fs.h"
 
-void CORE_COMMAND_help() {
+void core::commands::CORE_COMMAND_help() {
     handlerCommands HC;
     for (auto command : HC.getAllCommands())
         print(print::colors::light_green, command.first + command.second + '\n');
 };
 
-void CORE_COMMAND_info() {
+void core::commands::CORE_COMMAND_info() {
     std::cout << CORE_NAME << " by " << CORE_DEVELOPER << '\n' << CORE_VERSION << '\n';
     std::cout << "JSON library by nlohmann - https://github.com/nlohmann/json \n";
     std::cout << "CC (Color Console) by aafulei - https://github.com/aafulei/color-console \n\n";
@@ -41,7 +41,7 @@ void CORE_COMMAND_info() {
 };
 
 /*
-void CORE_COMMAND_exit() {
+void core::commands:: core::commands:: CORE_COMMAND_exit() {
     work = false;
 }
 */
@@ -49,7 +49,7 @@ void CORE_COMMAND_exit() {
 //   -------------- Pseudo FS Commands ---------------
 
 /*
-void CORE_COMMAND_cd() {
+void core::commands:: core::commands:: CORE_COMMAND_cd() {
     pseudoFSBase FS;
     std::string folderPath;
     std::cout << "Enter folder: ";
@@ -59,7 +59,7 @@ void CORE_COMMAND_cd() {
 */
 
 /*
-void CORE_COMMAND_tree() {
+void core::commands:: core::commands:: CORE_COMMAND_tree() {
     pseudoFSBase FS;
     if (!FS.getCurrentFSList().empty()) {
         for (auto element : FS.getCurrentFSList()) {
@@ -74,7 +74,7 @@ void CORE_COMMAND_tree() {
 
 //   -------------- Users "Manager" ---------------
 
-void CORE_COMMAND_addUser() {
+void core::commands::CORE_COMMAND_addUser() {
     userManager UM;
     std::string username;
     int permissions;
@@ -86,7 +86,7 @@ void CORE_COMMAND_addUser() {
 };
 
 
-void CORE_COMMAND_deleteUser() {
+void core::commands::CORE_COMMAND_deleteUser() {
     userManager UM;
     std::string Username;
     print(print::colors::aqua, "Enter username: ");
@@ -94,7 +94,7 @@ void CORE_COMMAND_deleteUser() {
     UM.deleteUser(Username);
 };
 
-void CORE_COMMAND_renameUser() {
+void core::commands::CORE_COMMAND_renameUser() {
     userManager UM;
     std::string username, newUsername;
     print(print::colors::aqua, "Enter username: ");
@@ -104,7 +104,7 @@ void CORE_COMMAND_renameUser() {
     UM.renameUser(username, newUsername);
 }
 
-void CORE_COMMAND_setPermissionsUser() {
+void core::commands::CORE_COMMAND_setPermissionsUser() {
     userManager UM;
     std::string username;
     int permissions;
@@ -115,14 +115,14 @@ void CORE_COMMAND_setPermissionsUser() {
     UM.changePermissionsUser(username, static_cast<permissionsEC>(permissions));
 };
 
-//void CORE_COMMAND_addLocalVar() {}
-//void CORE_COMMAND_renameLocalVar() {}
-//void CORE_COMMAND_editLocalVarFunction() {}
-//void CORE_COMMAND_editLocalVarDescription() {}
+//void core::commands::CORE_COMMAND_addLocalVar() {}
+//void core::commands::CORE_COMMAND_renameLocalVar() {}
+//void core::commands::CORE_COMMAND_editLocalVarFunction() {}
+//void core::commands::CORE_COMMAND_editLocalVarDescription() {}
 
 //   -------------- Users ---------------
 
-void CORE_COMMAND_infoUser() {
+void core::commands::CORE_COMMAND_infoUser() {
     userManager UM;
     if (!UM.getUserMap()[UM.yourUsername()].empty()) {
         std::cout << "Username: " << UM.yourUsername() << '\n';
@@ -131,7 +131,7 @@ void CORE_COMMAND_infoUser() {
     }
 };
 
-void CORE_COMMAND_allInfoUsers() {
+void core::commands::CORE_COMMAND_allInfoUsers() {
     userManager UM;
     std::cout << "  - [ All Users Info ] -  " << '\n';
     for (auto& user : UM.getUserMap()) {
@@ -141,7 +141,7 @@ void CORE_COMMAND_allInfoUsers() {
     }
 };
 
-void CORE_COMMAND_logout() {
+void core::commands::CORE_COMMAND_logout() {
     userManager UM;
     std::string choice;
     print(print::colors::yellow, "Are you sure you want to log out of your current user account? (Y/N): ");
@@ -155,9 +155,9 @@ void CORE_COMMAND_logout() {
 
 //   -------------- Other ---------------
 
-//void CORE_COMMAND_addSystemVar() {}
+//void core::commands::CORE_COMMAND_addSystemVar() {}
 
-void CORE_COMMAND_allSystemVars() {
+void core::commands::CORE_COMMAND_allSystemVars() {
     systemVariables SV;
     for (auto var : SV.getAllVars()) {
         print(print::colors::light_aqua, var.first + " - ");
@@ -165,7 +165,7 @@ void CORE_COMMAND_allSystemVars() {
     }
 }
 
-void CORE_COMMAND_allLocalVars() {
+void core::commands::CORE_COMMAND_allLocalVars() {
     userManager UM;
     for (auto var : UM.getLocalVarsMap(UM.yourUsername())) {
         print(print::colors::light_aqua, var.first + " - ");

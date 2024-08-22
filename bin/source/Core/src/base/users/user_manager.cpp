@@ -4,13 +4,12 @@
 #include "Core/base/data/file_manager.h"
 #include "Core/base/users/user_manager.h"
 
-
-void userManager::userLogic() {
+void core::userManager::userLogic() {
 	std::string usernameTemp; std::vector<std::string> temp;
 	print(print::colors::aqua, "Enter username: ");
 	std::cin >> usernameTemp;
 
-	for (auto& user : users) temp.push_back(user.first);
+	for (auto& user : users) temp.push_back(user.getUsername());
 	if (std::find(temp.begin(), temp.end(), usernameTemp) != temp.end())
 		userLogin(usernameTemp);
 	else { 
@@ -19,23 +18,28 @@ void userManager::userLogic() {
 	}
 }
 
-void userManager::userLogin(std::string username) {
+void core::userManager::userLogin(const std::string& username) {
 	currentUser = username;
 	userIsLogined = true;
 }
 
-void userManager::addUserFromData(std::string username, permissionsEC permissions, std::string language, std::string password) {
-	users[username] = user(username, permissions, language);
+void core::userManager::addUserFromData(const std::string& username, const permissionsEC& permissions, const std::string& language, const std::string& password) {
+	users.push_back(user(username, permissions, language));
 	saveUserData(username);
 }
 
-userManager::userManager() { checkOOBE_Passed(); }
-bool userManager::userIsYou(std::string username) { return username == currentUser; }
-bool userManager::userExist(std::string username) { return users.count(username); }
-bool userManager::havePassword(std::string username) { return users[username].havePassword(); }
-bool userManager::userHaveAdminPermissions(std::string username) { return users[username].getPermissions() == permissionsEC::admin; }
+core::userManager::userManager() { checkOOBE_Passed(); }
+bool core::userManager::userIsYou(const std::string& username) { return username == currentUser; }
+bool core::userManager::userExist(const std::string& username) {
+	for (user& user : users) {
+		if (user.getUsername() == username) return true;
+	}
+	return false;
+}
+bool core::userManager::havePassword(const std::string& username) { return users[userVectorPos(username)].havePassword(); }
+bool core::userManager::userHaveAdminPermissions(const std::string& username) { return users[userVectorPos(username)].getPermissions() == permissionsEC::admin; }
 
-bool userManager::permissionsCheck(permissionsEC permissions) {
+bool core::userManager::permissionsCheck(const permissionsEC& permissions) {
 	for (int i = static_cast<int>(permissionsEC::ghost); i <= static_cast<int>(permissionsEC::admin); i++)
 		if (permissions == static_cast<permissionsEC>(i)) 
 			return true;
@@ -43,45 +47,58 @@ bool userManager::permissionsCheck(permissionsEC permissions) {
 }
 
 // Права текущего пользователя ниже другого
-bool userManager::permissionsHighCurrentUser(std::string username) const { return users[currentUser].getPermissions() < users[username].getPermissions(); }
-bool userManager::getUserIsLogined() { return userIsLogined; }
-bool userManager::getOOBE_Passed() { return OOBE_Passed; }
-std::string userManager::yourUsername() { return currentUser; }
 
-std::map<std::string, std::string> userManager::getUserMap() {
+bool core::userManager::permissionsHighCurrentUser(const std::string& username) { 
+	return users[userVectorPos(currentUser)].getPermissions() < users[userVectorPos(username)].getPermissions();
+}
+
+bool core::userManager::getUserIsLogined() { return userIsLogined; }
+bool core::userManager::getOOBE_Passed() { return OOBE_Passed; }
+
+int core::userManager::userVectorPos(const std::string& username) {
+	int realUsersSize = users.size() - (users.size() == 1 ? 0 : 1);
+	for (int i = 0; i <= realUsersSize; i++) {
+		if (users[i].getUsername() == username) return i;
+	}
+	return -1;
+}
+
+const std::string core::userManager::yourUsername() { return currentUser; }
+
+std::map<std::string, std::string> core::userManager::getUserMap() {
 	std::map<std::string, std::string> temp;
 
-	for (auto& element : users)
-		temp[element.first] = element.second.getDisplayName();
+	for (user& user : users)
+		temp[user.getUsername()] = user.getDisplayName();
 	return temp;
 }
 
-std::map<std::string, std::string> userManager::getLocalVarsMap(std::string username) {
+std::map<std::string, std::string> core::userManager::getLocalVarsMap(const std::string& username) {
 	if (userExist(username) && !permissionsHighCurrentUser(username) && 
 	userHaveAdminPermissions(currentUser) && !userIsYou(username))
-		return users[username].getAllVars();
+		return users[userVectorPos(username)].getAllVars();
 	else if (userExist(username) && userIsYou(username)) 
-		return users[username].getAllVars();
-	return {{"NULL", "NULL"}};
+		return users[userVectorPos(username)].getAllVars();
+	return {};
 }
 
-std::map<std::string, std::string> userManager::getLanguageMap() {
+std::map<std::string, std::string> core::userManager::getLanguageMap() {
 	std::map<std::string, std::string> temp;
 
-	for (auto& element : users)
-		temp[element.first] = element.second.getLanguage();
+	for (user& user : users)
+		temp[user.getUsername()] = user.getLanguage();
 	return temp;
 }
 
-std::map<std::string, permissionsEC> userManager::getPermissionsMap() {
+std::map<std::string, core::permissionsEC> core::userManager::getPermissionsMap() {
 	std::map<std::string, permissionsEC> temp;
 
-	for (auto& element : users)
-		temp[element.first] = element.second.getPermissions();
+	for (user& user : users)
+		temp[user.getUsername()] = user.getPermissions();
 	return temp;
 }
 
-void userManager::checkOOBE_Passed() {
+void core::userManager::checkOOBE_Passed() {
 	dataManager DM;
 	fileManager FM;
 
@@ -89,9 +106,9 @@ void userManager::checkOOBE_Passed() {
 		OOBE_Passed = DM.readAllData(mainDataFilePath)["OOBE_Passed"] == "1";
 }
 
-void userManager::system_addUser(std::string username) {
+void core::userManager::system_addUser(const std::string& username) {
 	dataManager DM;
-	users[username] = user(username, permissionsEC::admin);
+	users.push_back(user(username, permissionsEC::admin));
 	currentUser = username;
 	userIsLogined = true;
 	DM.createVectorData(usersListFilePath, {username});
@@ -100,40 +117,55 @@ void userManager::system_addUser(std::string username) {
 	checkOOBE_Passed();
 }
 
-void userManager::addUser(std::string username, permissionsEC permissions) {
+void core::userManager::addUser(const std::string& username, const permissionsEC& permissions) {
 	dataManager DM;
 	if (!userExist(username) && permissionsCheck(permissions) && 
 	userHaveAdminPermissions(currentUser) && (users.size() < maxUsers)) 
 	{
-		users[username] = user(username, permissions);
+		users.push_back(user(username, permissions));
 		if (!DM.valueExist(usersListFilePath, username)) { DM.addVectorData(usersListFilePath, username); }
 		saveUserData(username);
 	}
 	else print(print::colors::red, "Failed to create a user\n");
 }
 
-void userManager::deleteUser(std::string username) {
+void core::userManager::deleteUser(const std::string& username) {
 	fileManager FM;
 	dataManager DM;
 	if (userExist(username) && !permissionsHighCurrentUser(username) && 
 	userHaveAdminPermissions(currentUser) && !userIsYou(username)) 
 	{
-		users.erase(username);
+		auto iter = users.begin();
+		for (user& user : users) {
+			if (user.getUsername() == username) {
+				users.erase(iter);
+				break;
+			}
+			iter++;
+		}
 		FM.deleteFile(usersFilesPath + username + ".json");
 		DM.deleteVectorData(usersListFilePath, username);
 	}
 	else print(print::colors::red, "This user could not be deleted\n");
 }
 
-void userManager::renameUser(std::string username, std::string newUsername) {
+void core::userManager::renameUser(const std::string& username, const std::string& newUsername) {
 	fileManager FM; dataManager DM;
 	if (userExist(username) && userHaveAdminPermissions(currentUser) && 
 	!permissionsHighCurrentUser(username) && !userIsYou(username)) 
 	{
 		
-		user userTemp = users[username];
-		users.erase(username);
-		users[newUsername] = userTemp;
+		user userTemp = users[userVectorPos(username)];
+		auto iter = users.begin();
+		for (user& user : users) {
+			if (user.getUsername() == username) {
+				users.erase(iter);
+				break;
+			}
+			iter++;
+		}
+		userTemp.editUsername(newUsername);
+		users.push_back(userTemp);
 		FM.renameFile(usersFilesPath + username + ".json", usersFilesPath + newUsername + ".json");
 		DM.changeVectorData(usersListFilePath, username, newUsername);
 		DM.changeData(usersFilesPath + newUsername + ".json", "Username", newUsername);
@@ -141,66 +173,68 @@ void userManager::renameUser(std::string username, std::string newUsername) {
 	else print(print::colors::red, "This user could not be renamed\n");
 }
 
-void userManager::changePermissionsUser(std::string username, permissionsEC newPermissions) {
+void core::userManager::changePermissionsUser(const std::string& username, const permissionsEC& newPermissions) {
 	dataManager DM;
 	if (userExist(username) && !permissionsHighCurrentUser(username) && userHaveAdminPermissions(currentUser)) {
-		users[username].editPermissions(newPermissions);
+		users[userVectorPos(username)].editPermissions(newPermissions);
 		DM.changeData(usersFilesPath + username + ".json", "Permissions", std::to_string(static_cast<int>(newPermissions)));
 	}
 	else print(print::colors::red, "This user failed to change permissions\n");
 }
 
-void userManager::userLists() {
+void core::userManager::userLists() {
 	readAllUsersData();
 	std::cout << " - [ Users ] -" << '\n';
 
 	for (auto& user : users)
-		std::cout << " - " << user.first << '\n';
+		std::cout << " - " << user.getUsername() << '\n';
 	userLogic();
 }
 
-void userManager::userLogout() {
+void core::userManager::userLogout() {
 	currentUser = ""; userIsLogined = false;
 	userLists();
 }
 
-void userManager::saveUserData(std::string username) {
+void core::userManager::saveUserData(const std::string& username) {
 	dataManager DM; fileManager FM;
-	std::vector<std::string> values = { username, users[username].getDisplayName(), std::to_string(static_cast<int>(users[username].getPermissions())), users[username].getLanguage(), "" };
+	int userPos = userVectorPos(username);
+	std::vector<std::string> values = { username, users[userPos].getDisplayName(), std::to_string(static_cast<int>(users[userPos].getPermissions())), users[userPos].getLanguage(), "" };
 	FM.createFile(usersFilesPath + username + ".json");
 	DM.createData(usersFilesPath + username + ".json", keys, values);
 }
 
-void userManager::readUserData(std::string username) {
+void core::userManager::readUserData(const std::string& username) {
 	dataManager DM;
+	int userPos = userVectorPos(username);
 
-	if (users[username].getLanguage() != 
+	if (users[userPos].getLanguage() != 
 		DM.getValue("Data/Users/" + username + ".json","Language"))
-			users[username].editLanguage(DM.getValue("Data/Users/" + username + ".json","Language"));
+			users[userPos].editLanguage(DM.getValue("Data/Users/" + username + ".json","Language"));
 	
-	if (users[username].getDisplayName() !=
+	if (users[userPos].getDisplayName() !=
 		DM.getValue("Data/Users/" + username + ".json","Diplay Name"))
-			users[username].editDisplayName(DM.getValue("Data/Users/" + username + ".json", "Display Name"));
+			users[userPos].editDisplayName(DM.getValue("Data/Users/" + username + ".json", "Display Name"));
 	
-	if (users[username].getPermissions() !=
+	if (users[userPos].getPermissions() !=
 		static_cast<permissionsEC>(stoi(
 			DM.getValue("Data/Users/" + username + ".json","Permissions")
 			))) 
-				users[username].editPermissions((static_cast<permissionsEC>(stoi(
+				users[userPos].editPermissions((static_cast<permissionsEC>(stoi(
 					DM.getValue("Data/Users/" + username + ".json", "Permissions")
 				))));
 	
-	if (users[username].havePassword() != 
+	if (users[userPos].havePassword() != 
 		DM.getValue("Data/Users/" + username + ".json", "Password").empty()) 
-			users[username].editPassword(DM.getValue(
+			users[userPos].editPassword(DM.getValue(
 				"Data/Users/" + username + ".json", "Password"
 			));
 }
 
-void userManager::readAllUsersData() {
+void core::userManager::readAllUsersData() {
 	fileManager FM;
 	dataManager DM;
-	for (auto& user : DM.readAllVectorData(usersListFilePath)) {
+	for (const std::string& user : DM.readAllVectorData(usersListFilePath)) {
 		if (!userExist(user) && FM.fileExist("Data/Users/" + user + ".json")) 
 			addUserFromData(user, static_cast<permissionsEC>(stoi(DM.readAllData(usersFilesPath + user + ".json")["Permissions"])), DM.readAllData(usersFilesPath + user + ".json")["Language"]);
 		else if (userExist(user) && FM.fileExist("Data/Users/" + user + ".json")) 

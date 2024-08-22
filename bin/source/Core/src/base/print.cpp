@@ -20,15 +20,15 @@
 #include <color_console/color.hpp>
 #include "Core/base/print.h"
 
-print::print() {
+core::print::print() {
 	std::cout << '\n';
 }
 
-print::print(std::string message) {
+core::print::print(std::string message) {
 	std::cout << message;
 }
 
-print::print(colors color, std::string message) {
+core::print::print(colors color, std::string message) {
 	if (color == colors::black) { std::cout << dye::black(message); }
 	if (color == colors::blue) { std::cout << dye::blue(message); }
 	if (color == colors::green) { std::cout << dye::green(message); }

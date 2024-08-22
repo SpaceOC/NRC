@@ -16,7 +16,7 @@
 */
 #include "Core/base/filesystem/pseudo_fs.h"
 
-std::vector<std::string> pseudoFSBase::pathParser(std::string path) {
+std::vector<std::string> core::pseudoFSBase::pathParser(std::string path) {
     std::string folder;
     std::vector<std::string> temp;
     for (const char& letter : (path + '/')) {
@@ -30,13 +30,13 @@ std::vector<std::string> pseudoFSBase::pathParser(std::string path) {
     return temp;
 }
 
-bool pseudoFSBase::isFile(std::string path) {
+bool core::pseudoFSBase::isFile(std::string path) {
     std::string file = path.substr(path.rfind("/") + 1, path.length());
     if (file.rfind(".") == 1) return false;
     return true;
 }
 
-void pseudoFSBase::__createFolderHelper(std::vector<std::string> path, std::vector<folderData>& folders) {
+void core::pseudoFSBase::__createFolderHelper(std::vector<std::string> path, std::vector<folderData>& folders) {
     std::vector<folderData>* currentFolder = &folders;
     folderData* pastFolder = nullptr;
     int newID = 0;
@@ -63,7 +63,7 @@ void pseudoFSBase::__createFolderHelper(std::vector<std::string> path, std::vect
     }
 }
 
-void pseudoFSBase::__createFileHelper(std::vector<std::string> path, std::vector<folderData>& folders) {
+void core::pseudoFSBase::__createFileHelper(std::vector<std::string> path, std::vector<folderData>& folders) {
     std::vector<folderData>* currentFolders = &folders;
     folderData* currentFolder = nullptr;
     int newID = 0;
@@ -94,7 +94,7 @@ void pseudoFSBase::__createFileHelper(std::vector<std::string> path, std::vector
     }
 }
 
-void pseudoFSBase::__setFileContentHelper(std::vector<std::string> path, std::vector<folderData>& folders, const std::string& content) {
+void core::pseudoFSBase::__setFileContentHelper(std::vector<std::string> path, std::vector<folderData>& folders, const std::string& content) {
     std::vector<folderData>* currentFolders = &folders;
     folderData* currentFolder = nullptr;
     int newID = 0;
@@ -128,7 +128,7 @@ void pseudoFSBase::__setFileContentHelper(std::vector<std::string> path, std::ve
     }
 }
 
-folderData pseudoFSBase::searchFolderHelper(std::vector<std::string> path) {
+core::folderData core::pseudoFSBase::searchFolderHelper(std::vector<std::string> path) {
     std::vector<folderData>* currentFolders = &(nrfs.getRoot().folders);
     folderData* currentFolder = nullptr;
     int newID = 0;
@@ -155,7 +155,7 @@ folderData pseudoFSBase::searchFolderHelper(std::vector<std::string> path) {
     return {};
 }
 
-fileData pseudoFSBase::searchFileHelper(std::vector<std::string> path) {
+core::fileData core::pseudoFSBase::searchFileHelper(std::vector<std::string> path) {
     std::vector<folderData>* currentFolders = &(nrfs.getRoot().folders);
     folderData* currentFolder = nullptr;
     int newID = 0;
@@ -185,7 +185,7 @@ fileData pseudoFSBase::searchFileHelper(std::vector<std::string> path) {
     return {};
 }
 
-void pseudoFSBase::createFolder(std::string path) {
+void core::pseudoFSBase::createFolder(std::string path) {
     std::vector<std::string> parsedPath = pathParser(path);
     if (parsedPath.size() == 2) {
         nrfs.getRoot().folders.push_back({parsedPath[1], tempID, 1, 1, {}, {}});
@@ -197,11 +197,11 @@ void pseudoFSBase::createFolder(std::string path) {
     }
 }
 
-folderData pseudoFSBase::getFolderData(std::string path) {
+core::folderData core::pseudoFSBase::getFolderData(std::string path) {
     return searchFolderHelper(pathParser(path));
 }
 
-void pseudoFSBase::createFile(std::string path) {
+void core::pseudoFSBase::createFile(std::string path) {
     std::vector<std::string> parsedPath = pathParser(path);
     if (parsedPath.size() == 2) {
         nrfs.getRoot().files.push_back({parsedPath[1], "", tempID, 1, 1});
@@ -213,7 +213,7 @@ void pseudoFSBase::createFile(std::string path) {
     }
 }
 
-void pseudoFSBase::setFileContent(std::string path, std::string content) {
+void core::pseudoFSBase::setFileContent(std::string path, std::string content) {
     std::vector<std::string> parsedPath = pathParser(path);
     if (parsedPath.size() == 2) {
         for (fileData& file : nrfs.getRoot().files) {
@@ -227,10 +227,10 @@ void pseudoFSBase::setFileContent(std::string path, std::string content) {
     }
 }
 
-fileData pseudoFSBase::getFileData(std::string path) {
+core::fileData core::pseudoFSBase::getFileData(std::string path) {
     return searchFileHelper(pathParser(path));
 }
 
-const NRFS& pseudoFSBase::getNRFS() {
+const core::NRFS& core::pseudoFSBase::getNRFS() {
     return nrfs;
 }

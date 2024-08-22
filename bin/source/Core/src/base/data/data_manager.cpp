@@ -25,7 +25,7 @@
 #include "Core/base/data/file_manager.h"
 #include "Core/base/data/data_manager.h"
 
-bool dataManager::valueExist(std::filesystem::path filePath, std::string value) {
+bool core::dataManager::valueExist(std::filesystem::path filePath, std::string value) {
 	fileManager FM;
 	nlohmann::json data = nlohmann::json::parse(FM.readFile(filePath));
 
@@ -35,7 +35,7 @@ bool dataManager::valueExist(std::filesystem::path filePath, std::string value) 
 	return false;
 }
 
-bool dataManager::keyExist(std::filesystem::path filePath, std::string key) {
+bool core::dataManager::keyExist(std::filesystem::path filePath, std::string key) {
 	fileManager FM;
 	nlohmann::json data = nlohmann::json::parse(FM.readFile(filePath));
 
@@ -45,7 +45,7 @@ bool dataManager::keyExist(std::filesystem::path filePath, std::string key) {
 	return false;
 }
 
-void dataManager::createData(std::filesystem::path filePath, std::string key, std::string value) {
+void core::dataManager::createData(std::filesystem::path filePath, std::string key, std::string value) {
 	fileManager FM;
 	if (FM.fileExist(filePath)) {
 		std::ofstream file(filePath, std::ios::out);
@@ -56,7 +56,7 @@ void dataManager::createData(std::filesystem::path filePath, std::string key, st
 	}
 }
 
-void dataManager::createData(std::filesystem::path filePath, std::vector<std::string> keys, std::vector<std::string> values) {
+void core::dataManager::createData(std::filesystem::path filePath, std::vector<std::string> keys, std::vector<std::string> values) {
 	fileManager FM;
 	if (FM.fileExist(filePath)) {
 		std::ofstream file(filePath, std::ios::out);
@@ -71,7 +71,7 @@ void dataManager::createData(std::filesystem::path filePath, std::vector<std::st
 	}
 }
 
-void dataManager::createVectorData(std::filesystem::path filePath, std::vector<std::string> values) {
+void core::dataManager::createVectorData(std::filesystem::path filePath, std::vector<std::string> values) {
 	fileManager FM;
 	if (FM.fileExist(filePath)) {
 		std::ofstream file(filePath, std::ios::out);
@@ -81,7 +81,7 @@ void dataManager::createVectorData(std::filesystem::path filePath, std::vector<s
 	}
 }
 
-void dataManager::deleteData(std::filesystem::path filePath, std::string key) {
+void core::dataManager::deleteData(std::filesystem::path filePath, std::string key) {
 	fileManager FM;
 	if (FM.fileExist(filePath)) {
 		std::ofstream fileTemp(filePathTemp, std::ios::out);
@@ -100,7 +100,7 @@ void dataManager::deleteData(std::filesystem::path filePath, std::string key) {
 	}
 }
 
-void dataManager::deleteVectorData(std::filesystem::path filePath, std::string value) {
+void core::dataManager::deleteVectorData(std::filesystem::path filePath, std::string value) {
 	fileManager FM;
 	if (FM.fileExist(filePath)) {
 		std::ofstream fileTemp(filePathTemp, std::ios::out);
@@ -119,7 +119,7 @@ void dataManager::deleteVectorData(std::filesystem::path filePath, std::string v
 	}
 }
 
-void dataManager::changeData(std::filesystem::path filePath, std::string key, std::string newValue, bool changeKey) {
+void core::dataManager::changeData(std::filesystem::path filePath, std::string key, std::string newValue, bool changeKey) {
 	fileManager FM;
 	if (FM.fileExist(filePath)) {
 		std::ofstream fileTemp(filePathTemp, std::ios::out);
@@ -149,7 +149,7 @@ void dataManager::changeData(std::filesystem::path filePath, std::string key, st
 	}
 }
 
-void dataManager::changeVectorData(std::filesystem::path filePath, std::string oldValue, std::string newValue) {
+void core::dataManager::changeVectorData(std::filesystem::path filePath, std::string oldValue, std::string newValue) {
 	fileManager FM;
 	if (FM.fileExist(filePath)) {
 		std::ofstream fileTemp(filePathTemp, std::ios::out);
@@ -171,7 +171,7 @@ void dataManager::changeVectorData(std::filesystem::path filePath, std::string o
 	}
 }
 
-void dataManager::addData(std::filesystem::path filePath, std::string key, std::string value) {
+void core::dataManager::addData(std::filesystem::path filePath, std::string key, std::string value) {
 	fileManager FM;
 	if (FM.fileExist(filePath)) {
 		std::map<std::string, std::string> notJsonTemp;
@@ -189,7 +189,7 @@ void dataManager::addData(std::filesystem::path filePath, std::string key, std::
 	}
 }
 
-void dataManager::addData(std::filesystem::path filePath, std::vector<std::string> keys, std::vector<std::string> values) {
+void core::dataManager::addData(std::filesystem::path filePath, std::vector<std::string> keys, std::vector<std::string> values) {
 	fileManager FM;
 	if (FM.fileExist(filePath)) {
 		std::map<std::string, std::string> notJsonTemp;
@@ -209,7 +209,7 @@ void dataManager::addData(std::filesystem::path filePath, std::vector<std::strin
 	}
 }
 
-void dataManager::addVectorData(std::filesystem::path filePath, std::string value) {
+void core::dataManager::addVectorData(std::filesystem::path filePath, std::string value) {
 	fileManager FM;
 	if (FM.fileExist(filePath)) {
 		std::vector<std::string> temp;
@@ -227,7 +227,7 @@ void dataManager::addVectorData(std::filesystem::path filePath, std::string valu
 	}
 }
 
-void dataManager::addVectorData(std::filesystem::path filePath, std::vector<std::string> values) {
+void core::dataManager::addVectorData(std::filesystem::path filePath, std::vector<std::string> values) {
 	fileManager FM;
 	if (FM.fileExist(filePath)) {
 		std::vector<std::string> temp;
@@ -247,7 +247,7 @@ void dataManager::addVectorData(std::filesystem::path filePath, std::vector<std:
 	}
 }
 
-std::string dataManager::getValue(std::filesystem::path filePath, std::string key) {
+std::string core::dataManager::getValue(std::filesystem::path filePath, std::string key) {
 	fileManager FM;
 	if (FM.fileExist(filePath)) {
 		nlohmann::json data = nlohmann::json::parse(FM.readFile(filePath));
@@ -259,7 +259,7 @@ std::string dataManager::getValue(std::filesystem::path filePath, std::string ke
 	return "";
 }
 
-std::string dataManager::getVectorValue(std::filesystem::path filePath, std::string value) {
+std::string core::dataManager::getVectorValue(std::filesystem::path filePath, std::string value) {
 	fileManager FM;
 	if (FM.fileExist(filePath)) {
 		nlohmann::json data = nlohmann::json::parse(FM.readFile(filePath));
@@ -271,7 +271,7 @@ std::string dataManager::getVectorValue(std::filesystem::path filePath, std::str
 	return "";
 }
 
-std::map<std::string, std::string> dataManager::readAllData(std::filesystem::path filePath) {
+std::map<std::string, std::string> core::dataManager::readAllData(std::filesystem::path filePath) {
 	fileManager FM;
 	if (FM.fileExist(filePath)) {
 		nlohmann::json data = nlohmann::json::parse(FM.readFile(filePath));
@@ -284,7 +284,7 @@ std::map<std::string, std::string> dataManager::readAllData(std::filesystem::pat
 	return {};
 }
 
-std::vector<std::string> dataManager::readAllVectorData(std::filesystem::path filePath) {
+std::vector<std::string> core::dataManager::readAllVectorData(std::filesystem::path filePath) {
 	fileManager FM;
 	if (FM.fileExist(filePath)) {
 		nlohmann::json data = nlohmann::json::parse(FM.readFile(filePath));
