@@ -18,6 +18,8 @@
 #ifndef NRC_BASE_PRINT_H_
 #define NRC_BASE_PRINT_H_
 #include <string>
+#include <vector>
+#include <map>
 
 namespace core {
     class print {
@@ -30,8 +32,16 @@ namespace core {
                 light_purple, light_yellow, bright_white 
             };
             print();
-            print(colors color, std::string message);
-            print(std::string message);
+            print(const std::string& message);
+            print(const colors& color, const std::string& message);
+
+            print(const colors& color, const std::vector<std::string>& yourVector);
+            //template<typename T>
+            //print(const colors& color, const std::vector<T>& vector); // hard
+
+            print(const colors& color, const std::map<std::string, std::string>& yourMap);
+            //template<typename T, typename A>
+            //print(const colors& color, const std::map<T, A>& map); // hard
     };
 }
 

@@ -9,7 +9,7 @@
 #include "Core/base/command/commands.h"
 
 void core::main::addCommands() {
-	handlerCommands::addCommand("help", "shows a list of all commands", core::commands::CORE_COMMAND_help);
+	handlerCommands::addCommand("help", {"shows a list of all commands", {"name"}}, core::commands::CORE_COMMAND_help, 0, 1);
 	//addCommand("exit", "exit", core::commands::CORE_COMMAND_exit);
 	//addCommand("cd", "cd" , core::commands::CORE_COMMAND_cd);
 	//addCommand("tree", "shows all files and folders in a tree view" , core::commands::CORE_COMMAND_tree);

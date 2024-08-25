@@ -20,9 +20,6 @@
 #include <vector>
 #include <fstream>
 #include <map>
-#if _WIN32
-#include <wutf8console.h>
-#endif
 #include "Core/base/print.h"
 #include "Core/base/command/commands.h"
 #include "Core/base/command/handler_commands.h"
@@ -30,18 +27,32 @@
 #include "Core/base/users/user_manager.h"
 #include "Core/base/filesystem/pseudo_fs.h"
 
-void core::commands::CORE_COMMAND_help() {
+void core::commands::CORE_COMMAND_help(std::vector<std::string> args) {
     handlerCommands HC;
-    for (const auto& command : HC.getAllCommands()) {
-        std::string argsNames = "";
-        if (!command.second.argsNames.empty()) {
-            argsNames = " [";
-            for (auto arg : command.second.argsNames) {
-                argsNames += " <" + arg + ">";
+    if (args.empty()) {
+        for (const auto& command : HC.getAllCommands()) {
+            std::string argsNames = "";
+            if (!command.second.argsNames.empty()) {
+                for (auto arg : command.second.argsNames) {
+                    argsNames += " <" + arg + ">";
+                }
             }
-            argsNames += " ]";
+            print(print::colors::light_green, command.first + argsNames + command.second.description + '\n');
         }
-        print(print::colors::light_green, command.first + argsNames + command.second.description + '\n');
+    }
+    else {
+        if (HC.getCommand(args[0]).empty())
+            core::print("Command not found\n");
+        else {
+            std::map<std::string, core::CommandDescription> temp = HC.getCommand(args[0]);
+            std::string argsNames = "";
+            if (!temp[args[0]].argsNames.empty()) {
+                for (auto arg : temp[args[0]].argsNames) {
+                    argsNames += " <" + arg + ">";
+                }
+            }
+            print(print::colors::light_green, args[0] + argsNames + temp[args[0]].description + '\n');
+        }
     }
 };
 
@@ -91,17 +102,13 @@ void core::commands::CORE_COMMAND_addUser() {
     std::string username;
     int permissions;
     print(print::colors::aqua, "Enter username: ");
-    #if _WIN32
-    wutf8console::cin >> username;
-    #else
-    std::cin >> username;
-    #endif
+    while (!(std::cin >> std::ws)) {
+        std::cin.clear();
+        std::cin.ignore(10000, '\n');
+    }
+    std::getline(std::cin, username);
     print(print::colors::aqua, "Permissions (Ghost (-1), User (0), Admin (1)) | ONLY NUMBERS: ");
-    #if _WIN32
-    wutf8console::cin >> permissions;
-    #else
     std::cin >> permissions;
-    #endif
     UM.addUser(username, static_cast<permissionsEC>(permissions));
 };
 
@@ -110,11 +117,11 @@ void core::commands::CORE_COMMAND_deleteUser() {
     userManager UM;
     std::string username;
     print(print::colors::aqua, "Enter username: ");
-    #if _WIN32
-    wutf8console::cin >> username;
-    #else
-    std::cin >> username;
-    #endif
+    while (!(std::cin >> std::ws)) {
+        std::cin.clear();
+        std::cin.ignore(10000, '\n');
+    }
+    std::getline(std::cin, username);
     UM.deleteUser(username);
 };
 
@@ -122,17 +129,17 @@ void core::commands::CORE_COMMAND_renameUser() {
     userManager UM;
     std::string username, newUsername;
     print(print::colors::aqua, "Enter username: ");
-    #if _WIN32
-    wutf8console::cin >> username;
-    #else
-    std::cin >> username;
-    #endif
+    while (!(std::cin >> std::ws)) {
+        std::cin.clear();
+        std::cin.ignore(10000, '\n');
+    }
+    std::getline(std::cin, username);
     print(print::colors::aqua, "Enter new username: ");
-    #if _WIN32
-    wutf8console::cin >> newUsername;
-    #else
-    std::cin >> newUsername;
-    #endif
+    while (!(std::cin >> std::ws)) {
+        std::cin.clear();
+        std::cin.ignore(10000, '\n');
+    }
+    std::getline(std::cin, newUsername);
     UM.renameUser(username, newUsername);
 }
 
@@ -141,17 +148,13 @@ void core::commands::CORE_COMMAND_setPermissionsUser() {
     std::string username;
     int permissions;
     print(print::colors::aqua, "Enter username: ");
-    #if _WIN32
-    wutf8console::cin >> username;
-    #else
-    std::cin >> username;
-    #endif
+    while (!(std::cin >> std::ws)) {
+        std::cin.clear();
+        std::cin.ignore(10000, '\n');
+    }
+    std::getline(std::cin, username);
     print(print::colors::aqua, "Permissions (Ghost (-1), User (0), Admin (1)) | ONLY NUMBERS: ");
-    #if _WIN32
-    wutf8console::cin >> permissions;
-    #else
     std::cin >> permissions;
-    #endif
     UM.changePermissionsUser(username, static_cast<permissionsEC>(permissions));
 };
 
@@ -185,15 +188,14 @@ void core::commands::CORE_COMMAND_logout() {
     userManager UM;
     std::string choice;
     print(print::colors::yellow, "Are you sure you want to log out of your current user account? (Y/N): ");
-    #if _WIN32
-    wutf8console::cin >> choice;
-    #else
     std::cin >> choice;
-    #endif
     while (true) {
         if (choice == "Y") { UM.userLogout(); break; }
         else if (choice == "N") { break; }
-        else { print(print::colors::red, "Error. Are you sure you want to log out of the current user account? (Y/N): "); }
+        else { 
+            print(print::colors::red, "Error. Are you sure you want to log out of the current user account? (Y/N): ");
+            std::cin >> choice;
+        }
     }
 }
 

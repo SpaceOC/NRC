@@ -7,10 +7,8 @@ SET(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
 project(NRC)
 
 set(CORE_SOURCE_DIR ${CMAKE_SOURCE_DIR}/source/Core/src)
-set(TPL_DIR ${CMAKE_SOURCE_DIR}/source/Third_Party_Libraries)
 
 add_library(NRC STATIC
-                ${TPL_DIR}/WindowsUTF8_Console/wutf8console.cpp
                 ${CORE_SOURCE_DIR}/base/print.cpp
                 ${CORE_SOURCE_DIR}/base/users/OOBE.cpp 
                 ${CORE_SOURCE_DIR}/base/users/permissions_enum_class.cpp 

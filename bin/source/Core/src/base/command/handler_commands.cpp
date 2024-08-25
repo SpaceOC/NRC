@@ -53,7 +53,7 @@ std::vector<std::string> core::handlerCommands::parsing(const std::string& comma
 std::string core::handlerCommands::realCommand(const std::string& badCommand) const {
 	if (!badCommand.empty()) {
 		std::string stringTemp;
-		for (const char& letter : badCommand) {
+		for (const char& letter : badCommand + ' ') {
 			if (isspace(letter))
 				return stringTemp;
 			else
@@ -72,8 +72,10 @@ void core::handlerCommands::sendCommand(const std::string& command, const std::v
     else {
 		auto itArgs = commandWithArgsMap.find(realCommand(command));
     	if (itArgs != commandWithArgsMap.end()) {
-			if (itArgs->second.maxArgs < args.size() || itArgs->second.maxArgs > args.size())
-				std::cout << "The number of arguments from the user does not equal the number of arguments required by the command. The number of arguments required: " << itArgs->second.maxArgs << '\n';
+			if (itArgs->second.maxArgs < args.size())
+				std::cout << "Too many arguments! Maximum number of command arguments: " << itArgs->second.maxArgs << '\n';
+			else if (itArgs->second.minArgs > args.size())
+				std::cout << "There are too few arguments! At least '" << itArgs->second.minArgs << "' is required" << '\n';
 			else
 				itArgs->second.function(args);
 		}
@@ -91,26 +93,29 @@ void core::handlerCommands::addCommand(const std::string& name, const std::strin
 	commandMap[name].description = temp;
 }
 
-void core::handlerCommands::addCommand(const std::string& name, const core::CommandBase& data, const std::function<void(std::vector<std::string>)>& function, int args) {
+void core::handlerCommands::addCommand(const std::string& name, const core::CommandDescription& data, const std::function<void(std::vector<std::string>)>& function, int minArgs, int maxArgs) {
 	std::string temp;
-	int realArgsSize = data.argsNames.size() - (data.argsNames.size() <= 1 ? 0 : 1);
-	int spacesToAdd = std::max(10, 26 - static_cast<int>(name.length() + data.argsNames.data()->length() + 4 + (3 * realArgsSize)));
+	int spacesToAdd = std::max(10, 26 - static_cast<int>(name.length() + data.argsNames.data()->length() + (3 * data.argsNames.size())));
 	temp += std::string(spacesToAdd, ' ');
 	temp += "\t  " + data.description;
-	commandWithArgsMap[name].maxArgs = args;
+	commandWithArgsMap[name].minArgs = minArgs;
+	commandWithArgsMap[name].maxArgs = maxArgs;
 	commandWithArgsMap[name].argsNames = data.argsNames;
 	commandWithArgsMap[name].function = function;
 	commandWithArgsMap[name].description = temp;
 }
 
-std::map<std::string, std::string> core::handlerCommands::getCommand(const std::string& name) const {
-	if(commandMap.count(name)) return {{name, commandMap[name].description}};
+std::map<std::string, core::CommandDescription> core::handlerCommands::getCommand(const std::string& name) const {
+	if (commandMap.count(name))
+		return {{name, {commandMap[name].description, {}}}};
+	else if (commandWithArgsMap.count(name))
+		return {{name, {commandWithArgsMap[name].description, commandWithArgsMap[name].argsNames}}};
 	return {};
 }
 
-std::map<std::string, core::CommandBase> core::handlerCommands::getAllCommands() const {
+std::map<std::string, core::CommandDescription> core::handlerCommands::getAllCommands() const {
 	if (commandMap.empty()) return {};
-	std::map<std::string, core::CommandBase> temp;
+	std::map<std::string, core::CommandDescription> temp;
 	for (auto commandData : commandMap) { 
 		temp[commandData.first].description = commandData.second.description;
 		temp[commandData.first].argsNames = {};

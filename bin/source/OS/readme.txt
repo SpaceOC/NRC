@@ -1,1 +1,0 @@
-Transfer the contents of the “OS” folder from https://github.com/SpaceOC/NRC-TemplateOS to here.

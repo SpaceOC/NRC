@@ -15,20 +15,13 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 #ifdef _WIN32
-    /*
-     * This C++ library  allows a C++ console program to use all
-     * common C++ input commands to input with UTF-8 in Windows.
-     *
-     * For more information, visit:
-     * https://github.com/Jalopy-Tech/WUTF8Console
-     *
-     */
-    #include <wutf8console.h>
+#include <Windows.h>
 #endif
 #include "Core/main.h"
 
 void core::main::fixNOW() {
     #ifdef _WIN32
-        wutf8console::setupConsole();
+    SetConsoleOutputCP(CP_UTF8);
+    SetConsoleCP(CP_UTF8);
     #endif
 }

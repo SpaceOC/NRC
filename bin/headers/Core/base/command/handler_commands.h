@@ -25,27 +25,27 @@
 #include <string>
 
 namespace core {
-	struct CommandData {
+	struct CommandInfo {
 		std::string description;
 		std::function<void()> function;
 	};
 
-	struct ArgsCommandData {
+	struct CommandWithArgsInfo {
 		std::string description;
-		int maxArgs;
+		int minArgs, maxArgs;
 		std::vector<std::string> argsNames;
 		std::function<void(std::vector<std::string>)> function;
 	};
 
-	struct CommandBase {
+	struct CommandDescription {
 		std::string description;
 		std::vector<std::string> argsNames;
 	};
 
 	class handlerCommands {
 		private:
-			static inline std::map<std::string, CommandData> commandMap;
-			static inline std::map<std::string, ArgsCommandData> commandWithArgsMap;
+			static inline std::map<std::string, CommandInfo> commandMap;
+			static inline std::map<std::string, CommandWithArgsInfo> commandWithArgsMap;
 		public:
 			handlerCommands();
 			virtual bool thisVariable(const std::string& command) const;
@@ -53,9 +53,9 @@ namespace core {
 			virtual std::string realCommand(const std::string& badCommand) const;
 			virtual void sendCommand(const std::string& command, const std::vector<std::string>& args) const;
 			static void addCommand(const std::string& name, const std::string& description, const std::function<void()>& function);
-			static void addCommand(const std::string& name, const CommandBase& data, const std::function<void(std::vector<std::string>)>& function, int args);
-			virtual std::map<std::string, std::string> getCommand(const std::string& name) const;
-			virtual std::map<std::string, CommandBase> getAllCommands() const;
+			static void addCommand(const std::string& name, const CommandDescription& data, const std::function<void(std::vector<std::string>)>& function, int minArgs, int maxArgs);
+			virtual std::map<std::string, CommandDescription> getCommand(const std::string& name) const;
+			virtual std::map<std::string, CommandDescription> getAllCommands() const;
 	};
 }
 

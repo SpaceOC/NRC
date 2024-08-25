@@ -1,7 +1,4 @@
 #include <iostream>
-#if _WIN32
-#include <wutf8console.h>
-#endif
 #include "Core/base/print.h"
 #include "Core/base/data/data_manager.h"
 #include "Core/base/data/file_manager.h"
@@ -10,11 +7,11 @@
 void core::userManager::userLogic() {
 	std::string usernameTemp; std::vector<std::string> temp;
 	print(print::colors::aqua, "Enter username: ");
-    #if _WIN32
-    wutf8console::cin >> usernameTemp;
-    #else
-    std::cin >> usernameTemp;
-    #endif
+    while (!(std::cin >> std::ws)) {
+        std::cin.clear();
+        std::cin.ignore(10000, '\n');
+    }
+	std::getline(std::cin, usernameTemp);
 
 	for (auto& user : users) temp.push_back(user.getUsername());
 	if (std::find(temp.begin(), temp.end(), usernameTemp) != temp.end())

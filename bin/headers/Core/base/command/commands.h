@@ -20,7 +20,7 @@
 
 namespace core {
     namespace commands {
-        void CORE_COMMAND_help();
+        void CORE_COMMAND_help(std::vector<std::string> args);
         void CORE_COMMAND_info();
         //void CORE_COMMAND_exit();
 
