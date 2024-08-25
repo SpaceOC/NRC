@@ -24,7 +24,8 @@ namespace core {
             static void fixNOW();
             static void addCommands();
         public:
-            static void init();
+            main();
+            ~main();
     };
 }
 

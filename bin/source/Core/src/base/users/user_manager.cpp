@@ -1,4 +1,7 @@
 #include <iostream>
+#if _WIN32
+#include <wutf8console.h>
+#endif
 #include "Core/base/print.h"
 #include "Core/base/data/data_manager.h"
 #include "Core/base/data/file_manager.h"
@@ -7,7 +10,11 @@
 void core::userManager::userLogic() {
 	std::string usernameTemp; std::vector<std::string> temp;
 	print(print::colors::aqua, "Enter username: ");
-	std::cin >> usernameTemp;
+    #if _WIN32
+    wutf8console::cin >> usernameTemp;
+    #else
+    std::cin >> usernameTemp;
+    #endif
 
 	for (auto& user : users) temp.push_back(user.getUsername());
 	if (std::find(temp.begin(), temp.end(), usernameTemp) != temp.end())
@@ -143,7 +150,7 @@ void core::userManager::deleteUser(const std::string& username) {
 			}
 			iter++;
 		}
-		FM.deleteFile(usersFilesPath + username + ".json");
+		FM.deleteFile(usersPath + username + ".json");
 		DM.deleteVectorData(usersListFilePath, username);
 	}
 	else print(print::colors::red, "This user could not be deleted\n");
@@ -166,9 +173,9 @@ void core::userManager::renameUser(const std::string& username, const std::strin
 		}
 		userTemp.editUsername(newUsername);
 		users.push_back(userTemp);
-		FM.renameFile(usersFilesPath + username + ".json", usersFilesPath + newUsername + ".json");
+		FM.renameFile(usersPath + username + ".json", usersPath + newUsername + ".json");
 		DM.changeVectorData(usersListFilePath, username, newUsername);
-		DM.changeData(usersFilesPath + newUsername + ".json", "Username", newUsername);
+		DM.changeData(usersPath + newUsername + ".json", "Username", newUsername);
 	}
 	else print(print::colors::red, "This user could not be renamed\n");
 }
@@ -177,7 +184,7 @@ void core::userManager::changePermissionsUser(const std::string& username, const
 	dataManager DM;
 	if (userExist(username) && !permissionsHighCurrentUser(username) && userHaveAdminPermissions(currentUser)) {
 		users[userVectorPos(username)].editPermissions(newPermissions);
-		DM.changeData(usersFilesPath + username + ".json", "Permissions", std::to_string(static_cast<int>(newPermissions)));
+		DM.changeData(usersPath + username + ".json", "Permissions", std::to_string(static_cast<int>(newPermissions)));
 	}
 	else print(print::colors::red, "This user failed to change permissions\n");
 }
@@ -200,8 +207,8 @@ void core::userManager::saveUserData(const std::string& username) {
 	dataManager DM; fileManager FM;
 	int userPos = userVectorPos(username);
 	std::vector<std::string> values = { username, users[userPos].getDisplayName(), std::to_string(static_cast<int>(users[userPos].getPermissions())), users[userPos].getLanguage(), "" };
-	FM.createFile(usersFilesPath + username + ".json");
-	DM.createData(usersFilesPath + username + ".json", keys, values);
+	FM.createFile(usersPath + username + ".json");
+	DM.createData(usersPath + username + ".json", keys, values);
 }
 
 void core::userManager::readUserData(const std::string& username) {
@@ -236,7 +243,7 @@ void core::userManager::readAllUsersData() {
 	dataManager DM;
 	for (const std::string& user : DM.readAllVectorData(usersListFilePath)) {
 		if (!userExist(user) && FM.fileExist("Data/Users/" + user + ".json")) 
-			addUserFromData(user, static_cast<permissionsEC>(stoi(DM.readAllData(usersFilesPath + user + ".json")["Permissions"])), DM.readAllData(usersFilesPath + user + ".json")["Language"]);
+			addUserFromData(user, static_cast<permissionsEC>(stoi(DM.readAllData(usersPath + user + ".json")["Permissions"])), DM.readAllData(usersPath + user + ".json")["Language"]);
 		else if (userExist(user) && FM.fileExist("Data/Users/" + user + ".json")) 
 			readUserData(user);
 		else 

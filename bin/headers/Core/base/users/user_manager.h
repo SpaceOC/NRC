@@ -33,7 +33,7 @@ namespace core {
 			static inline std::vector<user> users;
 			const std::string mainDataFilePath = "Data/MainData.json";
 			const std::string usersListFilePath = "Data/Users.json";
-			const std::string usersFilesPath = "Data/Users/";
+			const std::string usersPath = "Data/Users/";
 			const std::vector<std::string> keys = { "Username", "Display Name", "Permissions", "Language", "Password" };
 			void userLogic();
 			void userLogin(const std::string& username);

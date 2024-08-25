@@ -30,34 +30,56 @@ bool core::handlerCommands::thisVariable(const std::string& command) const {
 	return (command.substr(0, 1) == "%" && command.substr(command.length() - 1, command.length()) == "%");
 }
 
-core::commandBase core::handlerCommands::parsing(std::string& command) const {
-	/*
+std::vector<std::string> core::handlerCommands::parsing(const std::string& command) const {
 	if (!command.empty()) {
-		std::vector<char> src(command.begin(), command.end() + ' ');
 		std::vector<std::string> vectorTemp;
-		std::string temp;
-		for(size_t i = 0; i <= src.size() - 1; i++) {
-			if (src[i] == ' ') {
-				vectorTemp.push_back(temp);
-				temp = "";
+		std::string stringTemp;
+		bool first = true;
+		for (const char& letter : command + ' ') {
+			if (isspace(letter)) {
+				if (!first)
+					vectorTemp.push_back(stringTemp);
+				stringTemp = "";
+				first = false;
 			}
-			else {
-				temp += src[i];
-			}
+			else
+				stringTemp += letter;
 		}
 		return vectorTemp;
 	}
-	*/
 	return {};
 }
 
-void core::handlerCommands::sendCommand(const std::string& command) const {
+std::string core::handlerCommands::realCommand(const std::string& badCommand) const {
+	if (!badCommand.empty()) {
+		std::string stringTemp;
+		for (const char& letter : badCommand) {
+			if (isspace(letter))
+				return stringTemp;
+			else
+				stringTemp += letter;
+		}
+	}
+	return "";
+}
+
+void core::handlerCommands::sendCommand(const std::string& command, const std::vector<std::string>& args) const {
     auto it = commandMap.find(command);
     if (it != commandMap.end()) { it->second.function(); }
     else if (thisVariable(command)) {
         systemVariables SV; SV.sendVariable(command);
     }
-    else { std::cout << "Command not found" << '\n'; }
+    else {
+		auto itArgs = commandWithArgsMap.find(realCommand(command));
+    	if (itArgs != commandWithArgsMap.end()) {
+			if (itArgs->second.maxArgs < args.size() || itArgs->second.maxArgs > args.size())
+				std::cout << "The number of arguments from the user does not equal the number of arguments required by the command. The number of arguments required: " << itArgs->second.maxArgs << '\n';
+			else
+				itArgs->second.function(args);
+		}
+		else
+			std::cout << "Command not found" << '\n';
+	}
 }
 
 void core::handlerCommands::addCommand(const std::string& name, const std::string& description, const std::function<void()>& function) {
@@ -69,14 +91,33 @@ void core::handlerCommands::addCommand(const std::string& name, const std::strin
 	commandMap[name].description = temp;
 }
 
+void core::handlerCommands::addCommand(const std::string& name, const core::CommandBase& data, const std::function<void(std::vector<std::string>)>& function, int args) {
+	std::string temp;
+	int realArgsSize = data.argsNames.size() - (data.argsNames.size() <= 1 ? 0 : 1);
+	int spacesToAdd = std::max(10, 26 - static_cast<int>(name.length() + data.argsNames.data()->length() + 4 + (3 * realArgsSize)));
+	temp += std::string(spacesToAdd, ' ');
+	temp += "\t  " + data.description;
+	commandWithArgsMap[name].maxArgs = args;
+	commandWithArgsMap[name].argsNames = data.argsNames;
+	commandWithArgsMap[name].function = function;
+	commandWithArgsMap[name].description = temp;
+}
+
 std::map<std::string, std::string> core::handlerCommands::getCommand(const std::string& name) const {
 	if(commandMap.count(name)) return {{name, commandMap[name].description}};
 	return {};
 }
 
-std::map<std::string, std::string> core::handlerCommands::getAllCommands() const {
+std::map<std::string, core::CommandBase> core::handlerCommands::getAllCommands() const {
 	if (commandMap.empty()) return {};
-	std::map<std::string, std::string> temp;
-	for (auto elements : commandMap) { temp[elements.first] = elements.second.description; }
+	std::map<std::string, core::CommandBase> temp;
+	for (auto commandData : commandMap) { 
+		temp[commandData.first].description = commandData.second.description;
+		temp[commandData.first].argsNames = {};
+	}
+	for (auto commandData : commandWithArgsMap) { 
+		temp[commandData.first].description = commandData.second.description;
+		temp[commandData.first].argsNames = commandData.second.argsNames;
+	}
 	return temp;
 }

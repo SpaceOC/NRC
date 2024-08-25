@@ -20,6 +20,9 @@
 #include <vector>
 #include <fstream>
 #include <map>
+#if _WIN32
+#include <wutf8console.h>
+#endif
 #include "Core/base/print.h"
 #include "Core/base/command/commands.h"
 #include "Core/base/command/handler_commands.h"
@@ -29,8 +32,17 @@
 
 void core::commands::CORE_COMMAND_help() {
     handlerCommands HC;
-    for (auto command : HC.getAllCommands())
-        print(print::colors::light_green, command.first + command.second + '\n');
+    for (const auto& command : HC.getAllCommands()) {
+        std::string argsNames = "";
+        if (!command.second.argsNames.empty()) {
+            argsNames = " [";
+            for (auto arg : command.second.argsNames) {
+                argsNames += " <" + arg + ">";
+            }
+            argsNames += " ]";
+        }
+        print(print::colors::light_green, command.first + argsNames + command.second.description + '\n');
+    }
 };
 
 void core::commands::CORE_COMMAND_info() {
@@ -79,28 +91,48 @@ void core::commands::CORE_COMMAND_addUser() {
     std::string username;
     int permissions;
     print(print::colors::aqua, "Enter username: ");
+    #if _WIN32
+    wutf8console::cin >> username;
+    #else
     std::cin >> username;
+    #endif
     print(print::colors::aqua, "Permissions (Ghost (-1), User (0), Admin (1)) | ONLY NUMBERS: ");
+    #if _WIN32
+    wutf8console::cin >> permissions;
+    #else
     std::cin >> permissions;
+    #endif
     UM.addUser(username, static_cast<permissionsEC>(permissions));
 };
 
 
 void core::commands::CORE_COMMAND_deleteUser() {
     userManager UM;
-    std::string Username;
+    std::string username;
     print(print::colors::aqua, "Enter username: ");
-    std::cin >> Username;
-    UM.deleteUser(Username);
+    #if _WIN32
+    wutf8console::cin >> username;
+    #else
+    std::cin >> username;
+    #endif
+    UM.deleteUser(username);
 };
 
 void core::commands::CORE_COMMAND_renameUser() {
     userManager UM;
     std::string username, newUsername;
     print(print::colors::aqua, "Enter username: ");
+    #if _WIN32
+    wutf8console::cin >> username;
+    #else
     std::cin >> username;
-   print(print::colors::aqua, "Enter new username: ");
+    #endif
+    print(print::colors::aqua, "Enter new username: ");
+    #if _WIN32
+    wutf8console::cin >> newUsername;
+    #else
     std::cin >> newUsername;
+    #endif
     UM.renameUser(username, newUsername);
 }
 
@@ -109,9 +141,17 @@ void core::commands::CORE_COMMAND_setPermissionsUser() {
     std::string username;
     int permissions;
     print(print::colors::aqua, "Enter username: ");
+    #if _WIN32
+    wutf8console::cin >> username;
+    #else
     std::cin >> username;
+    #endif
     print(print::colors::aqua, "Permissions (Ghost (-1), User (0), Admin (1)) | ONLY NUMBERS: ");
+    #if _WIN32
+    wutf8console::cin >> permissions;
+    #else
     std::cin >> permissions;
+    #endif
     UM.changePermissionsUser(username, static_cast<permissionsEC>(permissions));
 };
 
@@ -145,7 +185,11 @@ void core::commands::CORE_COMMAND_logout() {
     userManager UM;
     std::string choice;
     print(print::colors::yellow, "Are you sure you want to log out of your current user account? (Y/N): ");
+    #if _WIN32
+    wutf8console::cin >> choice;
+    #else
     std::cin >> choice;
+    #endif
     while (true) {
         if (choice == "Y") { UM.userLogout(); break; }
         else if (choice == "N") { break; }

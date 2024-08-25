@@ -23,7 +23,7 @@ void core::main::addCommands() {
 	handlerCommands::addCommand("logout", "logging out of the current user account", core::commands::CORE_COMMAND_logout);
 }
 
-void core::main::init() {
+core::main::main() {
     fixNOW();
     addCommands();
     userManager UM;
@@ -38,4 +38,9 @@ void core::main::init() {
     }
     else
         UM.userLists();
+}
+
+core::main::~main() {
+    userManager UM;
+    std::cout << "Goodbye, " + (UM.yourUsername() != "" ? UM.yourUsername() : "user") + ".\n";
 }
