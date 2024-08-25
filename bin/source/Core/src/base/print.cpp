@@ -56,22 +56,86 @@ core::print::print(const colors& color, const std::vector<std::string>& yourVect
 		it++;
 	}
 	temp += " ]";
-	if (color == colors::black) { std::cout << dye::black(temp); }
-	else if (color == colors::blue) { std::cout << dye::blue(temp); }
-	else if (color == colors::green) { std::cout << dye::green(temp); }
-	else if (color == colors::aqua) { std::cout << dye::aqua(temp); }
-	else if (color == colors::red) { std::cout << dye::red(temp); }
-	else if (color == colors::purple) { std::cout << dye::purple(temp); }
-	else if (color == colors::yellow) { std::cout << dye::yellow(temp); }
-	else if (color == colors::white) { std::cout << dye::white(temp); }
-	else if (color == colors::grey) { std::cout << dye::grey(temp); }
-	else if (color == colors::light_blue) { std::cout << dye::light_blue(temp); }
-	else if (color == colors::light_green) { std::cout << dye::light_green(temp); }
-	else if (color == colors::light_aqua) { std::cout << dye::light_aqua(temp); }
-	else if (color == colors::light_red) { std::cout << dye::light_red(temp); }
-	else if (color == colors::light_purple) { std::cout << dye::light_purple(temp); }
-	else if (color == colors::light_yellow) { std::cout << dye::light_yellow(temp); }
-	else if (color == colors::bright_white) { std::cout << dye::bright_white(temp); }
+	core::print(color, temp);
+}
+
+core::print::print(const colors& color, const std::vector<int>& yourVector) {
+	std::string temp = "[ ";
+	auto it = yourVector.begin();
+	for (const int& str : yourVector) {
+		if (it == yourVector.begin())
+			temp += std::to_string(str);
+		else
+			temp += ", " + std::to_string(str);
+		it++;
+	}
+	temp += " ]";
+	core::print(color, temp);
+}
+
+core::print::print(const colors& color, const std::vector<float>& yourVector) {
+	std::string temp = "[ ";
+	auto it = yourVector.begin();
+	for (const float& str : yourVector) {
+		if (it == yourVector.begin())
+			temp += std::to_string(str);
+		else
+			temp += ", " + std::to_string(str);
+		it++;
+	}
+	temp += " ]";
+	core::print(color, temp);
+}
+
+core::print::print(const colors& color, const std::vector<double>& yourVector) {
+	std::string temp = "[ ";
+	auto it = yourVector.begin();
+	for (const double& str : yourVector) {
+		if (it == yourVector.begin())
+			temp += std::to_string(str);
+		else
+			temp += ", " + std::to_string(str);
+		it++;
+	}
+	temp += " ]";
+	core::print(color, temp);
+}
+
+core::print::print(const colors& color, const std::vector<char>& yourVector) {
+	std::string temp = "[ ";
+	auto it = yourVector.begin();
+	for (const char& str : yourVector) {
+		if (it == yourVector.begin()) {
+			temp += "\'";
+			temp += str;
+			temp += "\'";
+		}
+		else {
+			temp += ", \'";
+			temp += str;
+			temp += "\'";
+		}
+		it++;
+	}
+	temp += " ]";
+	core::print(color, temp);
+}
+
+core::print::print(const colors& color, const std::vector<bool>& yourVector) {
+	std::string temp = "[ ";
+	auto it = yourVector.begin();
+	for (const bool& str : yourVector) {
+		std::string trueOrFalse = (str ? "true" : "false");
+		if (it == yourVector.begin()) {
+			temp += trueOrFalse;
+		}
+		else {
+			temp += ", " + trueOrFalse;
+		}
+		it++;
+	}
+	temp += " ]";
+	core::print(color, temp);
 }
 
 core::print::print(const colors& color, const std::map<std::string, std::string>& yourMap) {
@@ -79,26 +143,82 @@ core::print::print(const colors& color, const std::map<std::string, std::string>
 	auto it = yourMap.begin();
 	for (const auto& str : yourMap) {
 		if (it == yourMap.begin())
-			temp += "[ " + str.first + ": \'" + str.second + "\']";
+			temp += "[ '" + str.first + "': '" + str.second + "']";
 		else
-			temp += ", [ " + str.first + ": \'" + str.second + "\']";
+			temp += ", [ '" + str.first + "': '" + str.second + "']";
 		it++;
 	}
 	temp += " ]";
-	if (color == colors::black) { std::cout << dye::black(temp); }
-	else if (color == colors::blue) { std::cout << dye::blue(temp); }
-	else if (color == colors::green) { std::cout << dye::green(temp); }
-	else if (color == colors::aqua) { std::cout << dye::aqua(temp); }
-	else if (color == colors::red) { std::cout << dye::red(temp); }
-	else if (color == colors::purple) { std::cout << dye::purple(temp); }
-	else if (color == colors::yellow) { std::cout << dye::yellow(temp); }
-	else if (color == colors::white) { std::cout << dye::white(temp); }
-	else if (color == colors::grey) { std::cout << dye::grey(temp); }
-	else if (color == colors::light_blue) { std::cout << dye::light_blue(temp); }
-	else if (color == colors::light_green) { std::cout << dye::light_green(temp); }
-	else if (color == colors::light_aqua) { std::cout << dye::light_aqua(temp); }
-	else if (color == colors::light_red) { std::cout << dye::light_red(temp); }
-	else if (color == colors::light_purple) { std::cout << dye::light_purple(temp); }
-	else if (color == colors::light_yellow) { std::cout << dye::light_yellow(temp); }
-	else if (color == colors::bright_white) { std::cout << dye::bright_white(temp); }
+	core::print(color, temp);
+}
+
+core::print::print(const colors& color, const std::map<std::string, int>& yourMap) {
+	std::string temp = "[ ";
+	auto it = yourMap.begin();
+	for (const auto& str : yourMap) {
+		if (it == yourMap.begin())
+			temp += "[ '" + str.first + "': " + std::to_string(str.second) + "]";
+		else
+			temp += ", [ '" + str.first + "': " + std::to_string(str.second) + "]";
+		it++;
+	}
+	temp += " ]";
+	core::print(color, temp);
+}
+
+core::print::print(const colors& color, const std::map<std::string, float>& yourMap) {
+	std::string temp = "[ ";
+	auto it = yourMap.begin();
+	for (const auto& str : yourMap) {
+		if (it == yourMap.begin())
+			temp += "[ '" + str.first + "': " + std::to_string(str.second) + "]";
+		else
+			temp += ", [ '" + str.first + "': " + std::to_string(str.second) + "]";
+		it++;
+	}
+	temp += " ]";
+	core::print(color, temp);
+}
+
+core::print::print(const colors& color, const std::map<std::string, double>& yourMap) {
+	std::string temp = "[ ";
+	auto it = yourMap.begin();
+	for (const auto& str : yourMap) {
+		if (it == yourMap.begin())
+			temp += "[ '" + str.first + "': " + std::to_string(str.second) + "]";
+		else
+			temp += ", [ '" + str.first + "': " + std::to_string(str.second) + "]";
+		it++;
+	}
+	temp += " ]";
+	core::print(color, temp);
+}
+
+core::print::print(const colors& color, const std::map<std::string, char>& yourMap) {
+	std::string temp = "[ ";
+	auto it = yourMap.begin();
+	for (const auto& str : yourMap) {
+		if (it == yourMap.begin())
+			temp += "[ '" + str.first + "': \'" + str.second + "\']";
+		else
+			temp += ", [ '" + str.first + "': \'" + str.second + "\']";
+		it++;
+	}
+	temp += " ]";
+	core::print(color, temp);
+}
+
+core::print::print(const colors& color, const std::map<std::string, bool>& yourMap) {
+	std::string temp = "[ ";
+	auto it = yourMap.begin();
+	for (const auto& str : yourMap) {
+		std::string trueOrFalse = (str.second ? "true" : "false");
+		if (it == yourMap.begin())
+			temp += "[ '" + str.first + "': " + trueOrFalse + "]";
+		else
+			temp += ", [ '" + str.first + "': " + trueOrFalse + "]";
+		it++;
+	}
+	temp += " ]";
+	core::print(color, temp);
 }

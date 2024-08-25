@@ -36,10 +36,20 @@ namespace core {
             print(const colors& color, const std::string& message);
 
             print(const colors& color, const std::vector<std::string>& yourVector);
+            print(const colors& color, const std::vector<int>& yourVector);
+            print(const colors& color, const std::vector<float>& yourVector);
+            print(const colors& color, const std::vector<double>& yourVector);
+            print(const colors& color, const std::vector<char>& yourVector);
+            print(const colors& color, const std::vector<bool>& yourVector);
             //template<typename T>
             //print(const colors& color, const std::vector<T>& vector); // hard
 
             print(const colors& color, const std::map<std::string, std::string>& yourMap);
+            print(const colors& color, const std::map<std::string, int>& yourMap);
+            print(const colors& color, const std::map<std::string, float>& yourMap);
+            print(const colors& color, const std::map<std::string, double>& yourMap);
+            print(const colors& color, const std::map<std::string, char>& yourMap);
+            print(const colors& color, const std::map<std::string, bool>& yourMap);
             //template<typename T, typename A>
             //print(const colors& color, const std::map<T, A>& map); // hard
     };
