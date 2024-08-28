@@ -6,7 +6,7 @@
 void core::OOBE() {
     userManager UM;
     std::string firstUsername;
-    print(print::colors::aqua, "Enter username: ");
+    print(colors::aqua, "Enter username: ");
     while (!(std::cin >> std::ws)) {
         std::cin.clear();
         std::cin.ignore(10000, '\n');

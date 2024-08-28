@@ -6,7 +6,7 @@
 
 void core::userManager::userLogic() {
 	std::string usernameTemp; std::vector<std::string> temp;
-	print(print::colors::aqua, "Enter username: ");
+	print(colors::aqua, "Enter username: ");
     while (!(std::cin >> std::ws)) {
         std::cin.clear();
         std::cin.ignore(10000, '\n');
@@ -17,7 +17,7 @@ void core::userManager::userLogic() {
 	if (std::find(temp.begin(), temp.end(), usernameTemp) != temp.end())
 		userLogin(usernameTemp);
 	else { 
-		print(print::colors::red, "User not found\n");
+		print(colors::red, "User not found\n");
 		userLogic();
 	}
 }
@@ -130,7 +130,7 @@ void core::userManager::addUser(const std::string& username, const permissionsEC
 		if (!DM.valueExist(usersListFilePath, username)) { DM.addVectorData(usersListFilePath, username); }
 		saveUserData(username);
 	}
-	else print(print::colors::red, "Failed to create a user\n");
+	else print(colors::red, "Failed to create a user\n");
 }
 
 void core::userManager::deleteUser(const std::string& username) {
@@ -150,7 +150,7 @@ void core::userManager::deleteUser(const std::string& username) {
 		FM.deleteFile(usersPath + username + ".json");
 		DM.deleteVectorData(usersListFilePath, username);
 	}
-	else print(print::colors::red, "This user could not be deleted\n");
+	else print(colors::red, "This user could not be deleted\n");
 }
 
 void core::userManager::renameUser(const std::string& username, const std::string& newUsername) {
@@ -174,7 +174,7 @@ void core::userManager::renameUser(const std::string& username, const std::strin
 		DM.changeVectorData(usersListFilePath, username, newUsername);
 		DM.changeData(usersPath + newUsername + ".json", "Username", newUsername);
 	}
-	else print(print::colors::red, "This user could not be renamed\n");
+	else print(colors::red, "This user could not be renamed\n");
 }
 
 void core::userManager::changePermissionsUser(const std::string& username, const permissionsEC& newPermissions) {
@@ -183,7 +183,7 @@ void core::userManager::changePermissionsUser(const std::string& username, const
 		users[userVectorPos(username)].editPermissions(newPermissions);
 		DM.changeData(usersPath + username + ".json", "Permissions", std::to_string(static_cast<int>(newPermissions)));
 	}
-	else print(print::colors::red, "This user failed to change permissions\n");
+	else print(colors::red, "This user failed to change permissions\n");
 }
 
 void core::userManager::userLists() {
@@ -244,6 +244,6 @@ void core::userManager::readAllUsersData() {
 		else if (userExist(user) && FM.fileExist("Data/Users/" + user + ".json")) 
 			readUserData(user);
 		else 
-			print(print::colors::red, "An error occurred while trying to create user '" + user + "' | readAllUsersData()\n");
+			print(colors::red, "An error occurred while trying to create user '" + user + "' | readAllUsersData()\n");
 	}
 }

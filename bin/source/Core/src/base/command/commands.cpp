@@ -37,7 +37,7 @@ void core::commands::CORE_COMMAND_help(std::vector<std::string> args) {
                     argsNames += " <" + arg + ">";
                 }
             }
-            print(print::colors::light_green, command.first + argsNames + command.second.description + '\n');
+            print(colors::light_green, command.first + argsNames + command.second.description + '\n');
         }
     }
     else {
@@ -51,7 +51,7 @@ void core::commands::CORE_COMMAND_help(std::vector<std::string> args) {
                     argsNames += " <" + arg + ">";
                 }
             }
-            print(print::colors::light_green, args[0] + argsNames + temp[args[0]].description + '\n');
+            print(colors::light_green, args[0] + argsNames + temp[args[0]].description + '\n');
         }
     }
 };
@@ -101,13 +101,13 @@ void core::commands::CORE_COMMAND_addUser() {
     userManager UM;
     std::string username;
     int permissions;
-    print(print::colors::aqua, "Enter username: ");
+    print(colors::aqua, "Enter username: ");
     while (!(std::cin >> std::ws)) {
         std::cin.clear();
         std::cin.ignore(10000, '\n');
     }
     std::getline(std::cin, username);
-    print(print::colors::aqua, "Permissions (Ghost (-1), User (0), Admin (1)) | ONLY NUMBERS: ");
+    print(colors::aqua, "Permissions (Ghost (-1), User (0), Admin (1)) | ONLY NUMBERS: ");
     std::cin >> permissions;
     UM.addUser(username, static_cast<permissionsEC>(permissions));
 };
@@ -116,7 +116,7 @@ void core::commands::CORE_COMMAND_addUser() {
 void core::commands::CORE_COMMAND_deleteUser() {
     userManager UM;
     std::string username;
-    print(print::colors::aqua, "Enter username: ");
+    print(colors::aqua, "Enter username: ");
     while (!(std::cin >> std::ws)) {
         std::cin.clear();
         std::cin.ignore(10000, '\n');
@@ -128,13 +128,13 @@ void core::commands::CORE_COMMAND_deleteUser() {
 void core::commands::CORE_COMMAND_renameUser() {
     userManager UM;
     std::string username, newUsername;
-    print(print::colors::aqua, "Enter username: ");
+    print(colors::aqua, "Enter username: ");
     while (!(std::cin >> std::ws)) {
         std::cin.clear();
         std::cin.ignore(10000, '\n');
     }
     std::getline(std::cin, username);
-    print(print::colors::aqua, "Enter new username: ");
+    print(colors::aqua, "Enter new username: ");
     while (!(std::cin >> std::ws)) {
         std::cin.clear();
         std::cin.ignore(10000, '\n');
@@ -147,13 +147,13 @@ void core::commands::CORE_COMMAND_setPermissionsUser() {
     userManager UM;
     std::string username;
     int permissions;
-    print(print::colors::aqua, "Enter username: ");
+    print(colors::aqua, "Enter username: ");
     while (!(std::cin >> std::ws)) {
         std::cin.clear();
         std::cin.ignore(10000, '\n');
     }
     std::getline(std::cin, username);
-    print(print::colors::aqua, "Permissions (Ghost (-1), User (0), Admin (1)) | ONLY NUMBERS: ");
+    print(colors::aqua, "Permissions (Ghost (-1), User (0), Admin (1)) | ONLY NUMBERS: ");
     std::cin >> permissions;
     UM.changePermissionsUser(username, static_cast<permissionsEC>(permissions));
 };
@@ -187,13 +187,13 @@ void core::commands::CORE_COMMAND_allInfoUsers() {
 void core::commands::CORE_COMMAND_logout() {
     userManager UM;
     std::string choice;
-    print(print::colors::yellow, "Are you sure you want to log out of your current user account? (Y/N): ");
+    print(colors::yellow, "Are you sure you want to log out of your current user account? (Y/N): ");
     std::cin >> choice;
     while (true) {
         if (choice == "Y") { UM.userLogout(); break; }
         else if (choice == "N") { break; }
         else { 
-            print(print::colors::red, "Error. Are you sure you want to log out of the current user account? (Y/N): ");
+            print(colors::red, "Error. Are you sure you want to log out of the current user account? (Y/N): ");
             std::cin >> choice;
         }
     }
@@ -206,15 +206,15 @@ void core::commands::CORE_COMMAND_logout() {
 void core::commands::CORE_COMMAND_allSystemVars() {
     systemVariables SV;
     for (auto var : SV.getAllVars()) {
-        print(print::colors::light_aqua, var.first + " - ");
-        print(print::colors::light_blue, var.second + "\n");
+        print(colors::light_aqua, var.first + " - ");
+        print(colors::light_blue, var.second + "\n");
     }
 }
 
 void core::commands::CORE_COMMAND_allLocalVars() {
     userManager UM;
     for (auto var : UM.getLocalVarsMap(UM.yourUsername())) {
-        print(print::colors::light_aqua, var.first + " - ");
-        print(print::colors::light_blue, var.second + "\n");
+        print(colors::light_aqua, var.first + " - ");
+        print(colors::light_blue, var.second + "\n");
     }
 }

@@ -15,8 +15,44 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 #include <iostream>
-#include <color_console/color.hpp>
 #include "Core/base/print.h"
+
+const std::string core::print::colorsSequence::black   = "\033[0;30m";
+const std::string core::print::colorsSequence::red     = "\033[0;31m";
+const std::string core::print::colorsSequence::green   = "\033[0;32m";
+const std::string core::print::colorsSequence::yellow  = "\033[0;33m";
+const std::string core::print::colorsSequence::blue    = "\033[0;34m";
+const std::string core::print::colorsSequence::purple  = "\033[0;35m";
+const std::string core::print::colorsSequence::aqua    = "\033[0;36m";
+const std::string core::print::colorsSequence::white   = "\033[0;37m";
+const std::string core::print::colorsSequence::grey    = "\033[1;30m";
+const std::string core::print::colorsSequence::light_red     = "\033[1;31m";
+const std::string core::print::colorsSequence::light_green   = "\033[1;32m";
+const std::string core::print::colorsSequence::light_yellow  = "\033[1;33m";
+const std::string core::print::colorsSequence::light_blue    = "\033[1;34m";
+const std::string core::print::colorsSequence::light_purple  = "\033[1;35m";
+const std::string core::print::colorsSequence::light_aqua    = "\033[1;36m";
+const std::string core::print::colorsSequence::bright_white  = "\033[1;37m";
+
+std::string core::print::getColorEscapeSequence(const colors& color) {
+    if (color == colors::black) return core::print::colorsSequence::black;
+    else if (color == colors::blue) return core::print::colorsSequence::blue;
+    else if (color == colors::green) return core::print::colorsSequence::green;
+    else if (color == colors::aqua) return core::print::colorsSequence::aqua;
+    else if (color == colors::red) return core::print::colorsSequence::red;
+    else if (color == colors::purple) return core::print::colorsSequence::purple;
+    else if (color == colors::yellow) return core::print::colorsSequence::yellow;
+    else if (color == colors::white) return core::print::colorsSequence::white;
+    else if (color == colors::grey) return core::print::colorsSequence::grey;
+    else if (color == colors::light_blue) return core::print::colorsSequence::light_blue;
+	else if (color == colors::light_green) return core::print::colorsSequence::light_green;
+    else if (color == colors::light_aqua) return core::print::colorsSequence::light_aqua;
+    else if (color == colors::light_red) return core::print::colorsSequence::light_red;
+    else if (color == colors::light_purple) return core::print::colorsSequence::light_purple;
+    else if (color == colors::light_yellow) return core::print::colorsSequence::light_yellow;
+	else if (color == colors::bright_white) return core::print::colorsSequence::bright_white;
+    return ""; // Default to no color
+}
 
 core::print::print() {
 	std::cout << '\n';
@@ -27,22 +63,8 @@ core::print::print(const std::string& message) {
 }
 
 core::print::print(const colors& color, const std::string& message) {
-	if (color == colors::black) { std::cout << dye::black(message); }
-	else if (color == colors::blue) { std::cout << dye::blue(message); }
-	else if (color == colors::green) { std::cout << dye::green(message); }
-	else if (color == colors::aqua) { std::cout << dye::aqua(message); }
-	else if (color == colors::red) { std::cout << dye::red(message); }
-	else if (color == colors::purple) { std::cout << dye::purple(message); }
-	else if (color == colors::yellow) { std::cout << dye::yellow(message); }
-	else if (color == colors::white) { std::cout << dye::white(message); }
-	else if (color == colors::grey) { std::cout << dye::grey(message); }
-	else if (color == colors::light_blue) { std::cout << dye::light_blue(message); }
-	else if (color == colors::light_green) { std::cout << dye::light_green(message); }
-	else if (color == colors::light_aqua) { std::cout << dye::light_aqua(message); }
-	else if (color == colors::light_red) { std::cout << dye::light_red(message); }
-	else if (color == colors::light_purple) { std::cout << dye::light_purple(message); }
-	else if (color == colors::light_yellow) { std::cout << dye::light_yellow(message); }
-	else if (color == colors::bright_white) { std::cout << dye::bright_white(message); }
+	std::string escapeSequence = core::print::getColorEscapeSequence(color);
+    std::cout << escapeSequence << message << "\033[0m";
 }
 
 core::print::print(const colors& color, const std::vector<std::string>& yourVector) {

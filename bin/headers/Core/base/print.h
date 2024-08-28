@@ -21,15 +21,24 @@
 #include <vector>
 #include <map>
 
-namespace core {
+namespace core {  
+    enum colors {
+        black, white, blue, yellow,
+        red, aqua, purple, green, grey,
+        light_blue, light_green, light_aqua, light_red,
+        light_purple, light_yellow, bright_white 
+    };
+          
     class print {
         private:
+            std::string getColorEscapeSequence(const colors& color);
         public:
-            enum colors {
-                black, white, blue, yellow,
-                red, aqua, purple, green, grey,
-                light_blue, light_green, light_aqua, light_red,
-                light_purple, light_yellow, bright_white 
+            class colorsSequence {
+            public:
+                static const std::string black, red, green, yellow, blue;
+                static const std::string purple, aqua, white, grey;
+                static const std::string light_red, light_green, light_yellow, light_blue;
+                static const std::string light_purple, light_aqua,bright_white;
             };
             print();
             print(const std::string& message);
