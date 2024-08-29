@@ -14,6 +14,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
+/*
 #include "Core/base/filesystem/pseudo_fs.h"
 
 std::vector<std::string> core::pseudoFSBase::pathParser(std::string path) {
@@ -234,3 +235,4 @@ core::fileData core::pseudoFSBase::getFileData(std::string path) {
 const core::NRFS& core::pseudoFSBase::getNRFS() {
     return nrfs;
 }
+*/

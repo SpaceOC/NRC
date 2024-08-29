@@ -14,6 +14,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
+/*
 #include "Core/base/filesystem/nrfs.h"
 #include <iostream>
 
@@ -91,3 +92,4 @@ void core::NRFS::printDiskSize() {
 core::NRFSDisk& core::NRFS::getRoot() {
     return root;
 }
+*/

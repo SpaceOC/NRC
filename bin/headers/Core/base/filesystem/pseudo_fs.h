@@ -15,6 +15,7 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 // is not finished!
+/*
 #pragma once
 #ifndef NRC_BASE_FILESYSTEM_PSEUDO_FS_H_
 #define NRC_BASE_FILESYSTEM_PSEUDO_FS_H_
@@ -60,3 +61,4 @@ namespace core {
 }
 
 #endif
+*/

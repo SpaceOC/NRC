@@ -26,7 +26,8 @@ namespace core {
         black, white, blue, yellow,
         red, aqua, purple, green, grey,
         light_blue, light_green, light_aqua, light_red,
-        light_purple, light_yellow, bright_white 
+        light_purple, light_yellow, bright_white,
+	none // no color
     };
           
     class print {

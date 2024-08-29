@@ -1,4 +1,5 @@
 #include <iostream>
+#include <algorithm>
 #include "Core/base/print.h"
 #include "Core/base/data/data_manager.h"
 #include "Core/base/data/file_manager.h"
