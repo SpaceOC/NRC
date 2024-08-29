@@ -19,7 +19,7 @@ void counter() {
     } 
 
     a--;
-    print("Max number: ");
+    core::print("Max number: ");
 
     while(!(std::cin >> b)) {
         std::cin.clear();
