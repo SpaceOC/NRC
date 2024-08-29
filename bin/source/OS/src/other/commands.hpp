@@ -28,13 +28,13 @@ void counter() {
     }
     
     if (a > b) {
-        core::print(core::print::colors::red, "The minimum number cannot be greater than the maximum number!!!\n");
+        core::print(core::colors::red, "The minimum number cannot be greater than the maximum number!!!\n");
         return;
     }
 
     if (b >= 1000000 || b <= -1000000) {
         std::string yourChoice;
-        core::print(core::print::colors::yellow, "Attention! This number is huge and it will take a long time to finish working with such a number. Do you want to continue? (Y/N) \t");
+        core::print(core::colors::yellow, "Attention! This number is huge and it will take a long time to finish working with such a number. Do you want to continue? (Y/N) \t");
         std::cin >> yourChoice;
         if (yourChoice == "N") {
             return;
@@ -55,12 +55,12 @@ void counter() {
         }
         file.close();
     } else {
-        core::print(core::print::colors::red, "Error!\n");
+        core::print(core::colors::red, "Error!\n");
         return;
     }
 
     core::print("----------------------------------------------------------\n");
-    core::print(core::print::colors::green, "It's done! The file is saved in the Texts folder under the name \"counter.txt\"\n");
+    core::print(core::colors::green, "It's done! The file is saved in the Texts folder under the name \"counter.txt\"\n");
     std::string yourChoice;
     core::print("Exit? (Y/N) \t");
     std::cin >> yourChoice;

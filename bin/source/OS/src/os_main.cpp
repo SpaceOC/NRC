@@ -12,7 +12,7 @@ bool work = true;
 void commandsZone() {
     core::handlerCommands hc;
     while(work) {
-        print(">>> ");
+        core::print(">>> ");
         std::string userInputResult;
         
         while (!(std::cin >> std::ws)) {
@@ -20,7 +20,8 @@ void commandsZone() {
             std::cin.ignore(10000, '\n');
         }
         getline(std::cin, userInputResult);
-        hc.sendCommand(userInputResult);
+        std::vector<std::string> parsed = hc.parsing(userInputResult);
+        hc.sendCommand(userInputResult, parsed);
     }
 }
 

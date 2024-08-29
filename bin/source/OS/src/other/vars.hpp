@@ -9,7 +9,7 @@ extern std::atomic<int> atomicI;
 extern void hi(); // from commands.hpp
 
 void I() {
-    core::print(core::print::colors::green, "i: " + std::to_string(atomicI) + "\n");
+    core::print(core::colors::green, "i: " + std::to_string(atomicI) + "\n");
 }
 
 void addVariables() {
