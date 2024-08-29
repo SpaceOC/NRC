@@ -59,7 +59,6 @@ void core::commands::CORE_COMMAND_help(std::vector<std::string> args) {
 void core::commands::CORE_COMMAND_info() {
     std::cout << CORE_NAME << " by " << CORE_DEVELOPER << '\n' << CORE_VERSION << '\n';
     std::cout << "JSON library by nlohmann - https://github.com/nlohmann/json \n";
-    std::cout << "CC (Color Console) by aafulei - https://github.com/aafulei/color-console \n\n";
     std::cout << " --- Special Thanks ---\nAlone Knight - migrating NRC from Makefile to CMake\n";
 };
 
