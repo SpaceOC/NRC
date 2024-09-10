@@ -28,6 +28,3 @@ make
 # Documentation
 - EN: https://github.com/SpaceOC/NRC/wiki
 - RU: https://spaceoc.gitbook.io/nrc-docs-ru/
-
-# tree
-A branch where you can see the current unfinished version of the NRC: https://github.com/SpaceOC/NRC/tree/developed
