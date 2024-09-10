@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.11)
 
+set(CMAKE_BUILD_TYPE Release)
 SET(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
 SET(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
 SET(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
@@ -16,3 +17,12 @@ add_executable(OS
 				${OS_SOURCE_DIR}/other/commands.hpp)
 target_link_libraries(OS NRC)
 
+target_compile_options(OS
+    PUBLIC
+        -O2
+        -Wall
+        -Wextra
+        #-Werror
+        -Wpedantic
+        -static
+)

@@ -16,7 +16,6 @@
 */
 // is not finished!
 /*
-#pragma once
 #ifndef NRC_BASE_FILESYSTEM_PSEUDO_FS_H_
 #define NRC_BASE_FILESYSTEM_PSEUDO_FS_H_
 #include <iostream>

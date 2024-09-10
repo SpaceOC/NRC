@@ -15,7 +15,6 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 // is not finished!
-#pragma once
 #ifndef NRC_EXPERIMENTAL_PROCESS_H_
 #define NRC_EXPERIMENTAL_PROCESS_H_
 #include <map>
