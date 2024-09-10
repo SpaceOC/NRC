@@ -45,12 +45,12 @@ std::string core::print::getColorEscapeSequence(const colors& color) {
     else if (color == colors::white) return core::print::colorsSequence::white;
     else if (color == colors::grey) return core::print::colorsSequence::grey;
     else if (color == colors::light_blue) return core::print::colorsSequence::light_blue;
-    else if (color == colors::light_green) return core::print::colorsSequence::light_green;
+	else if (color == colors::light_green) return core::print::colorsSequence::light_green;
     else if (color == colors::light_aqua) return core::print::colorsSequence::light_aqua;
     else if (color == colors::light_red) return core::print::colorsSequence::light_red;
     else if (color == colors::light_purple) return core::print::colorsSequence::light_purple;
     else if (color == colors::light_yellow) return core::print::colorsSequence::light_yellow;
-    else if (color == colors::bright_white) return core::print::colorsSequence::bright_white;
+	else if (color == colors::bright_white) return core::print::colorsSequence::bright_white;
     return ""; // Default to no color
 }
 

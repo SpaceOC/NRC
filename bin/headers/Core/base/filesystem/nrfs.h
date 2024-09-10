@@ -16,7 +16,6 @@
 */
 // is not finished!
 /*
-#pragma once
 #ifndef NRC_BASE_FILESYSTEM_NRFS_H_
 #define NRC_BASE_FILESYSTEM_NRFS_H_
 #include <string>

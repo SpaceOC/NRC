@@ -14,7 +14,6 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
-#pragma once
 #ifndef NRC_BASE_PRINT_H_
 #define NRC_BASE_PRINT_H_
 #include <string>
@@ -26,8 +25,7 @@ namespace core {
         black, white, blue, yellow,
         red, aqua, purple, green, grey,
         light_blue, light_green, light_aqua, light_red,
-        light_purple, light_yellow, bright_white,
-	    none // no color
+        light_purple, light_yellow, bright_white 
     };
           
     class print {

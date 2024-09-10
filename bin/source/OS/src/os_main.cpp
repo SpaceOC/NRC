@@ -1,6 +1,7 @@
 #include <iostream>
 #include <map>
 #include <string>
+#include <vector>
 #include <chrono>
 #include "Core/extra/variables.h"
 #include "other/vars.hpp"
@@ -20,8 +21,10 @@ void commandsZone() {
             std::cin.ignore(10000, '\n');
         }
         getline(std::cin, userInputResult);
-        std::vector<std::string> parsed = hc.parsing(userInputResult);
-        hc.sendCommand(userInputResult, parsed);
+        std::vector<core::CommandObject> parsedCommands = hc.parsing(userInputResult);
+        for (const core::CommandObject& command : parsedCommands) {
+            HC.sendCommand(command);
+        }
     }
 }
 

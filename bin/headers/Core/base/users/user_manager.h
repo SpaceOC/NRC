@@ -14,7 +14,6 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
-#pragma once
 #ifndef NRC_BASE_USERS_USER_MANAGER_H_
 #define NRC_BASE_USERS_USER_MANAGER_H_
 
@@ -50,6 +49,7 @@ namespace core {
 			bool getUserIsLogined();
 			bool getOOBE_Passed();
 			int userVectorPos(const std::string& username);
+			user currentUserData();
 			const std::string yourUsername();
 			std::map<std::string, std::string> getUserMap();
 			std::map<std::string, std::string> getLocalVarsMap(const std::string& username);

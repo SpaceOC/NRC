@@ -20,6 +20,8 @@
 #include <vector>
 #include <fstream>
 #include <map>
+#include <ctime>
+#include <chrono>
 #include "Core/base/print.h"
 #include "Core/base/command/commands.h"
 #include "Core/base/command/handler_commands.h"
@@ -27,7 +29,7 @@
 #include "Core/base/users/user_manager.h"
 #include "Core/base/filesystem/pseudo_fs.h"
 
-void core::commands::CORE_COMMAND_help(std::vector<std::string> args) {
+void core::commands::CORE_COMMAND_help(const std::vector<std::string>& args) {
     handlerCommands HC;
     if (args.empty()) {
         for (const auto& command : HC.getAllCommands()) {
@@ -41,26 +43,42 @@ void core::commands::CORE_COMMAND_help(std::vector<std::string> args) {
         }
     }
     else {
-        if (HC.getCommand(args[0]).empty())
+        if (HC.getCommand(args.at(0)).empty())
             core::print("Command not found\n");
         else {
-            std::map<std::string, core::CommandDescription> temp = HC.getCommand(args[0]);
+            std::map<std::string, core::CommandDescription> temp = HC.getCommand(args.at(0));
             std::string argsNames = "";
-            if (!temp[args[0]].argsNames.empty()) {
-                for (auto arg : temp[args[0]].argsNames) {
+            if (!temp[args.at(0)].argsNames.empty()) {
+                for (auto arg : temp[args.at(0)].argsNames) {
                     argsNames += " <" + arg + ">";
                 }
             }
-            print(colors::light_green, args[0] + argsNames + temp[args[0]].description + '\n');
+            print(colors::light_green, args.at(0) + argsNames + temp[args.at(0)].description + '\n');
         }
     }
 };
 
 void core::commands::CORE_COMMAND_info() {
-    std::cout << CORE_NAME << " by " << CORE_DEVELOPER << '\n' << CORE_VERSION << '\n';
+    std::cout << CORE_NAME << " by " << CORE_DEVELOPER << '\n' << CORE_VERSION << " " << CORE_VERSION_TYPE << '\n';
     std::cout << "JSON library by nlohmann - https://github.com/nlohmann/json \n";
     std::cout << " --- Special Thanks ---\nAlone Knight - migrating NRC from Makefile to CMake\n";
 };
+
+void core::commands::CORE_COMMAND_time(const std::vector<std::string>& args) {
+    handlerCommands HC;
+    auto start = std::chrono::steady_clock::now();
+    std::string temp;
+    for (const std::string& anotherTemp : args) {
+        temp += anotherTemp + (anotherTemp != args.back() ? " " : "");
+    }
+    core::CommandObject command = HC.parsing(temp).at(0);
+    HC.sendCommand(command);
+    auto end = std::chrono::steady_clock::now();
+    long long duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+    core::print(core::colors::light_green, "time: ");
+    std::cout << duration;
+    core::print(core::colors::light_green, "ms\n");
+}
 
 /*
 void core::commands:: core::commands:: CORE_COMMAND_exit() {

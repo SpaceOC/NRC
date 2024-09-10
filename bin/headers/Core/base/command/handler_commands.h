@@ -14,7 +14,6 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
-#pragma once
 #ifndef NRC_BASE_COMMAND_HANDLER_COMMANDS_H_
 #define NRC_BASE_COMMAND_HANDLER_COMMANDS_H_
 
@@ -42,16 +41,23 @@ namespace core {
 		std::vector<std::string> argsNames;
 	};
 
+	// for parsing, sendCommand
+	struct CommandObject {
+		std::string name;
+		std::vector<std::string> args = {};
+	};
+
 	class handlerCommands {
 		private:
 			static inline std::map<std::string, CommandInfo> commandMap;
 			static inline std::map<std::string, CommandWithArgsInfo> commandWithArgsMap;
+			static inline std::string commandSeparator = "&//";
 		public:
 			handlerCommands();
 			virtual bool thisVariable(const std::string& command) const;
-			virtual std::vector<std::string> parsing(const std::string& command) const;
-			virtual std::string realCommand(const std::string& badCommand) const;
-			virtual void sendCommand(const std::string& command, const std::vector<std::string>& args) const;
+			virtual std::vector<CommandObject> parsing(const std::string& rawCommand) const;
+			virtual void sendCommand(const core::CommandObject& command) const;
+			static void setCommandSeparator(const std::string& commandSeparator);
 			static void addCommand(const std::string& name, const std::string& description, const std::function<void()>& function);
 			static void addCommand(const std::string& name, const CommandDescription& data, const std::function<void(std::vector<std::string>)>& function, int minArgs, int maxArgs);
 			virtual std::map<std::string, CommandDescription> getCommand(const std::string& name) const;

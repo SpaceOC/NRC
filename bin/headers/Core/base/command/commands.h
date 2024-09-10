@@ -14,14 +14,14 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
-#pragma once
 #ifndef NRC_BASE_COMMAND_COMMANDS_H_
 #define NRC_BASE_COMMAND_COMMANDS_H_
 
 namespace core {
     namespace commands {
-        void CORE_COMMAND_help(std::vector<std::string> args);
+        void CORE_COMMAND_help(const std::vector<std::string>& args);
         void CORE_COMMAND_info();
+        void CORE_COMMAND_time(const std::vector<std::string>& args);
         //void CORE_COMMAND_exit();
 
         //   -------------- Pseudo FS Commands ---------------

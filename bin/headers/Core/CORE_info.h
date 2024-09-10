@@ -14,11 +14,11 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
-#pragma once
 #ifndef NRC_CORE_INFO_H_
 #define NRC_CORE_INFO_H_
 
-#define CORE_VERSION            "0.4.3 Alpha"
+#define CORE_VERSION            "0.4.4"
+#define CORE_VERSION_TYPE       "alpha"
 #define CORE_NAME               "NRC"
 #define CORE_DEVELOPER          "SpaceOC"
 

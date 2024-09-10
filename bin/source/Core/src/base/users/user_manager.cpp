@@ -1,5 +1,4 @@
 #include <iostream>
-#include <algorithm>
 #include "Core/base/print.h"
 #include "Core/base/data/data_manager.h"
 #include "Core/base/data/file_manager.h"
@@ -68,6 +67,9 @@ int core::userManager::userVectorPos(const std::string& username) {
 	return -1;
 }
 
+core::user core::userManager::currentUserData() {
+	return users[userVectorPos(currentUser)];
+}
 const std::string core::userManager::yourUsername() { return currentUser; }
 
 std::map<std::string, std::string> core::userManager::getUserMap() {

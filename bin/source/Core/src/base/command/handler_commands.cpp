@@ -23,6 +23,7 @@
 #include "Core/extra/variables.h"
 #include "Core/base/command/commands.h"
 #include "Core/base/command/handler_commands.h"
+#include "Core/base/utils.h"
 
 core::handlerCommands::handlerCommands() {}
 
@@ -30,58 +31,50 @@ bool core::handlerCommands::thisVariable(const std::string& command) const {
 	return (command.substr(0, 1) == "%" && command.substr(command.length() - 1, command.length()) == "%");
 }
 
-std::vector<std::string> core::handlerCommands::parsing(const std::string& command) const {
-	if (!command.empty()) {
-		std::vector<std::string> vectorTemp;
-		std::string stringTemp;
-		bool first = true;
-		for (const char& letter : command + ' ') {
-			if (isspace(letter)) {
-				if (!first)
-					vectorTemp.push_back(stringTemp);
-				stringTemp = "";
-				first = false;
+std::vector<core::CommandObject> core::handlerCommands::parsing(const std::string& rawCommand) const {
+	if (!rawCommand.empty()) {
+		std::vector<core::CommandObject> result;
+		std::vector<std::string> temp = core::Utils::split(rawCommand, ' ');
+		temp.push_back(commandSeparator);
+		std::vector<std::string> anotherTemp;
+		for (const std::string& rawCommandData : temp) {
+			if (rawCommandData == commandSeparator) {
+				std::string commandName = anotherTemp.at(0);
+				anotherTemp.erase(anotherTemp.begin());
+				result.push_back({commandName, anotherTemp});
+				anotherTemp = {};
 			}
 			else
-				stringTemp += letter;
+				anotherTemp.push_back(rawCommandData);
 		}
-		return vectorTemp;
+		return result;
 	}
 	return {};
 }
 
-std::string core::handlerCommands::realCommand(const std::string& badCommand) const {
-	if (!badCommand.empty()) {
-		std::string stringTemp;
-		for (const char& letter : badCommand + ' ') {
-			if (isspace(letter))
-				return stringTemp;
-			else
-				stringTemp += letter;
-		}
-	}
-	return "";
-}
-
-void core::handlerCommands::sendCommand(const std::string& command, const std::vector<std::string>& args) const {
-    auto it = commandMap.find(command);
-    if (it != commandMap.end()) { it->second.function(); }
-    else if (thisVariable(command)) {
-        systemVariables SV; SV.sendVariable(command);
+void core::handlerCommands::sendCommand(const core::CommandObject& command) const {
+    auto it = commandMap.find(command.name);
+    if (it != commandMap.end() && command.args.empty()) { it->second.function(); }
+    else if (thisVariable(command.name)) {
+        systemVariables SV; SV.sendVariable(command.name);
     }
     else {
-		auto itArgs = commandWithArgsMap.find(realCommand(command));
+		auto itArgs = commandWithArgsMap.find(command.name);
     	if (itArgs != commandWithArgsMap.end()) {
-			if (itArgs->second.maxArgs < args.size())
+			if (itArgs->second.maxArgs < command.args.size())
 				std::cout << "Too many arguments! Maximum number of command arguments: " << itArgs->second.maxArgs << '\n';
-			else if (itArgs->second.minArgs > args.size())
+			else if (itArgs->second.minArgs > command.args.size())
 				std::cout << "There are too few arguments! At least '" << itArgs->second.minArgs << "' is required" << '\n';
 			else
-				itArgs->second.function(args);
+				itArgs->second.function(command.args);
 		}
 		else
 			std::cout << "Command not found" << '\n';
 	}
+}
+
+void core::handlerCommands::setCommandSeparator(const std::string& newCommandSeparator) {
+	commandSeparator = newCommandSeparator;
 }
 
 void core::handlerCommands::addCommand(const std::string& name, const std::string& description, const std::function<void()>& function) {
