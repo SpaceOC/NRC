@@ -55,6 +55,7 @@ namespace core {
             std::string getUsername();
             std::string getDisplayName();
             std::string getLanguage();
+            std::string getPassword();
             permissionsEC getPermissions();
 
             std::function<void()> varFuncStart(const std::string& name);

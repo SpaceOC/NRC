@@ -28,6 +28,7 @@
 #include "Core/CORE_info.h"
 #include "Core/base/users/user_manager.h"
 #include "Core/base/filesystem/pseudo_fs.h"
+#include "Core/base/utils.h"
 
 void core::commands::CORE_COMMAND_help(const std::vector<std::string>& args) {
     handlerCommands HC;
@@ -68,9 +69,10 @@ void core::commands::CORE_COMMAND_time(const std::vector<std::string>& args) {
     handlerCommands HC;
     auto start = std::chrono::steady_clock::now();
     std::string temp;
-    for (const std::string& anotherTemp : args) {
-        temp += anotherTemp + (anotherTemp != args.back() ? " " : "");
-    }
+
+    for (const std::string& anotherTemp : args)
+        temp += (anotherTemp == HC.getCommandSeparator() ? "" : "\"") + anotherTemp + (anotherTemp != args.back() ? (anotherTemp == HC.getCommandSeparator() ? "" : "\" ") : (anotherTemp == HC.getCommandSeparator() ? "" : "\""));
+    
     core::CommandObject command = HC.parsing(temp).at(0);
     HC.sendCommand(command);
     auto end = std::chrono::steady_clock::now();
@@ -114,7 +116,73 @@ void core::commands:: core::commands:: CORE_COMMAND_tree() {
 
 //   -------------- Users "Manager" ---------------
 
-void core::commands::CORE_COMMAND_addUser() {
+void core::commands::CORE_COMMAND_setPasswordWithDialogue() {
+    userManager UM;
+    if (UM.havePassword(UM.yourUsername())) {
+        std::string oldPassword;
+        print(colors::aqua, "Enter (old) password: ");
+        while (!(std::cin >> std::ws)) {
+            std::cin.clear();
+            std::cin.ignore(10000, '\n');
+        }
+        std::getline(std::cin, oldPassword);
+        if (!UM.currentUserData().truePassword(oldPassword)) {
+            print(colors::red, "Wrong password!\n");
+            return;
+        }
+    }
+
+    std::string password;
+    print(colors::aqua, "Enter new password: ");
+    while (!(std::cin >> std::ws)) {
+        std::cin.clear();
+        std::cin.ignore(10000, '\n');
+    }
+    std::getline(std::cin, password);
+    UM.currentUserData().editPassword(password);
+    UM.saveUserData(UM.yourUsername());
+}
+
+void core::commands::CORE_COMMAND_setPassword(const std::vector<std::string>& args) {
+    userManager UM;
+    if (args.empty()) {
+        CORE_COMMAND_setPasswordWithDialogue();
+        return;
+    }
+    else if (UM.havePassword(UM.yourUsername())) {
+        if (!UM.currentUserData().truePassword(args[0])) {
+            print(colors::red, "Wrong password!\n");
+            return;
+        }
+    }
+    UM.currentUserData().editPassword((UM.havePassword(UM.yourUsername()) ? args[1] : args[0]));
+    UM.saveUserData(UM.yourUsername());
+}
+
+void core::commands::CORE_COMMAND_editDisplayNameWithDialogue() {
+    userManager UM;
+    std::string displayName;
+    print(colors::aqua, "Enter new Display Name: ");
+    while (!(std::cin >> std::ws)) {
+        std::cin.clear();
+        std::cin.ignore(10000, '\n');
+    }
+    std::getline(std::cin, displayName);
+    UM.currentUserData().editDisplayName(displayName);
+    UM.saveUserData(UM.yourUsername());
+}
+
+void core::commands::CORE_COMMAND_editDisplayName(const std::vector<std::string>& args) {
+    if (args.empty()) {
+        CORE_COMMAND_editDisplayNameWithDialogue();
+        return;
+    }
+    userManager UM;
+    UM.currentUserData().editDisplayName(args[0]);
+    UM.saveUserData(UM.yourUsername());
+}
+
+void core::commands::CORE_COMMAND_addUserWithDialogue() {
     userManager UM;
     std::string username;
     int permissions;
@@ -129,8 +197,33 @@ void core::commands::CORE_COMMAND_addUser() {
     UM.addUser(username, static_cast<permissionsEC>(permissions));
 };
 
+void core::commands::CORE_COMMAND_addUser(const std::vector<std::string>& args) {
+    if (args.empty()) {
+        CORE_COMMAND_addUserWithDialogue();
+        return;
+    }
+    else if (args[1].empty()) {
+        core::print(core::colors::red, "COMMAND WARNING: A user will be created with \"User\" permissions\n");
+    }
+    else {
+        long long int pos = 1;
+        for (const char& letter : args[0]) {
+            if (ispunct(letter) || letter == ',' || letter == '.') {
+                core::print(core::colors::red, "COMMAND ERROR: Invalid character found (position " + std::to_string(pos) + ")\n");
+                return;
+            }
+            pos++;
+        }
+        if (!core::Utils::stringIsNumbers(args[1])) {
+            core::print(core::colors::red, "COMMAND ERROR\n");
+            return;
+        }
+    }
+    userManager UM;
+    UM.addUser(args[0], static_cast<permissionsEC>((!args[1].empty() ? stoi(args[1]) : 0)));
+};
 
-void core::commands::CORE_COMMAND_deleteUser() {
+void core::commands::CORE_COMMAND_deleteUserWithDialogue() {
     userManager UM;
     std::string username;
     print(colors::aqua, "Enter username: ");
@@ -142,7 +235,26 @@ void core::commands::CORE_COMMAND_deleteUser() {
     UM.deleteUser(username);
 };
 
-void core::commands::CORE_COMMAND_renameUser() {
+void core::commands::CORE_COMMAND_deleteUser(const std::vector<std::string>& args) {
+    if (args.empty()) {
+        CORE_COMMAND_deleteUserWithDialogue();
+        return;
+    }
+    else {
+        long long int pos = 1;
+        for (const char& letter : args[0]) {
+            if (ispunct(letter) || letter == ',' || letter == '.') {
+                core::print(core::colors::red, "COMMAND ERROR: Invalid character found (position " + std::to_string(pos) + ")\n");
+                return;
+            }
+            pos++;
+        }
+    }
+    userManager UM;
+    UM.deleteUser(args[0]);
+};
+
+void core::commands::CORE_COMMAND_renameUserWithDialogue() {
     userManager UM;
     std::string username, newUsername;
     print(colors::aqua, "Enter username: ");
@@ -160,7 +272,38 @@ void core::commands::CORE_COMMAND_renameUser() {
     UM.renameUser(username, newUsername);
 }
 
-void core::commands::CORE_COMMAND_setPermissionsUser() {
+void core::commands::CORE_COMMAND_renameUser(const std::vector<std::string>& args) {
+    if (args.empty()) {
+        CORE_COMMAND_renameUserWithDialogue();
+        return;
+    }
+    else if (args[1].empty()) {
+        core::print(core::colors::red, "COMMAND ERROR: \n");
+        return;
+    }
+    else {
+        long long int pos = 1;
+        for (const char& letter : args[0]) {
+            if (ispunct(letter) || letter == ',' || letter == '.') {
+                core::print(core::colors::red, "COMMAND ERROR: Invalid character found (position " + std::to_string(pos) + ")\n");
+                return;
+            }
+            pos++;
+        }
+        pos = 1;
+        for (const char& letter : args[1]) {
+            if (ispunct(letter) || letter == ',' || letter == '.') {
+                core::print(core::colors::red, "COMMAND ERROR: Invalid character found (position " + std::to_string(pos) + ")\n");
+                return;
+            }
+            pos++;
+        }
+    }
+    userManager UM;
+    UM.renameUser(args[0], args[1]);
+}
+
+void core::commands::CORE_COMMAND_setPermissionsUserWithDialogue() {
     userManager UM;
     std::string username;
     int permissions;
@@ -175,6 +318,33 @@ void core::commands::CORE_COMMAND_setPermissionsUser() {
     UM.changePermissionsUser(username, static_cast<permissionsEC>(permissions));
 };
 
+void core::commands::CORE_COMMAND_setPermissionsUser(const std::vector<std::string>& args) {
+    if (args.empty()) {
+        CORE_COMMAND_setPermissionsUserWithDialogue();
+        return;
+    }
+    else if (args[1].empty()) {
+        core::print(core::colors::red, "COMMAND ERROR: \n");
+        return;
+    }
+    else {
+        long long int pos = 1;
+        for (const char& letter : args[0]) {
+            if (ispunct(letter) || letter == ',' || letter == '.') {
+                core::print(core::colors::red, "COMMAND ERROR: Invalid character found (position " + std::to_string(pos) + ")\n");
+                return;
+            }
+            pos++;
+        }
+        if (!core::Utils::stringIsNumbers(args[1])) {
+            core::print(core::colors::red, "COMMAND ERROR\n");
+            return;
+        }
+    }
+    userManager UM;
+    UM.changePermissionsUser(args[0], static_cast<permissionsEC>(stoi(args[1])));
+};
+
 //void core::commands::CORE_COMMAND_addLocalVar() {}
 //void core::commands::CORE_COMMAND_renameLocalVar() {}
 //void core::commands::CORE_COMMAND_editLocalVarFunction() {}
@@ -182,13 +352,28 @@ void core::commands::CORE_COMMAND_setPermissionsUser() {
 
 //   -------------- Users ---------------
 
-void core::commands::CORE_COMMAND_infoUser() {
+void core::commands::CORE_COMMAND_whoim() {
     userManager UM;
     if (!UM.getUserMap()[UM.yourUsername()].empty()) {
         std::cout << "Username: " << UM.yourUsername() << '\n';
         std::cout << "Display Name: " << UM.getUserMap()[UM.yourUsername()] << '\n';
         std::cout << "Permissions: " << permissionsS(UM.getPermissionsMap()[UM.yourUsername()]) << '\n';
     }
+};
+
+void core::commands::CORE_COMMAND_infoUser(const std::vector<std::string>& args) {
+    userManager UM;
+    if (args.empty()) {
+        core::print(core::colors::red, "COMMAND ERROR: \n");
+        return;
+    }
+    else if (!UM.userExist(args[0])) {
+        core::print(core::colors::red, "COMMAND ERROR: \n");
+        return;
+    }
+    std::cout << "Username: " << args[0] << '\n';
+    std::cout << "Display Name: " << UM.getUserMap()[args[0]] << '\n';
+    std::cout << "Permissions: " << permissionsS(UM.getPermissionsMap()[args[0]]) << '\n';
 };
 
 void core::commands::CORE_COMMAND_allInfoUsers() {

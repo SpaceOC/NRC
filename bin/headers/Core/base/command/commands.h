@@ -31,10 +31,24 @@ namespace core {
 
         //   -------------- Users "Manager" ---------------
 
-        void CORE_COMMAND_addUser();
-        void CORE_COMMAND_deleteUser();
-        void CORE_COMMAND_renameUser();
-        void CORE_COMMAND_setPermissionsUser();
+        void CORE_COMMAND_setPasswordWithDialogue();
+        void CORE_COMMAND_setPassword(const std::vector<std::string>& args); 
+
+        void CORE_COMMAND_editDisplayNameWithDialogue();
+        void CORE_COMMAND_editDisplayName(const std::vector<std::string>& args);
+
+        void CORE_COMMAND_addUserWithDialogue();
+        void CORE_COMMAND_addUser(const std::vector<std::string>& args);
+
+        void CORE_COMMAND_deleteUserWithDialogue();
+        void CORE_COMMAND_deleteUser(const std::vector<std::string>& args);
+
+        void CORE_COMMAND_renameUserWithDialogue();
+        void CORE_COMMAND_renameUser(const std::vector<std::string>& args);
+
+        void CORE_COMMAND_setPermissionsUserWithDialogue();
+        void CORE_COMMAND_setPermissionsUser(const std::vector<std::string>& args);
+
         //void CORE_COMMAND_addLocalVar();
         //void CORE_COMMAND_renameLocalVar();
         //void CORE_COMMAND_editLocalVarFunction();
@@ -42,7 +56,8 @@ namespace core {
 
         //   -------------- Users ---------------
 
-        void CORE_COMMAND_infoUser();
+        void CORE_COMMAND_whoim();
+        void CORE_COMMAND_infoUser(const std::vector<std::string>& args);
         void CORE_COMMAND_allInfoUsers();
         void CORE_COMMAND_logout();
 

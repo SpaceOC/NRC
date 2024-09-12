@@ -23,6 +23,7 @@
 #include "Core/extra/variables.h"
 #include "Core/base/command/commands.h"
 #include "Core/base/command/handler_commands.h"
+#include "Core/base/print.h"
 #include "Core/base/utils.h"
 
 core::handlerCommands::handlerCommands() {}
@@ -37,6 +38,9 @@ std::vector<core::CommandObject> core::handlerCommands::parsing(const std::strin
 		std::vector<std::string> temp = core::Utils::split(rawCommand, ' ');
 		temp.push_back(commandSeparator);
 		std::vector<std::string> anotherTemp;
+		std::string goodString = "";
+		std::string backString = "";
+		bool quoteOpened = false;
 		for (const std::string& rawCommandData : temp) {
 			if (rawCommandData == commandSeparator) {
 				std::string commandName = anotherTemp.at(0);
@@ -44,8 +48,31 @@ std::vector<core::CommandObject> core::handlerCommands::parsing(const std::strin
 				result.push_back({commandName, anotherTemp});
 				anotherTemp = {};
 			}
-			else
+			
+			if (rawCommandData.substr(0, 1) == "\"" && !quoteOpened) {
+				goodString += (rawCommandData.substr(0, 1) == "\"" ?
+								rawCommandData.substr(1, rawCommandData.length()) :
+								rawCommandData)
+							+ " ";
+				backString = rawCommandData;
+				quoteOpened = true;
+			}
+			
+			if (rawCommandData.substr(rawCommandData.length() - 1, rawCommandData.length()) == "\"" && quoteOpened) {
+				if (rawCommandData != backString)
+					goodString += rawCommandData + " ";
+				std::string goodStringTemp = goodString.substr(0, goodString.length() - 2);
+				goodString = goodStringTemp; // deleting a space with " from a variable
+				anotherTemp.push_back(goodString);
+				goodString.erase();
+				quoteOpened = false;
+			}
+			else if (!quoteOpened && rawCommandData != commandSeparator)
 				anotherTemp.push_back(rawCommandData);
+		}
+		if (quoteOpened) {
+			core::print(core::colors::red, "ERROR: One of the arguments was not closed (missing \" at the end of the argument)\n");
+			return {};
 		}
 		return result;
 	}
@@ -77,9 +104,13 @@ void core::handlerCommands::setCommandSeparator(const std::string& newCommandSep
 	commandSeparator = newCommandSeparator;
 }
 
+std::string core::handlerCommands::getCommandSeparator() {
+	return commandSeparator;
+}
+
 void core::handlerCommands::addCommand(const std::string& name, const std::string& description, const std::function<void()>& function) {
 	std::string temp;
-	int spacesToAdd = std::max(10, 26 - static_cast<int>(name.length()));
+	int spacesToAdd = std::max(10, 46 - static_cast<int>(name.length()));
 	temp += std::string(spacesToAdd, ' ');
 	temp += "\t  " + description;
 	commandMap[name].function = function;
@@ -88,7 +119,7 @@ void core::handlerCommands::addCommand(const std::string& name, const std::strin
 
 void core::handlerCommands::addCommand(const std::string& name, const core::CommandDescription& data, const std::function<void(std::vector<std::string>)>& function, int minArgs, int maxArgs) {
 	std::string temp;
-	int spacesToAdd = std::max(10, 26 - static_cast<int>(name.length() + data.argsNames.data()->length() + (3 * data.argsNames.size())));
+	int spacesToAdd = std::max(10, 46 - static_cast<int>(name.length() + data.argsNames.data()->length() + (7 * data.argsNames.size())));
 	temp += std::string(spacesToAdd, ' ');
 	temp += "\t  " + data.description;
 	commandWithArgsMap[name].minArgs = minArgs;

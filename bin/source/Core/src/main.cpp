@@ -25,17 +25,25 @@
 #include "Core/base/command/commands.h"
 
 void core::main::addCommands() {
-	handlerCommands::addCommand("help", {"shows a list of all commands", {"name"}}, core::commands::CORE_COMMAND_help, 0, 1);
+	handlerCommands::addCommand(
+        "help",
+        {"shows a list of all commands", {"name"}},
+        core::commands::CORE_COMMAND_help,
+        0,
+        1);
 	handlerCommands::addCommand("time", {"shows the execution time of a certain command", {"command"}}, core::commands::CORE_COMMAND_time, 1, 999);
+    handlerCommands::addCommand("add_user", {"creating a new user in the system", {"name", "perms."}}, core::commands::CORE_COMMAND_addUser, 0, 2);
     //addCommand("exit", "exit", core::commands::CORE_COMMAND_exit);
 	//addCommand("cd", "cd" , core::commands::CORE_COMMAND_cd);
 	//addCommand("tree", "shows all files and folders in a tree view" , core::commands::CORE_COMMAND_tree);
-	handlerCommands::addCommand("add_user", "creating a new user in the system", core::commands::CORE_COMMAND_addUser);
-	handlerCommands::addCommand("delete_user", "deleting a user in the system", core::commands::CORE_COMMAND_deleteUser);
-	handlerCommands::addCommand("set_user_permissions", "user permission change", core::commands::CORE_COMMAND_setPermissionsUser);
+	handlerCommands::addCommand("edit_display_name", {"edit display name", {"name"}}, core::commands::CORE_COMMAND_editDisplayName, 0, 1);
+    handlerCommands::addCommand("delete_user", {"deleting a user in the system", {"username"}}, core::commands::CORE_COMMAND_deleteUser, 0, 1);
+	handlerCommands::addCommand("set_user_permissions", {"user permission change", {"name", "perms."}}, core::commands::CORE_COMMAND_setPermissionsUser, 0, 2);
+    handlerCommands::addCommand("set_password", {"set password", {"old/new", "new"}}, core::commands::CORE_COMMAND_setPassword, 0, 2);
 	handlerCommands::addCommand("all_users_info", "shows all information about all users", core::commands::CORE_COMMAND_allInfoUsers);
-	handlerCommands::addCommand("whoim", "shows information about the current user", core::commands::CORE_COMMAND_infoUser);
-	handlerCommands::addCommand("rename_user", "renames the user", core::commands::CORE_COMMAND_renameUser);
+    handlerCommands::addCommand("whoim", "shows information about the current user", core::commands::CORE_COMMAND_whoim);
+	handlerCommands::addCommand("user_info", {"shows information about the current user", {"username"}}, core::commands::CORE_COMMAND_infoUser, 1, 1);
+	handlerCommands::addCommand("rename_user", {"renames the user", {"old", "new"}}, core::commands::CORE_COMMAND_renameUser, 0, 2);
 	handlerCommands::addCommand("core_info", "shows information about the core", core::commands::CORE_COMMAND_info);
 	handlerCommands::addCommand("logout", "logging out of the current user account", core::commands::CORE_COMMAND_logout);
 }

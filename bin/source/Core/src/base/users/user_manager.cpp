@@ -23,12 +23,30 @@ void core::userManager::userLogic() {
 }
 
 void core::userManager::userLogin(const std::string& username) {
+	if (havePassword(username)) {
+		bool passwordNotPassed = true;
+		while (passwordNotPassed) {
+			std::string password;
+			print(colors::aqua, "Enter password: ");
+			while (!(std::cin >> std::ws)) {
+				std::cin.clear();
+				std::cin.ignore(10000, '\n');
+			}
+			std::getline(std::cin, password);
+
+			if (!users[userVectorPos(username)].truePassword(password))
+				print(colors::red, "Wrong password!\n");
+			else
+				passwordNotPassed = false;
+		}
+	}
 	currentUser = username;
 	userIsLogined = true;
 }
 
-void core::userManager::addUserFromData(const std::string& username, const permissionsEC& permissions, const std::string& language, const std::string& password) {
-	users.push_back(user(username, permissions, language));
+void core::userManager::addUserFromData(const std::string& username, const std::string& displayName, const permissionsEC& permissions, const std::string& language, const std::string& password) {
+	users.push_back(user(username, permissions, language, password));
+	users[userVectorPos(username)].editDisplayName(displayName);
 	saveUserData(username);
 }
 
@@ -67,7 +85,7 @@ int core::userManager::userVectorPos(const std::string& username) {
 	return -1;
 }
 
-core::user core::userManager::currentUserData() {
+core::user &core::userManager::currentUserData() {
 	return users[userVectorPos(currentUser)];
 }
 const std::string core::userManager::yourUsername() { return currentUser; }
@@ -206,7 +224,7 @@ void core::userManager::userLogout() {
 void core::userManager::saveUserData(const std::string& username) {
 	dataManager DM; fileManager FM;
 	int userPos = userVectorPos(username);
-	std::vector<std::string> values = { username, users[userPos].getDisplayName(), std::to_string(static_cast<int>(users[userPos].getPermissions())), users[userPos].getLanguage(), "" };
+	std::vector<std::string> values = { username, users[userPos].getDisplayName(), std::to_string(static_cast<int>(users[userPos].getPermissions())), users[userPos].getLanguage(), users[userPos].getPassword() };
 	FM.createFile(usersPath + username + ".json");
 	DM.createData(usersPath + username + ".json", keys, values);
 }
@@ -243,7 +261,7 @@ void core::userManager::readAllUsersData() {
 	dataManager DM;
 	for (const std::string& user : DM.readAllVectorData(usersListFilePath)) {
 		if (!userExist(user) && FM.fileExist("Data/Users/" + user + ".json")) 
-			addUserFromData(user, static_cast<permissionsEC>(stoi(DM.readAllData(usersPath + user + ".json")["Permissions"])), DM.readAllData(usersPath + user + ".json")["Language"]);
+			addUserFromData(user, DM.readAllData(usersPath + user + ".json")["Display Name"], static_cast<permissionsEC>(stoi(DM.readAllData(usersPath + user + ".json")["Permissions"])), DM.readAllData(usersPath + user + ".json")["Language"], DM.readAllData(usersPath + user + ".json")["Password"]);
 		else if (userExist(user) && FM.fileExist("Data/Users/" + user + ".json")) 
 			readUserData(user);
 		else 

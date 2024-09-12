@@ -57,6 +57,7 @@ std::string core::user::getVarDescription() { return ""; }
 std::string core::user::getUsername() { return this->username; }
 std::string core::user::getDisplayName() { return this->displayName; }
 std::string core::user::getLanguage() { return this->language; }
+std::string core::user::getPassword() { return this->password; } // DANGER!!!!!!!!!!!!
 core::permissionsEC core::user::getPermissions() { return this->permissions; }
 
 /*

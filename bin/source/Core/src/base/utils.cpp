@@ -15,30 +15,34 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 #include <iostream>
+#include <sstream>
 #include "Core/base/utils.h"
 
 core::Utils::Utils() {}
 
 bool core::Utils::stringIsNumbers(const std::string& content) {
+    bool first = true;
     for (const auto& letter : content) {
-        if (!isdigit(letter)) return false;
+
+        if (letter == '-' && first)
+            continue;  
+        else if (!isdigit(letter))
+            return false;
+
+        if (first)
+            first = false;
     }
     return true;
 }
 
-std::vector<std::string> core::Utils::split(const std::string& content, const char& what) {
+std::vector<std::string> core::Utils::split(const std::string& content, const char what) {
     if (content.empty())
         return {};
 
     std::vector<std::string> result;
     std::string temp;
-    for (const auto& letter : content + what) {
-        if (letter == what) {
-            result.push_back(temp);
-            temp.erase();
-        }
-        else
-            temp += letter;
-    }
+    std::istringstream tokenStream(content);
+    while (std::getline(tokenStream, temp, what))
+        result.push_back(temp);
     return result;
 }

@@ -51,13 +51,14 @@ namespace core {
 		private:
 			static inline std::map<std::string, CommandInfo> commandMap;
 			static inline std::map<std::string, CommandWithArgsInfo> commandWithArgsMap;
-			static inline std::string commandSeparator = "&//";
+			static inline std::string commandSeparator = "&/";
 		public:
 			handlerCommands();
 			virtual bool thisVariable(const std::string& command) const;
 			virtual std::vector<CommandObject> parsing(const std::string& rawCommand) const;
 			virtual void sendCommand(const core::CommandObject& command) const;
 			static void setCommandSeparator(const std::string& commandSeparator);
+			std::string getCommandSeparator();
 			static void addCommand(const std::string& name, const std::string& description, const std::function<void()>& function);
 			static void addCommand(const std::string& name, const CommandDescription& data, const std::function<void(std::vector<std::string>)>& function, int minArgs, int maxArgs);
 			virtual std::map<std::string, CommandDescription> getCommand(const std::string& name) const;

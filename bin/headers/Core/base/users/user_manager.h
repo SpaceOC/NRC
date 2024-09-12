@@ -36,7 +36,7 @@ namespace core {
 			const std::vector<std::string> keys = { "Username", "Display Name", "Permissions", "Language", "Password" };
 			void userLogic();
 			void userLogin(const std::string& username);
-			void addUserFromData(const std::string& username, const permissionsEC& permissions, const std::string& language, const std::string& password = "");
+			void addUserFromData(const std::string& username, const std::string& displayName, const permissionsEC& permissions, const std::string& language, const std::string& password = "");
 		public:
 			userManager();
 			bool userIsYou(const std::string& username);
@@ -49,7 +49,7 @@ namespace core {
 			bool getUserIsLogined();
 			bool getOOBE_Passed();
 			int userVectorPos(const std::string& username);
-			user currentUserData();
+			user &currentUserData();
 			const std::string yourUsername();
 			std::map<std::string, std::string> getUserMap();
 			std::map<std::string, std::string> getLocalVarsMap(const std::string& username);

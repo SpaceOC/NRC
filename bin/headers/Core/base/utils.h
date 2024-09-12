@@ -8,7 +8,7 @@ namespace core {
         public:
             Utils();
             static bool stringIsNumbers(const std::string& content);
-            static std::vector<std::string> split(const std::string& content, const char& what);
+            static std::vector<std::string> split(const std::string& content, const char what);
     };
 }
 #endif
