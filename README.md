@@ -10,7 +10,7 @@ NRC (Not Real Core) is a core designed to simplify and speed up the creation of 
 - And something else, but I'm lazy.
 
 # Requirements
-~~- Computer~~
+- ~~Computer~~
 - Windows operating system. Linux is also possible
 - C++ standard at least 17 (I guess)
 - nlohmann's json library: https://github.com/nlohmann/json
