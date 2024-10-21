@@ -244,3 +244,10 @@ core::print::print(const colors& color, const std::map<std::string, bool>& yourM
 	temp += " ]";
 	core::print(color, temp);
 }
+
+/*
+template<typename T, typename>
+core::print::print(const colors& color, T yourClass) {
+	core::print(color, yourClass.toString());
+}
+*/

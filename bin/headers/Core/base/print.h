@@ -19,21 +19,26 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <type_traits>
 
-namespace core {  
+namespace core {
+    // colors for the print class
     enum colors {
         black, white, blue, yellow,
         red, aqua, purple, green, grey,
         light_blue, light_green, light_aqua, light_red,
         light_purple, light_yellow, bright_white 
     };
-          
+
+    // 
     class print {
         private:
+            // @return Returns a specific escape-sequence depending on the color.
             std::string getColorEscapeSequence(const colors& color);
         public:
+            // escape-sequences (for class print, for color text)
             class colorsSequence {
-            public:
+              public:
                 static const std::string black, red, green, yellow, blue;
                 static const std::string purple, aqua, white, grey;
                 static const std::string light_red, light_green, light_yellow, light_blue;
@@ -58,6 +63,8 @@ namespace core {
             print(const colors& color, const std::map<std::string, double>& yourMap);
             print(const colors& color, const std::map<std::string, char>& yourMap);
             print(const colors& color, const std::map<std::string, bool>& yourMap);
+            //template<typename T, typename = typename std::enable_if<std::is_class<T>::value>::type>
+            //print(const colors& color, T yourClass);
             //template<typename T, typename A>
             //print(const colors& color, const std::map<T, A>& map); // hard
     };

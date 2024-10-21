@@ -26,6 +26,7 @@ namespace core {
         admin
     };
 
+    // Returns a name depending on the argument.
     std::string permissionsS(permissionsEC permissions);
 }
 #endif

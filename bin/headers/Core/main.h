@@ -21,6 +21,8 @@ namespace core {
     class main {
         private:
             static void fixNOW();
+            
+            // Adding all standard commands.
             static void addCommands();
         public:
             main();

@@ -9,7 +9,7 @@ extern std::atomic<int> atomicI;
 extern bool work;
 
 void counterMov();
-core::process processNew("main", counterMov);
+core::Process processNew("main", counterMov);
 
 void startProcess() {
     processNew.createThread("notmain", commandsZone);

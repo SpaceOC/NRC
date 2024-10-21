@@ -26,13 +26,13 @@
 #include <memory>
 
 namespace core {
-    class process {
+    class Process {
         private:
             const int maxThreads = 10;
             std::map<std::string, std::shared_ptr<std::thread>> threads;
         public:
-            process();
-            process(std::string firstThreadName, std::function<void()> func = []{});
+            Process();
+            Process(std::string firstThreadName, std::function<void()> func = []{});
             void createThread(std::string threadName, std::function<void()> func = []{});
             void startThread(std::string threadName);
             void stopThread(std::string threadName);

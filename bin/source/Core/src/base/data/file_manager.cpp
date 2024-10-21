@@ -21,7 +21,7 @@
 #include <filesystem>
 #include "Core/base/data/file_manager.h"
 
-bool core::fileManager::fileExist(std::filesystem::path filePath) const {
+bool core::FileManager::fileExist(std::filesystem::path filePath) const {
 	std::ifstream file(filePath, std::ios::in);
 	if (file) {
 		file.close();
@@ -30,33 +30,33 @@ bool core::fileManager::fileExist(std::filesystem::path filePath) const {
 	return false;
 }
 
-bool core::fileManager::folderExist(std::filesystem::path folderPath) const {
+bool core::FileManager::folderExist(std::filesystem::path folderPath) const {
 	return std::filesystem::is_directory(folderPath);
 }
 
-bool core::fileManager::folderIsEmpty(std::filesystem::path folderPath) const {
+bool core::FileManager::folderIsEmpty(std::filesystem::path folderPath) const {
 	return std::filesystem::is_empty(folderPath);
 }
 
 /*
-bool core::fileManager::fileIsNotSystemFile(std::filesystem::path filePath) const {
+bool core::FileManager::fileIsNotSystemFile(std::filesystem::path filePath) const {
 	return (systemFiles.count(filePath) && systemFiles[filePath] == true);
 }
 
-bool core::fileManager::folderIsNotSystemFile(std::filesystem::path folderPath) const {
+bool core::FileManager::folderIsNotSystemFile(std::filesystem::path folderPath) const {
 	return (systemFolders.count(folderPath) && systemFolders[folderPath]);
 }
 */
 
 //
-void core::fileManager::createFile(const std::filesystem::path filePath) const {
+void core::FileManager::createFile(const std::filesystem::path filePath) const {
 	if (!fileExist(filePath)) {
 		std::ofstream file(filePath);
 		file.close();
 	}
 }
 
-void core::fileManager::createFile(const std::filesystem::path filePath, std::string firstData) const {
+void core::FileManager::createFile(const std::filesystem::path filePath, std::string firstData) const {
 	if (!fileExist(filePath)) {
 		std::ofstream file(filePath);
 		file << firstData << '\n';
@@ -64,7 +64,7 @@ void core::fileManager::createFile(const std::filesystem::path filePath, std::st
 	}
 }
 
-void core::fileManager::createFiles(const std::vector<std::filesystem::path> filePath) const {
+void core::FileManager::createFiles(const std::vector<std::filesystem::path> filePath) const {
 	for (auto oneFile : filePath) {
 		if (!fileExist(oneFile)) {
 			std::ofstream file(oneFile);
@@ -73,17 +73,17 @@ void core::fileManager::createFiles(const std::vector<std::filesystem::path> fil
 	}
 }
 
-void core::fileManager::deleteFile(const std::filesystem::path filePath) const {
+void core::FileManager::deleteFile(const std::filesystem::path filePath) const {
 	if (fileExist(filePath)) {
 		std::filesystem::remove(filePath);
 	}
 }
 
-void core::fileManager::renameFile(const std::filesystem::path filePath, const std::filesystem::path newFileName) const {
+void core::FileManager::renameFile(const std::filesystem::path filePath, const std::filesystem::path newFileName) const {
 	if (fileExist(filePath)) { std::filesystem::rename(filePath, newFileName); }
 }
 
-std::string core::fileManager::readFile(const std::filesystem::path filePath) const {
+std::string core::FileManager::readFile(const std::filesystem::path filePath) const {
 	if (fileExist(filePath)) {
 		std::ifstream file(filePath, std::ios::in);
 		std::string line, temp;
@@ -94,17 +94,17 @@ std::string core::fileManager::readFile(const std::filesystem::path filePath) co
 	return "";
 }
 
-void core::fileManager::createFolder(const std::filesystem::path folderPath) const {
+void core::FileManager::createFolder(const std::filesystem::path folderPath) const {
 	if (!folderExist(folderPath)) { std::filesystem::create_directory(folderPath); }
 }
 
-void core::fileManager::createFolders(const std::vector<std::filesystem::path> folderPath) const {
+void core::FileManager::createFolders(const std::vector<std::filesystem::path> folderPath) const {
 	for (auto oneFolder : folderPath) {
 		if (!folderExist(oneFolder)) { std::filesystem::create_directory(oneFolder); }
 	}
 }
 
-void core::fileManager::deleteFolder(const std::filesystem::path folderPath) const {
+void core::FileManager::deleteFolder(const std::filesystem::path folderPath) const {
 	if (folderExist(folderPath) && folderIsEmpty(folderPath)) {
 		std::filesystem::remove(folderPath);
 	}
@@ -113,16 +113,19 @@ void core::fileManager::deleteFolder(const std::filesystem::path folderPath) con
 	}
 }
 
-std::ifstream core::fileManager::getFileIfstream(std::filesystem::path filePath, std::ios_base::openmode mode) {
+std::ifstream core::FileManager::getFileIfstream(std::filesystem::path filePath, std::ios_base::openmode mode) {
 	if (fileExist(filePath)) { 
 		std::ifstream file(filePath, mode); return file;
 	}
+	return {};
 }
 
-std::ofstream core::fileManager::getFileOfstream(std::filesystem::path filePath, std::ios_base::openmode mode) {
+std::ofstream core::FileManager::getFileOfstream(std::filesystem::path filePath, std::ios_base::openmode mode) {
 	if (fileExist(filePath)) { std::ofstream file(filePath, mode); return file; }
+	return {};
 }
 
-std::fstream core::fileManager::getFileFstream(std::filesystem::path filePath, std::ios_base::openmode mode) {
+std::fstream core::FileManager::getFileFstream(std::filesystem::path filePath, std::ios_base::openmode mode) {
 	if (fileExist(filePath)) { std::fstream file(filePath, mode); return file; }
+	return {};
 }

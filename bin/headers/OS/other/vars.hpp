@@ -13,12 +13,12 @@ void I() {
 }
 
 void addVariables() {
-    core::systemVariables sv;
+    core::SystemVariablesManager SVM;
 
-    sv.addSystemVar("test1", "test", []{
+    SVM.addSystemVar("test1", "test", []{
         std::cout << "hello world" << std::endl;
     });
 
-    sv.addSystemVar("test2", "hello", hi);
-    sv.addSystemVar("test3", "i", I);
+    SVM.addSystemVar("test2", "hello", hi);
+    SVM.addSystemVar("test3", "i", I);
 }

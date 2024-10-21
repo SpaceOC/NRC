@@ -14,50 +14,77 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
-// is not finished!
-/*
 #ifndef NRC_BASE_FILESYSTEM_PSEUDO_FS_H_
 #define NRC_BASE_FILESYSTEM_PSEUDO_FS_H_
 #include <iostream>
 #include <string>
 #include <vector>
 #include <map>
+#include <nlohmann/json.hpp>
 #include "Core/base/filesystem/nrfs.h"
 
 namespace core {
-	class pseudoFSBase {
+	class PseudoFS {
 		private:
 			static inline NRFS nrfs;
 			static inline int tempID = 0;
-			std::vector<std::string> pathParser(std::string path);
-			folderData searchFolderHelper(std::vector<std::string> path); // bad
-			fileData searchFileHelper(std::vector<std::string> path); // bad
+			static inline std::string currentPath = "./";
+
 			bool isFile(std::string path);
-			//bool exist(std::string path); not finished
 
-			void __createFolderHelper(std::vector<std::string> path, std::vector<folderData>& folders);
-			
-			void __createFileHelper(std::vector<std::string> path, std::vector<folderData>& folders);
-			void __setFileContentHelper(std::vector<std::string> path, std::vector<folderData>& folders, const std::string& content); // not working - The 'content' variable in 'file' doesn't change...? 
+			bool __folderExistsHelper(std::vector<std::string> path, FolderData& currentFolder);
+
+			nlohmann::json __savePFSHelper(std::vector<FolderData>& folders);
+			nlohmann::json __savePFSHelper(std::vector<FileData>& files);
+			std::vector<FolderData> __loadPFSHelperFolders(nlohmann::json folderJsonData);
+			FolderData __loadPFSHelperSingleFolder(nlohmann::json folderJsonData);
+			std::vector<FileData> __loadPFSHelperFiles(nlohmann::json filesJsonData);
+
+			bool __createFolderHelper(std::vector<std::string> path, FolderData& currentFolder, const FolderData& oneFolderData = {});
+			bool __renameFolderHelper(std::vector<std::string> path, FolderData& currentFolder, const std::string& newName);
+			bool __deleteFolderHelper(std::vector<std::string> path, FolderData& currentFolder);
+			bool __moveFolderHelper(std::vector<std::string> path, FolderData& currentFolder, const FolderData& oldFolderData, const std::string& oldPath);
+			FolderData __getFolderData(std::vector<std::string> path, FolderData& currentFolder);
+
+			bool __createFileHelper(std::vector<std::string> path, FolderData& currentFolder, const FileData& oneFileData = {});
+			bool __renameFileHelper(std::vector<std::string> path, FolderData& currentFolder, const std::string& newName);
+			bool __deleteFileHelper(std::vector<std::string> path, FolderData& currentFolder);
+			bool __moveFileHelper(std::vector<std::string> path, FolderData& currentFolder, const FileData& oldFileData, const std::string& oldPath);
+			bool __setFileAttHelper(std::vector<std::string> path, FolderData& currentFolder, const std::string& what, const std::any& newAtt);
+			FileData __getFileData(std::vector<std::string> path, FolderData& currentFolder);
 		public:
-			void createFolder(std::string path);
-			void renameFolder(std::string path, std::string newName);
-			void deleteFolder(std::string path);
-			//void moveFolder(std::string path); // its hard
+			void createFolder(std::string path, const FolderData& oneFolderData = {}, bool silent = false);
+			void renameFolder(std::string path, std::string newName, bool silent = false);
+			void deleteFolder(std::string path, bool silent = false);
+			void moveFolder(std::string path, const std::string& newPath, bool silent = false);
+			FolderData getFolderData(std::string path, bool silent = false);
 
-			folderData getFolderData(std::string path); // not working?? maybe
+			void createFile(std::string path, const FileData& oneFileData = {}, bool silent = false);
+			void setFileAtt(std::string path, std::string what, std::any newAtt, bool silent = false);
+			void renameFile(std::string path, std::string newName, bool silent = false);
+			void deleteFile(std::string path, bool silent = false);
+			void moveFile(std::string path, const std::string& newPath, bool silent = false);
+			FileData getFileData(std::string path, bool silent = false);
 
-			void createFile(std::string path);
-			void setFileContent(std::string path, std::string content); // not working
-			void renameFile(std::string path, std::string newName);
-			void deleteFile(std::string path);
-			//void moveFile(std::string path);  // its hard
+            void printAllHelper(const std::vector<FolderData>& folders, const std::string &path, bool includeHidden);
+            void printAll(bool includeHidden, std::string startPath = "./");
+            void showTreeHelper(const FolderData &curFolder, bool includeHidden, bool showFiles, int level);
+            void showTree(bool includeHidden, bool showFiles, std::string startPath = "./");
+            void printDiskSize();
 
-			fileData getFileData(std::string path); // not working - returning nothing
+			NRFS& getNRFS();
 
-			const NRFS& getNRFS();
+			void savePFS();
+			void loadPFS();
+
+			bool changePath(const std::string& newPath);
+			bool changeDirectory(const std::string& newDirectory);
+			bool folderExists(const std::string& path);
+
+			const std::string getCurrentPath();
+
+			void init();
 	};
 }
 
 #endif
-*/

@@ -14,7 +14,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
-/*
+
 #include "Core/base/filesystem/nrfs.h"
 #include <iostream>
 
@@ -33,15 +33,12 @@ const int& core::NRFSDisk::getDiskSize() {
     return this->diskSize;
 }
 
-int core::NRFSDisk::updateHelper(const std::vector<folderData>& folders) {
+int core::NRFSDisk::updateHelper(const std::vector<FolderData>& folders) {
     int temp = 0;
-    for (const folderData& folder : folders) {
+    for (const FolderData& folder : folders) {
         foldersSize++;
-        temp++;
-        for (const fileData& file : folder.files) {
-            filesSize++;
-            temp++;
-        }
+        filesSize += folder.files.size() - (folder.files.size() == 1 ? 0 : 1);
+        temp += folder.files.size() - (folder.files.size() == 1 ? 0 : 1) + 1;
         temp += updateHelper(folder.folders);
     }
     return temp;
@@ -51,45 +48,18 @@ void core::NRFSDisk::update() {
     filesSize = 0;
     foldersSize = 0;
     int temp = 0;
-    for (const fileData& file : files) {
-        filesSize++;
-        temp++;
-    }
+    filesSize += files.size() - (files.size() == 1 ? 0 : 1);
+    temp += files.size() - (files.size() == 1 ? 0 : 1);
     this->diskSize = temp;
     this->diskSize += this->updateHelper(folders);
 }
 
 core::NRFS::NRFS() {
     this->root = NRFSDisk();
-    this->root.directory = "";
+    this->root.directory = ".";
     this->root.update();
-}
-
-void core::NRFS::pushFiles(const std::vector<fileData>& files) {
-    this->root.files = files;
-    this->root.update();
-}
-
-void core::NRFS::printAllHelper(const std::vector<folderData>& folders) {
-    for (const folderData& folder : folders) {
-        std::cout << "Folder: " << folder.name << '\n';
-        for (const fileData& file : folder.files)
-            std::cout << folder.name << "/" << file.name << '\n';
-        printAllHelper(folder.folders);
-    }
-}
-
-void core::NRFS::printAll() {
-    for (const fileData& file : root.files)
-        std::cout << "./" << file.name << '\n';
-    printAllHelper(root.folders);
-}
-
-void core::NRFS::printDiskSize() {
-    std::cout << root.getDiskSize() << '\n';
 }
 
 core::NRFSDisk& core::NRFS::getRoot() {
     return root;
 }
-*/
