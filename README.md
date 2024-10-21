@@ -5,11 +5,12 @@ NRC (Not Real Core) is a core designed to simplify and speed up the creation of 
 
 # What is currently available:
 - A manager for managing users (and users themselves).
-- A class that allows you to easily insert your commands (now with arguments!) into the kernel without changing the kernel itself. ( handlerCommands ).
+- A class that allows you to easily insert your commands (now with arguments!) into the kernel without changing the kernel itself. ( HandlerCommands ).
 - Data and file managers (one works with .json files, the other contains simple commands to create folders and files, check them, delete them...).
+- Pseudo-FS!!!
 - Commands (whoim, delete_user, etc.).
-- Built-in OS (bin/source/OS). Modify it as you want.
-- And also print (with support for outputting colors, which are in core::colors).
+- Embedded OS (bin/source/OS). Modify it as you wish.
+- And also printing (with support for outputting colors that are in core::colors).
 - And something else, but I'm lazy.
 
 # Requirements
