@@ -23,7 +23,7 @@
 #include <fstream>
 
 namespace core {
-	class fileManager {
+	class FileManager {
 		private:
 			static inline std::map<std::filesystem::path, bool> systemFiles, systemFolders;
 		public:

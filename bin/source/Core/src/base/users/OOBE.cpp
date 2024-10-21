@@ -4,7 +4,7 @@
 #include "Core/base/users/user_manager.h"
 
 void core::OOBE() {
-    userManager UM;
+    UserManager UM;
     std::string firstUsername;
     print(colors::aqua, "Enter username: ");
     while (!(std::cin >> std::ws)) {

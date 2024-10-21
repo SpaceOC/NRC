@@ -41,7 +41,7 @@ void counter() {
         }
     }
     std::cout << "----------------------------------------------------------" << std::endl;
-    core::fileManager FM;
+    core::FileManager FM;
     FM.createFolder("Texts");
     FM.createFile("Texts/counter.txt");
     // "Ладно, и так сойдёт" :skull: :cold_face:
@@ -79,8 +79,8 @@ void hi() {
 }
 
 void addCommands() {
-    core::handlerCommands hc;
-    hc.addCommand("counter", "No description", counter);
-    hc.addCommand("hi", "hiii!", hi);
-    hc.addCommand("exit", "exit", bye);
+    core::HandlerCommands HC;
+    HC.addCommand("counter", "No description", counter);
+    HC.addCommand("hi", "hiii!", hi);
+    HC.addCommand("exit", "exit", bye);
 }

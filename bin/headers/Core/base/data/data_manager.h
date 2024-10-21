@@ -23,7 +23,7 @@
 #include <filesystem>
 
 namespace core {
-	class dataManager {
+	class DataManager {
 		private:
 			static inline int countTemps = 0;
 			std::filesystem::path filePathTemp = "Temp/" + std::to_string(countTemps) + "_File.temp";

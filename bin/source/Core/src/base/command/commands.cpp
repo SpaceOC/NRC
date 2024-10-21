@@ -31,7 +31,7 @@
 #include "Core/base/utils.h"
 
 void core::commands::CORE_COMMAND_help(const std::vector<std::string>& args) {
-    handlerCommands HC;
+    HandlerCommands HC;
     if (args.empty()) {
         for (const auto& command : HC.getAllCommands()) {
             std::string argsNames = "";
@@ -66,7 +66,7 @@ void core::commands::CORE_COMMAND_info() {
 };
 
 void core::commands::CORE_COMMAND_time(const std::vector<std::string>& args) {
-    handlerCommands HC;
+    HandlerCommands HC;
     auto start = std::chrono::steady_clock::now();
     std::string temp;
 
@@ -90,34 +90,378 @@ void core::commands:: core::commands:: CORE_COMMAND_exit() {
 
 //   -------------- Pseudo FS Commands ---------------
 
-/*
-void core::commands:: core::commands:: CORE_COMMAND_cd() {
-    pseudoFSBase FS;
-    std::string folderPath;
-    std::cout << "Enter folder: ";
-    std::cin >> folderPath;
-    FS.changeDirectory(folderPath);
-}
-*/
 
-/*
-void core::commands:: core::commands:: CORE_COMMAND_tree() {
-    pseudoFSBase FS;
-    if (!FS.getCurrentFSList().empty()) {
-        for (auto element : FS.getCurrentFSList()) {
-            std::cout << element << std::endl;
-        }
+void core::commands::CORE_COMMAND_cd(const std::vector<std::string>& args) {
+    if (args.at(0).empty()) {
+        core::print(core::red, "Command error: The first argument cannot be empty!\n");
+        return;
     }
     else {
-        std::cout << "No folders/files" << std::endl;
+        PseudoFS FS;
+        std::string where = (args.at(0) == ".." && !args.at(0)._Starts_with("./") ? ".." : args.at(0));
+        if (where == ".." || !args.at(0)._Starts_with("./")) {
+            if (!FS.changeDirectory(where)) {
+                core::print(core::red, "Error: Change directory operation failed!\n");
+            }
+        }
+        else {
+            if (!FS.changePath(where)) {
+                core::print(core::red, "Error: Change path operation failed!\n");
+            }
+        }
     }
 }
-*/
+
+void core::commands::CORE_COMMAND_createFile(const std::vector<std::string>& args) {
+    if (args.at(0).empty()) {
+        core::print(core::red, "Command error: The first argument cannot be empty!\n");
+        return;
+    }
+    else {
+        UserManager UM;
+        PseudoFS FS;
+        if (UM.currentUserData().getPermissions() < permissionsEC::user) {
+            core::print(core::red, "Error: Not enough permissions to perform this action.\n");
+            return;
+        }
+        std::string where = (args.at(0)._Starts_with("./") ? args.at(0) : FS.getCurrentPath() + args.at(0));
+        FS.createFile(where);
+        FS.savePFS();
+    }
+}
+
+void core::commands::CORE_COMMAND_deleteFile(const std::vector<std::string>& args) {
+    if (args.at(0).empty()) {
+        core::print(core::red, "Command error: The first argument cannot be empty!\n");
+        return;
+    }
+    else {
+        UserManager UM;
+        PseudoFS FS;
+        std::string where = (args.at(0)._Starts_with("./") ? args.at(0) : FS.getCurrentPath() + args.at(0));
+        if (FS.getFileData(where).name.empty()) return;
+        
+        if (UM.currentUserData().getPermissions() < permissionsEC::user) {
+            core::print(core::red, "Error: Not enough permissions to perform this action.\n");
+            return;
+        }
+        else if (UM.currentUserData().getPermissions() < permissionsEC::admin && FS.getFileData(where).system) {
+            core::print(core::red, "Error: Not enough permissions to perform this action.\n");
+            return;
+        }
+
+        FS.deleteFile(where);
+        FS.savePFS();
+    }
+}
+
+void core::commands::CORE_COMMAND_renameFile(const std::vector<std::string>& args) {
+    if (args.at(0).empty() || args.at(1).empty()) {
+        core::print(core::red, "Command error: One of the arguments is empty!\n");
+        return;
+    }
+    else {
+        UserManager UM;
+        PseudoFS FS;
+        if (FS.getFileData(args.at(0)).name.empty()) return;
+        
+        if (UM.currentUserData().getPermissions() < permissionsEC::user) {
+            core::print(core::red, "Error: Not enough permissions to perform this action.\n");
+            return;
+        }
+        else if (UM.currentUserData().getPermissions() < permissionsEC::admin && FS.getFileData(args.at(0)).system) {
+            core::print(core::red, "Error: Not enough permissions to perform this action.\n");
+            return;
+        }
+
+        FS.renameFile(args.at(0), args.at(1));
+        FS.savePFS();
+    }
+}
+
+void core::commands::CORE_COMMAND_moveFile(const std::vector<std::string>& args) {
+    if (args.at(0).empty() || args.at(1).empty()) {
+        core::print(core::red, "Command error: One of the arguments is empty!\n");
+        return;
+    }
+    else {
+        UserManager UM;
+        PseudoFS FS;
+        if (FS.getFileData(args.at(0)).name.empty()) return;
+        
+        if (UM.currentUserData().getPermissions() < permissionsEC::user) {
+            core::print(core::red, "Error: Not enough permissions to perform this action.\n");
+            return;
+        }
+        else if (UM.currentUserData().getPermissions() < permissionsEC::admin && FS.getFileData(args.at(0)).system) {
+            core::print(core::red, "Error: Not enough permissions to perform this action.\n");
+            return;
+        }
+
+        FS.moveFile(args.at(0), args.at(1));
+        FS.savePFS();
+    }
+}
+
+void core::commands::CORE_COMMAND_showFileData(const std::vector<std::string>& args) {
+    if (args.at(0).empty()) {
+        core::print(core::red, "Command error: The first argument cannot be empty!\n");
+        return;
+    }
+    else {
+        UserManager UM;
+        PseudoFS FS;
+        std::string where = (args.at(0)._Starts_with("./") ? args.at(0) : FS.getCurrentPath() + args.at(0));
+        if (FS.getFileData(where).name.empty()) return;
+        
+        if (UM.currentUserData().getPermissions() < permissionsEC::user && (FS.getFileData(where).hidden || FS.getFileData(where).system)) {
+            core::print(core::red, "Error: Not enough permissions to perform this action.\n");
+            return;
+        }
+        
+        core::print(core::aqua, "File name: " + FS.getFileData(where).name + "\n");
+        core::print(core::aqua, "File content: " + FS.getFileData(where).content + "\n");
+        core::print(core::aqua, "File ID: " + std::to_string(FS.getFileData(where).id) + "\n");
+    }
+}
+
+void core::commands::CORE_COMMAND_createFolder(const std::vector<std::string>& args) {
+    if (args.at(0).empty()) {
+        core::print(core::red, "Command error: The first argument cannot be empty!\n");
+        return;
+    }
+    else {
+        UserManager UM;
+        PseudoFS FS;
+        if (UM.currentUserData().getPermissions() < permissionsEC::user) {
+            core::print(core::red, "Error: Not enough permissions to perform this action.\n");
+            return;
+        }
+        std::string where = (args.at(0)._Starts_with("./") ? args.at(0) : FS.getCurrentPath() + args.at(0));
+        FS.createFolder(where);
+        FS.savePFS();
+    }
+}
+
+void core::commands::CORE_COMMAND_deleteFolder(const std::vector<std::string>& args) {
+    if (args.at(0).empty()) {
+        core::print(core::red, "Command error: The first argument cannot be empty!\n");
+        return;
+    }
+    else {
+        UserManager UM;
+        PseudoFS FS;
+        std::string where = (args.at(0)._Starts_with("./") ? args.at(0) : FS.getCurrentPath() + args.at(0));
+        if (FS.getFolderData(where).name.empty()) return;
+        
+        if (UM.currentUserData().getPermissions() < permissionsEC::user) {
+            core::print(core::red, "Error: Not enough permissions to perform this action.\n");
+            return;
+        }
+        else if (UM.currentUserData().getPermissions() < permissionsEC::admin && FS.getFolderData(where).system) {
+            core::print(core::red, "Error: Not enough permissions to perform this action.\n");
+            return;
+        }
+        FS.deleteFolder(where);
+        FS.savePFS();
+    }
+}
+
+void core::commands::CORE_COMMAND_renameFolder(const std::vector<std::string>& args) {
+    if (args.at(0).empty() || args.at(1).empty()) {
+        core::print(core::red, "Command error: One of the arguments is empty!\n");
+        return;
+    }
+    else {
+        UserManager UM;
+        PseudoFS FS;
+        if (FS.getFolderData(args.at(0)).name.empty()) return;
+        
+        if (UM.currentUserData().getPermissions() < permissionsEC::user) {
+            core::print(core::red, "Error: Not enough permissions to perform this action.\n");
+            return;
+        }
+        else if (UM.currentUserData().getPermissions() < permissionsEC::admin && FS.getFolderData(args.at(0)).system) {
+            core::print(core::red, "Error: Not enough permissions to perform this action.\n");
+            return;
+        }
+
+        FS.renameFolder(args.at(0), args.at(1));
+        FS.savePFS();
+    }
+}
+
+void core::commands::CORE_COMMAND_moveFolder(const std::vector<std::string>& args) {
+    if (args.at(0).empty() || args.at(1).empty()) {
+        core::print(core::red, "Command error: One of the arguments is empty!\n");
+        return;
+    }
+    else {
+        UserManager UM;
+        PseudoFS FS;
+        if (FS.getFolderData(args.at(0)).name.empty()) return;
+        
+        if (UM.currentUserData().getPermissions() < permissionsEC::user) {
+            core::print(core::red, "Error: Not enough permissions to perform this action.\n");
+            return;
+        }
+        else if (UM.currentUserData().getPermissions() < permissionsEC::admin && FS.getFolderData(args.at(0)).system) {
+            core::print(core::red, "Error: Not enough permissions to perform this action.\n");
+            return;
+        }
+
+        FS.moveFolder(args.at(0), args.at(1));
+        FS.savePFS();
+    }
+}
+
+void core::commands::CORE_COMMAND_showFolderData(const std::vector<std::string>& args) {
+    if (args.at(0).empty()) {
+        core::print(core::red, "Command error: The first argument cannot be empty!\n");
+        return;
+    }
+    else {
+        UserManager UM;
+        PseudoFS FS;
+        std::string where = (args.at(0)._Starts_with("./") ? args.at(0) : FS.getCurrentPath() + args.at(0));
+        if (FS.getFolderData(where).name.empty()) return;
+        
+        if (UM.currentUserData().getPermissions() < permissionsEC::user && (FS.getFolderData(where).hidden || FS.getFolderData(where).system)) {
+            core::print(core::red, "Error: Not enough permissions to perform this action.\n");
+            return;
+        }
+        
+        core::print(core::aqua, "Folder name: " + FS.getFolderData(where).name + "\n");
+        core::print(core::aqua, "Folder ID: " + std::to_string(FS.getFolderData(where).id) + "\n");
+    }
+}
+
+void core::commands::CORE_COMMAND_NRFSSize() {
+    PseudoFS FS;
+    FS.printDiskSize();
+}
+
+void core::commands::CORE_COMMAND_dir(const std::vector<std::string>& args) {
+    PseudoFS FS;
+    bool showHidden = (args.empty() ? false : args.at(0) == "h");
+    int fCount = 0;
+    const std::vector<FolderData> folders = (FS.getCurrentPath() == "./" ? FS.getNRFS().getRoot().folders : FS.getFolderData(FS.getCurrentPath()).folders);
+    const std::vector<FileData> files = (FS.getCurrentPath() == "./" ? FS.getNRFS().getRoot().files : FS.getFolderData(FS.getCurrentPath()).files);
+    for (core::FolderData folder : folders) {
+        if (folder.hidden && showHidden) {
+            core::print(core::light_aqua, folder.name + "    " + (fCount >= 5 ? "\n" : ""));
+            if (fCount >= 5) fCount = 0;
+            else ++fCount;
+        }
+        else if (!folder.hidden) {
+            std::cout << folder.name + "    " + (fCount >= 5 ? "\n" : "");
+            if (fCount >= 5) fCount = 0;
+            else ++fCount;
+        }
+    }
+    for (core::FileData file : files) {
+        if (file.hidden && showHidden) {
+            core::print(core::light_aqua, file.name + "    " + (fCount >= 5 ? "\n" : ""));
+            if (fCount >= 5) fCount = 0;
+            else ++fCount;
+        }
+        else if (!file.hidden) {
+            std::cout << file.name + "    " + (fCount >= 5 ? "\n" : "");
+            if (fCount >= 5) fCount = 0;
+            else ++fCount;
+        }
+    }
+    std::cout << '\n';
+}
+
+void core::commands::CORE_COMMAND_tree(const std::vector<std::string>& args) {
+    if (args.empty()) {
+        PseudoFS FS;
+        FS.showTree(false, false);
+    }
+    else {
+        PseudoFS FS;
+        FS.showTree((args.size() > 1 ? (args.at(1) == "h" ? true : args.at(1) == "fh") : false), (args.size() > 1 ? (args.at(1) == "f" ? true : args.at(1) == "fh") : false), args.at(0));
+    }
+}
+
+void core::commands::CORE_COMMAND_showAll(const std::vector<std::string>& args) {
+    if (args.empty()) {
+        PseudoFS FS;
+        FS.printAll(false);
+    }
+    else {
+        PseudoFS FS;
+        FS.printAll((args.size() > 1 ? args.at(1) == "h" : false), args.at(0));
+    }
+}
+
+void core::commands::CORE_COMMAND_searchFile(const std::vector<std::string>& args) {
+    if (args.empty()) return;
+    PseudoFS FS;
+    std::string path = (args.size() > 1 ? args.at(1) : FS.getCurrentPath());
+    bool fullSearch = args.size() < 2;
+    std::vector<std::string> parsedPath = core::Utils::split(path, '/');
+    for (const FileData& file : FS.getNRFS().getRoot().files) {
+        if (file.name.find(args.at(0)) < LONG_LONG_MAX) {
+            std::cout << "./" + file.name << '\n';
+        }
+    }
+
+    for (const FolderData& folder : FS.getNRFS().getRoot().folders) {
+        if (fullSearch) {
+            core::commands::CORE_COMMAND_searchFileHelper(folder, args.at(0), {}, "./" + folder.name);
+        }
+        else {
+            parsedPath.erase(parsedPath.begin());
+            for (FolderData& folder : FS.getNRFS().getRoot().folders) {
+                if (parsedPath.at(0) == folder.name) {
+                    core::commands::CORE_COMMAND_searchFileHelper(folder, args.at(0), parsedPath, "./" + folder.name);
+                }
+            }
+        }
+    }
+}
+
+void core::commands::CORE_COMMAND_searchFileHelper(const core::FolderData& curFolder, const std::string& what, std::vector<std::string> path, std::string stringPath) {
+    core::PseudoFS FS;
+    bool fullSearch = path.empty();
+    if (curFolder.files.empty() && curFolder.folders.empty()) {
+        return;
+    }
+    for (const core::FileData& file : curFolder.files) {
+        if (file.name.find(what) < LONG_LONG_MAX) {
+            std::cout << stringPath + "/" + file.name << '\n';
+        }
+    }
+
+    for (const core::FolderData& folder : curFolder.folders) {
+        if (fullSearch) {
+            core::commands::CORE_COMMAND_searchFileHelper(folder, what, {}, stringPath + "/" + folder.name);
+        }
+        else {
+            path.erase(path.begin());
+            for (FolderData& folder : FS.getNRFS().getRoot().folders) {
+                if (path.at(0) == folder.name) {
+                    core::commands::CORE_COMMAND_searchFileHelper(folder, what, path, stringPath + "./" + folder.name);
+                }
+            }
+        }
+    }
+}
+
+void core::commands::CORE_COMMAND_whereIm() {
+    PseudoFS FS;
+    std::vector<std::string> parsedPath = core::Utils::split(FS.getCurrentPath(), '/');
+    core::print(core::aqua, "You're in the folder: " + parsedPath.back() + "\n");
+    core::print(core::aqua, "Full path: " + FS.getCurrentPath() + "\n");
+}
+
 
 //   -------------- Users "Manager" ---------------
 
 void core::commands::CORE_COMMAND_setPasswordWithDialogue() {
-    userManager UM;
+    UserManager UM;
     if (UM.havePassword(UM.yourUsername())) {
         std::string oldPassword;
         print(colors::aqua, "Enter (old) password: ");
@@ -144,7 +488,7 @@ void core::commands::CORE_COMMAND_setPasswordWithDialogue() {
 }
 
 void core::commands::CORE_COMMAND_setPassword(const std::vector<std::string>& args) {
-    userManager UM;
+    UserManager UM;
     if (args.empty()) {
         CORE_COMMAND_setPasswordWithDialogue();
         return;
@@ -160,7 +504,7 @@ void core::commands::CORE_COMMAND_setPassword(const std::vector<std::string>& ar
 }
 
 void core::commands::CORE_COMMAND_editDisplayNameWithDialogue() {
-    userManager UM;
+    UserManager UM;
     std::string displayName;
     print(colors::aqua, "Enter new Display Name: ");
     while (!(std::cin >> std::ws)) {
@@ -177,13 +521,13 @@ void core::commands::CORE_COMMAND_editDisplayName(const std::vector<std::string>
         CORE_COMMAND_editDisplayNameWithDialogue();
         return;
     }
-    userManager UM;
-    UM.currentUserData().editDisplayName(args[0]);
+    UserManager UM;
+    UM.currentUserData().editDisplayName(args.at(0));
     UM.saveUserData(UM.yourUsername());
 }
 
 void core::commands::CORE_COMMAND_addUserWithDialogue() {
-    userManager UM;
+    UserManager UM;
     std::string username;
     int permissions;
     print(colors::aqua, "Enter username: ");
@@ -198,33 +542,37 @@ void core::commands::CORE_COMMAND_addUserWithDialogue() {
 };
 
 void core::commands::CORE_COMMAND_addUser(const std::vector<std::string>& args) {
+    UserManager UM;
     if (args.empty()) {
         CORE_COMMAND_addUserWithDialogue();
         return;
     }
-    else if (args[1].empty()) {
-        core::print(core::colors::red, "COMMAND WARNING: A user will be created with \"User\" permissions\n");
+    if (!UM.userExist(args.at(0))) {
+        core::print(core::colors::red, "COMMAND ERROR: The user doesn't exist!\n");
+        return;
+    }
+    else if (args.at(1).empty()) {
+        core::print(core::colors::yellow, "COMMAND WARNING: A user will be created with \"User\" permissions\n");
     }
     else {
         long long int pos = 1;
-        for (const char& letter : args[0]) {
+        for (const char& letter : args.at(0)) {
             if (ispunct(letter) || letter == ',' || letter == '.') {
                 core::print(core::colors::red, "COMMAND ERROR: Invalid character found (position " + std::to_string(pos) + ")\n");
                 return;
             }
             pos++;
         }
-        if (!core::Utils::stringIsNumbers(args[1])) {
+        if (!core::Utils::stringIsNumbers(args.at(1))) {
             core::print(core::colors::red, "COMMAND ERROR\n");
             return;
         }
     }
-    userManager UM;
-    UM.addUser(args[0], static_cast<permissionsEC>((!args[1].empty() ? stoi(args[1]) : 0)));
+    UM.addUser(args.at(0), static_cast<permissionsEC>((!args.at(1).empty() ? stoi(args.at(1)) : 0)));
 };
 
 void core::commands::CORE_COMMAND_deleteUserWithDialogue() {
-    userManager UM;
+    UserManager UM;
     std::string username;
     print(colors::aqua, "Enter username: ");
     while (!(std::cin >> std::ws)) {
@@ -236,13 +584,18 @@ void core::commands::CORE_COMMAND_deleteUserWithDialogue() {
 };
 
 void core::commands::CORE_COMMAND_deleteUser(const std::vector<std::string>& args) {
+    UserManager UM;
     if (args.empty()) {
         CORE_COMMAND_deleteUserWithDialogue();
         return;
     }
+    if (!UM.userExist(args.at(0))) {
+        core::print(core::colors::red, "COMMAND ERROR: The user doesn't exist!\n");
+        return;
+    }
     else {
         long long int pos = 1;
-        for (const char& letter : args[0]) {
+        for (const char& letter : args.at(0)) {
             if (ispunct(letter) || letter == ',' || letter == '.') {
                 core::print(core::colors::red, "COMMAND ERROR: Invalid character found (position " + std::to_string(pos) + ")\n");
                 return;
@@ -250,12 +603,11 @@ void core::commands::CORE_COMMAND_deleteUser(const std::vector<std::string>& arg
             pos++;
         }
     }
-    userManager UM;
-    UM.deleteUser(args[0]);
+    UM.deleteUser(args.at(0));
 };
 
 void core::commands::CORE_COMMAND_renameUserWithDialogue() {
-    userManager UM;
+    UserManager UM;
     std::string username, newUsername;
     print(colors::aqua, "Enter username: ");
     while (!(std::cin >> std::ws)) {
@@ -273,17 +625,18 @@ void core::commands::CORE_COMMAND_renameUserWithDialogue() {
 }
 
 void core::commands::CORE_COMMAND_renameUser(const std::vector<std::string>& args) {
+    UserManager UM;
     if (args.empty()) {
         CORE_COMMAND_renameUserWithDialogue();
         return;
     }
-    else if (args[1].empty()) {
-        core::print(core::colors::red, "COMMAND ERROR: \n");
+    if (!UM.userExist(args.at(0))) {
+        core::print(core::colors::red, "COMMAND ERROR: The user doesn't exist!\n");
         return;
     }
     else {
         long long int pos = 1;
-        for (const char& letter : args[0]) {
+        for (const char& letter : args.at(0)) {
             if (ispunct(letter) || letter == ',' || letter == '.') {
                 core::print(core::colors::red, "COMMAND ERROR: Invalid character found (position " + std::to_string(pos) + ")\n");
                 return;
@@ -291,7 +644,7 @@ void core::commands::CORE_COMMAND_renameUser(const std::vector<std::string>& arg
             pos++;
         }
         pos = 1;
-        for (const char& letter : args[1]) {
+        for (const char& letter : args.at(1)) {
             if (ispunct(letter) || letter == ',' || letter == '.') {
                 core::print(core::colors::red, "COMMAND ERROR: Invalid character found (position " + std::to_string(pos) + ")\n");
                 return;
@@ -299,12 +652,11 @@ void core::commands::CORE_COMMAND_renameUser(const std::vector<std::string>& arg
             pos++;
         }
     }
-    userManager UM;
-    UM.renameUser(args[0], args[1]);
+    UM.renameUser(args.at(0), args.at(1));
 }
 
 void core::commands::CORE_COMMAND_setPermissionsUserWithDialogue() {
-    userManager UM;
+    UserManager UM;
     std::string username;
     int permissions;
     print(colors::aqua, "Enter username: ");
@@ -319,30 +671,30 @@ void core::commands::CORE_COMMAND_setPermissionsUserWithDialogue() {
 };
 
 void core::commands::CORE_COMMAND_setPermissionsUser(const std::vector<std::string>& args) {
+    UserManager UM;
     if (args.empty()) {
         CORE_COMMAND_setPermissionsUserWithDialogue();
         return;
     }
-    else if (args[1].empty()) {
-        core::print(core::colors::red, "COMMAND ERROR: \n");
+    if (!UM.userExist(args.at(0))) {
+        core::print(core::colors::red, "COMMAND ERROR: The user doesn't exist!\n");
         return;
     }
     else {
         long long int pos = 1;
-        for (const char& letter : args[0]) {
+        for (const char& letter : args.at(0)) {
             if (ispunct(letter) || letter == ',' || letter == '.') {
                 core::print(core::colors::red, "COMMAND ERROR: Invalid character found (position " + std::to_string(pos) + ")\n");
                 return;
             }
             pos++;
         }
-        if (!core::Utils::stringIsNumbers(args[1])) {
+        if (!core::Utils::stringIsNumbers(args.at(1))) {
             core::print(core::colors::red, "COMMAND ERROR\n");
             return;
         }
     }
-    userManager UM;
-    UM.changePermissionsUser(args[0], static_cast<permissionsEC>(stoi(args[1])));
+    UM.changePermissionsUser(args.at(0), static_cast<permissionsEC>(stoi(args[1])));
 };
 
 //void core::commands::CORE_COMMAND_addLocalVar() {}
@@ -353,7 +705,7 @@ void core::commands::CORE_COMMAND_setPermissionsUser(const std::vector<std::stri
 //   -------------- Users ---------------
 
 void core::commands::CORE_COMMAND_whoim() {
-    userManager UM;
+    UserManager UM;
     if (!UM.getUserMap()[UM.yourUsername()].empty()) {
         std::cout << "Username: " << UM.yourUsername() << '\n';
         std::cout << "Display Name: " << UM.getUserMap()[UM.yourUsername()] << '\n';
@@ -362,22 +714,18 @@ void core::commands::CORE_COMMAND_whoim() {
 };
 
 void core::commands::CORE_COMMAND_infoUser(const std::vector<std::string>& args) {
-    userManager UM;
-    if (args.empty()) {
-        core::print(core::colors::red, "COMMAND ERROR: \n");
+    UserManager UM;
+    if (!UM.userExist(args.at(0))) {
+        core::print(core::colors::red, "COMMAND ERROR: The user doesn't exist!\n");
         return;
     }
-    else if (!UM.userExist(args[0])) {
-        core::print(core::colors::red, "COMMAND ERROR: \n");
-        return;
-    }
-    std::cout << "Username: " << args[0] << '\n';
-    std::cout << "Display Name: " << UM.getUserMap()[args[0]] << '\n';
-    std::cout << "Permissions: " << permissionsS(UM.getPermissionsMap()[args[0]]) << '\n';
+    std::cout << "Username: " << args.at(0) << '\n';
+    std::cout << "Display Name: " << UM.getUserMap()[args.at(0)] << '\n';
+    std::cout << "Permissions: " << permissionsS(UM.getPermissionsMap()[args.at(0)]) << '\n';
 };
 
 void core::commands::CORE_COMMAND_allInfoUsers() {
-    userManager UM;
+    UserManager UM;
     std::cout << "  - [ All Users Info ] -  " << '\n';
     for (auto& user : UM.getUserMap()) {
         std::cout << " - " + user.first + " | " + user.second << '\n';
@@ -387,7 +735,7 @@ void core::commands::CORE_COMMAND_allInfoUsers() {
 };
 
 void core::commands::CORE_COMMAND_logout() {
-    userManager UM;
+    UserManager UM;
     std::string choice;
     print(colors::yellow, "Are you sure you want to log out of your current user account? (Y/N): ");
     std::cin >> choice;
@@ -406,7 +754,7 @@ void core::commands::CORE_COMMAND_logout() {
 //void core::commands::CORE_COMMAND_addSystemVar() {}
 
 void core::commands::CORE_COMMAND_allSystemVars() {
-    systemVariables SV;
+    SystemVariablesManager SV;
     for (auto var : SV.getAllVars()) {
         print(colors::light_aqua, var.first + " - ");
         print(colors::light_blue, var.second + "\n");
@@ -414,7 +762,7 @@ void core::commands::CORE_COMMAND_allSystemVars() {
 }
 
 void core::commands::CORE_COMMAND_allLocalVars() {
-    userManager UM;
+    UserManager UM;
     for (auto var : UM.getLocalVarsMap(UM.yourUsername())) {
         print(colors::light_aqua, var.first + " - ");
         print(colors::light_blue, var.second + "\n");

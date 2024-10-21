@@ -22,7 +22,6 @@ target_compile_options(OS
         -O2
         -Wall
         -Wextra
-        #-Werror
         -Wpedantic
         -static
 )

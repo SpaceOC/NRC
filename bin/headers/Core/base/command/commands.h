@@ -17,6 +17,8 @@
 #ifndef NRC_BASE_COMMAND_COMMANDS_H_
 #define NRC_BASE_COMMAND_COMMANDS_H_
 
+#include "Core/base/filesystem/nrfs.h"
+
 namespace core {
     namespace commands {
         void CORE_COMMAND_help(const std::vector<std::string>& args);
@@ -26,8 +28,31 @@ namespace core {
 
         //   -------------- Pseudo FS Commands ---------------
 
-        //void CORE_COMMAND_cd();
-        //void CORE_COMMAND_tree();
+        void CORE_COMMAND_cd(const std::vector<std::string>& args);
+
+        void CORE_COMMAND_createFile(const std::vector<std::string>& args);
+        void CORE_COMMAND_deleteFile(const std::vector<std::string>& args);
+        void CORE_COMMAND_renameFile(const std::vector<std::string>& args);
+        void CORE_COMMAND_moveFile(const std::vector<std::string>& args);
+
+        void CORE_COMMAND_createFolder(const std::vector<std::string>& args);
+        void CORE_COMMAND_deleteFolder(const std::vector<std::string>& args);
+        void CORE_COMMAND_renameFolder(const std::vector<std::string>& args);
+        void CORE_COMMAND_moveFolder(const std::vector<std::string>& args);
+
+        void CORE_COMMAND_NRFSSize();
+
+        void CORE_COMMAND_whereIm();
+
+        void CORE_COMMAND_showFileData(const std::vector<std::string>& args);
+        void CORE_COMMAND_showFolderData(const std::vector<std::string>& args);
+
+        void CORE_COMMAND_dir(const std::vector<std::string>& args);
+        void CORE_COMMAND_tree(const std::vector<std::string>& args);
+        void CORE_COMMAND_showAll(const std::vector<std::string>& args);
+
+        void CORE_COMMAND_searchFile(const std::vector<std::string>& args);
+        void CORE_COMMAND_searchFileHelper(const core::FolderData& curFolder, const std::string& what, std::vector<std::string> path, std::string stringPath);
 
         //   -------------- Users "Manager" ---------------
 

@@ -15,12 +15,13 @@ add_library(NRC STATIC
                 ${CORE_SOURCE_DIR}/base/users/permissions_enum_class.cpp 
                 ${CORE_SOURCE_DIR}/base/users/user.cpp 
                 ${CORE_SOURCE_DIR}/base/users/user_manager.cpp 
-                #${CORE_SOURCE_DIR}/base/filesystem/nrfs.cpp 
-                #${CORE_SOURCE_DIR}/base/filesystem/pseudo_fs.cpp 
+                ${CORE_SOURCE_DIR}/base/filesystem/nrfs.cpp 
+                ${CORE_SOURCE_DIR}/base/filesystem/pseudo_fs.cpp 
                 ${CORE_SOURCE_DIR}/extra/variables.cpp 
                 ${CORE_SOURCE_DIR}/base/data/file_manager.cpp 
                 ${CORE_SOURCE_DIR}/base/data/data_manager.cpp
                 ${CORE_SOURCE_DIR}/experimental/process.cpp
+                ${CORE_SOURCE_DIR}/experimental/event_manager.cpp
                 ${CORE_SOURCE_DIR}/base/command/commands.cpp
                 ${CORE_SOURCE_DIR}/base/command/handler_commands.cpp
                 ${CORE_SOURCE_DIR}/base/utils.cpp
@@ -32,6 +33,6 @@ target_compile_options(NRC
         -O2
         -Wall
         -Wextra
-        #-Werror
+        -Werror
         -Wpedantic
 )

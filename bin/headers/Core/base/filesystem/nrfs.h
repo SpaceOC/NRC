@@ -14,28 +14,33 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
-// is not finished!
-/*
 #ifndef NRC_BASE_FILESYSTEM_NRFS_H_
 #define NRC_BASE_FILESYSTEM_NRFS_H_
 #include <string>
 #include <vector>
 
 namespace core {
-    struct fileData {
-        std::string name, content;
+    // Contains all of the file's data.
+    struct FileData {
+        std::string name; // File name
+        std::string content;
         int id;
         time_t dataCreate;
         time_t dataEdit;
+        bool system; // Whether the file is a system file.
+        bool hidden; // Whether the file is a hidden file.
     };
 
-    struct folderData {
-        std::string name;
+    // Contains all folder data
+    struct FolderData {
+        std::string name; // Folder name
         int id;
         time_t dataCreate;
         time_t dataEdit;
-        std::vector<fileData> files;
-        std::vector<folderData> folders;
+        std::vector<FileData> files; // Contains the files that are in this folder.
+        std::vector<FolderData> folders; // Contains the folders that are in this folder.
+        bool system; // Whether the folder is a system folder.
+        bool hidden; // Whether the folder is hidden.
     };
 
     class NRFSDisk {
@@ -48,10 +53,10 @@ namespace core {
             const int& getFoldersSize();
             const int& getFilesSize();
             std::string directory;
-            std::vector<folderData> folders;
-            std::vector<fileData> files;
+            std::vector<FolderData> folders;
+            std::vector<FileData> files;
 
-            int updateHelper(const std::vector<folderData>& folders);
+            int updateHelper(const std::vector<FolderData>& folders);
             void update();
     };
 
@@ -60,15 +65,8 @@ namespace core {
             NRFSDisk root;
         public:
             NRFS();
-            void pushFiles(const std::vector<fileData>& files);
-
-            void printAllHelper(const std::vector<folderData>& folders);
-            void printAll();
-            void printDiskSize();
-
             NRFSDisk& getRoot();
     };
 }
 
 #endif
-*/

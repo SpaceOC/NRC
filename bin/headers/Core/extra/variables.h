@@ -22,18 +22,26 @@
 #include <map>
 
 namespace core {
-    struct variableData {
+    // Stores a description and a function.
+    struct VariableData {
         std::string description;
         std::function<void()> function;
     };
 
-    class systemVariables {
+    class SystemVariablesManager {
         private:
-            static inline std::map<std::string, variableData> systemVariablesData;
+            static inline std::map<std::string, VariableData> data;
         public:
-            virtual std::map<std::string, variableData> getVariable(std::string name) const;
+            // Returns the data of the variable.
+            virtual std::map<std::string, VariableData> getVariable(std::string name) const;
+
+            // Runs a variable function.
             virtual void sendVariable(std::string variable) const;
+
+            // Runs a variable function.
             virtual void addSystemVar(std::string name, std::string description = "", std::function<void()> function = []{}) const;
+
+            // Returns all variables.
             virtual std::map<std::string, std::string> getAllVars() const;
     };
 }

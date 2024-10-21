@@ -21,31 +21,31 @@
 #include "Core/base/print.h"
 #include "Core/extra/variables.h"
 
-std::map<std::string, core::variableData> core::systemVariables::getVariable(std::string name) const {
-	if (!systemVariablesData.count(name)) 
+std::map<std::string, core::VariableData> core::SystemVariablesManager::getVariable(std::string name) const {
+	if (!data.count(name)) 
 		return {};
-	return {{name, {systemVariablesData[name].description, systemVariablesData[name].function}}}; 
+	return {{name, {data.at(name).description, data.at(name).function}}}; 
 }
 
-void core::systemVariables::sendVariable(std::string variable) const {
-	auto it = systemVariablesData.find(variable);
-	if (it != systemVariablesData.end()) it->second.function();
+void core::SystemVariablesManager::sendVariable(std::string variable) const {
+	auto it = data.find(variable);
+	if (it != data.end()) it->second.function();
 }
 
-void core::systemVariables::addSystemVar(std::string name, std::string description, std::function<void()> function) const {
+void core::SystemVariablesManager::addSystemVar(std::string name, std::string description, std::function<void()> function) const {
 	try {
 		if (name.empty()) throw std::runtime_error("the 'name' argument was empty!");
-		systemVariablesData["%" + name + "%"].description = description;
-		systemVariablesData["%" + name + "%"].function = function;
+		data["%" + name + "%"].description = description;
+		data["%" + name + "%"].function = function;
 	}
 	catch (const std::exception& e) {
 		print(colors::red, e.what());
 	}
 }
 
-std::map<std::string, std::string> core::systemVariables::getAllVars() const {
-	if (systemVariablesData.empty()) return {};
+std::map<std::string, std::string> core::SystemVariablesManager::getAllVars() const {
+	if (data.empty()) return {};
 	std::map<std::string, std::string> temp;
-	for (auto elements : systemVariablesData) temp[elements.first] = elements.second.description;
+	for (auto elements : data) temp[elements.first] = elements.second.description;
 	return temp;
 }

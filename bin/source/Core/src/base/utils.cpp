@@ -21,16 +21,12 @@
 core::Utils::Utils() {}
 
 bool core::Utils::stringIsNumbers(const std::string& content) {
-    bool first = true;
     for (const auto& letter : content) {
 
-        if (letter == '-' && first)
+        if (letter == '-' && letter == content.at(0))
             continue;  
         else if (!isdigit(letter))
             return false;
-
-        if (first)
-            first = false;
     }
     return true;
 }
