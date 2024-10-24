@@ -34,11 +34,11 @@ bool core::PseudoFS::isFile(std::string path) {
     return (file.find(".") == 0);
 }
 
-bool core::PseudoFS::__createFolderHelper(std::vector<std::string> path, FolderData& currentFolder, const FolderData& oneFolderData) {
+int core::PseudoFS::__createFolderHelper(std::vector<std::string> path, FolderData& currentFolder, const FolderData& oneFolderData) {
     if (path.empty())
-        return false;
+        return core::PseudoFSCodes::PATH_IS_EMPTY;
 
-    std::string currentFolderName = path[0];
+    std::string currentFolderName = path.at(0);
     path.erase(path.begin());
 
     for (FolderData& folder : currentFolder.folders) {
@@ -49,18 +49,43 @@ bool core::PseudoFS::__createFolderHelper(std::vector<std::string> path, FolderD
     if (path.size() < 2) {
         bool folderExists = std::any_of(currentFolder.folders.begin(), currentFolder.folders.end(), [&](const FolderData& f) { return f.name == oneFolderData.name; });
         
-        if (folderExists) return false;
-        FolderData newFolder = oneFolderData.name.empty() ? FolderData{currentFolderName, tempID++, std::chrono::system_clock::to_time_t(std::chrono::system_clock::now()), std::chrono::system_clock::to_time_t(std::chrono::system_clock::now()), {}, {}, false, false} : oneFolderData;
+        if (folderExists) return core::PseudoFSCodes::ALREADY_EXISTS;
+        FolderData newFolder = oneFolderData.name.empty() ? FolderData{currentFolderName, tempID++, std::chrono::system_clock::to_time_t(std::chrono::system_clock::now()), std::chrono::system_clock::to_time_t(std::chrono::system_clock::now()), {}, {}, false, false, nullptr, ""} : oneFolderData;
         currentFolder.folders.push_back(newFolder);
         nrfs.getRoot().update();
-        return true;  
+        return core::PseudoFSCodes::OK;
     }
-    return false;
+    return core::PseudoFSCodes::NOT_FOUND;
 }
 
-bool core::PseudoFS::__renameFolderHelper(std::vector<std::string> path, FolderData& currentFolder, const std::string& newName) {
+int core::PseudoFS::__setFolderAttHelper(std::vector<std::string> path, FolderData& currentFolder, const std::string& what, const std::any& newAtt) {
     if (path.empty())
-        return false;
+        return core::PseudoFSCodes::PATH_IS_EMPTY;
+    else if (path.size() == 1) {
+        for (FolderData& folder : currentFolder.folders) {
+            if (folder.name == path.at(0)) {
+                if (what == "hidden") folder.hidden = std::any_cast<bool>(newAtt);
+                else if (what == "system") folder.system = std::any_cast<bool>(newAtt);
+                folder.dataEdit = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+                nrfs.getRoot().update();
+                return core::PseudoFSCodes::OK;
+            }
+        }
+    }
+    else {
+        for (FolderData& folder : currentFolder.folders) {
+            if (folder.name == path.at(0)) {
+                path.erase(path.begin());
+                return __setFolderAttHelper(path, folder, what, newAtt);
+            }
+        }
+    }
+    return core::PseudoFSCodes::NOT_FOUND;
+}
+
+int core::PseudoFS::__renameFolderHelper(std::vector<std::string> path, FolderData& currentFolder, const std::string& newName) {
+    if (path.empty())
+        return core::PseudoFSCodes::PATH_IS_EMPTY;
     else if (path.size() == 1) {
         bool newFolderExists = std::any_of(currentFolder.folders.begin(), currentFolder.folders.end(), [&](const FolderData& f) { return f.name == newName; });
         if (!newFolderExists) {
@@ -68,14 +93,12 @@ bool core::PseudoFS::__renameFolderHelper(std::vector<std::string> path, FolderD
                 if (folder.name == path.at(0)) {
                     folder.name = newName;
                     folder.dataEdit = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
-                    return true;
+                    return core::PseudoFSCodes::OK;
                 }
             }
         }
-        else {
-            core::print(core::red, "Folder '" + newName + "' already exists!\n");
-            return false;
-        }
+        else
+            return core::PseudoFSCodes::ALREADY_EXISTS;
     }
     else {
         for (FolderData& folder : currentFolder.folders) {
@@ -85,17 +108,17 @@ bool core::PseudoFS::__renameFolderHelper(std::vector<std::string> path, FolderD
             }
         }
     }
-    return false;
+    return core::PseudoFSCodes::NOT_FOUND;
 }
 
-bool core::PseudoFS::__deleteFolderHelper(std::vector<std::string> path, FolderData& currentFolder) {
+int core::PseudoFS::__deleteFolderHelper(std::vector<std::string> path, FolderData& currentFolder) {
     if (path.empty())
-        return false;
+        return core::PseudoFSCodes::PATH_IS_EMPTY;
     else if (path.size() == 1) {
         for (auto it = currentFolder.folders.begin(); it != currentFolder.folders.end(); ) {
             if (it->name == path.at(0)) {
                 it = currentFolder.folders.erase(it);
-                return true;
+                return core::PseudoFSCodes::OK;
             }
             else
                 it++;
@@ -109,12 +132,12 @@ bool core::PseudoFS::__deleteFolderHelper(std::vector<std::string> path, FolderD
             }
         }
     }
-    return false;
+    return core::PseudoFSCodes::NOT_FOUND;
 }
 
-bool core::PseudoFS::__moveFolderHelper(std::vector<std::string> path, FolderData& currentFolder, const core::FolderData& oldFolderData, const std::string& oldPath) {
+int core::PseudoFS::__moveFolderHelper(std::vector<std::string> path, FolderData& currentFolder, const core::FolderData& oldFolderData, const std::string& oldPath) {
     if (path.empty())
-        return false;
+        return core::PseudoFSCodes::PATH_IS_EMPTY;
     else if (path.size() == 1) {
         for (FolderData& folder : currentFolder.folders) {
             if (folder.name == path.at(0)) {
@@ -122,7 +145,7 @@ bool core::PseudoFS::__moveFolderHelper(std::vector<std::string> path, FolderDat
                 if (!exists) {
                     folder.folders.push_back(oldFolderData);
                     nrfs.getRoot().update();
-                    return true;
+                    return core::PseudoFSCodes::OK;
                 }
             }
         }
@@ -135,39 +158,47 @@ bool core::PseudoFS::__moveFolderHelper(std::vector<std::string> path, FolderDat
             }
         }
     }
-    return false;
+    return core::PseudoFSCodes::NOT_FOUND;
 }
 
-core::FolderData core::PseudoFS::__getFolderData(std::vector<std::string> path, FolderData& currentFolder) {
-    if (path.empty())
+core::FolderData core::PseudoFS::__getFolderData(std::vector<std::string> path, FolderData& currentFolder, int& code) {
+    if (path.empty()) {
+        code = core::PseudoFSCodes::PATH_IS_EMPTY;
         return {};
+    }
     else if (path.size() == 1) {
         for (FolderData& anotherFolder : currentFolder.folders) {
-            if (anotherFolder.name == path.at(0))
-                return anotherFolder;
+            if (anotherFolder.name == path.at(0)) {
+                if (anotherFolder.link != nullptr && !anotherFolder.linkPath.empty())
+                    return getFolderData(anotherFolder.linkPath, code);
+                else {
+                    code = core::PseudoFSCodes::OK;
+                    return anotherFolder;
+                }
+            }
         }
     }
     else {
         for (FolderData& folder : currentFolder.folders) {
             if (folder.name == path.at(0) && path.size() > 1) {
                 path.erase(path.begin());
-                return __getFolderData(path, folder);
+                return __getFolderData(path, folder, code);
             }
         }
     }
-    core::print(core::red, "Error: Target folder not found!\n");
+    code = core::PseudoFSCodes::NOT_FOUND;
     return {};
 }
 
-bool core::PseudoFS::__createFileHelper(std::vector<std::string> path, FolderData& currentFolder, const FileData& oneFileData) {
+int core::PseudoFS::__createFileHelper(std::vector<std::string> path, FolderData& currentFolder, const FileData& oneFileData) {
     if (path.size() == 1 && isFile(path.at(0))) {
         if (oneFileData.name.empty()) {
-            currentFolder.files.push_back({path.at(0), "", tempID++, std::chrono::system_clock::to_time_t(std::chrono::system_clock::now()), std::chrono::system_clock::to_time_t(std::chrono::system_clock::now()), false, false});
+            currentFolder.files.push_back({path.at(0), "", tempID++, std::chrono::system_clock::to_time_t(std::chrono::system_clock::now()), std::chrono::system_clock::to_time_t(std::chrono::system_clock::now()), false, false, nullptr, ""});
         } else {
             currentFolder.files.push_back(oneFileData);
         }
         nrfs.getRoot().update();
-        return true;
+        return core::PseudoFSCodes::OK;
     }
     else {
         for (FolderData& folder : currentFolder.folders) {
@@ -179,22 +210,22 @@ bool core::PseudoFS::__createFileHelper(std::vector<std::string> path, FolderDat
                 }
                 else {
                     if (oneFileData.name.empty()) {
-                        folder.files.push_back({folder.name, "", tempID++, std::chrono::system_clock::to_time_t(std::chrono::system_clock::now()), std::chrono::system_clock::to_time_t(std::chrono::system_clock::now()), false, false});
+                        folder.files.push_back({folder.name, "", tempID++, std::chrono::system_clock::to_time_t(std::chrono::system_clock::now()), std::chrono::system_clock::to_time_t(std::chrono::system_clock::now()), false, false, nullptr, ""});
                     }
                     else
                         folder.files.push_back(oneFileData);
                 }
                 nrfs.getRoot().update();
-                return true;
+                return core::PseudoFSCodes::OK;
             }
         }
     }
-    return false;
+    return core::PseudoFSCodes::NOT_FOUND;
 }
 
-bool core::PseudoFS::__renameFileHelper(std::vector<std::string> path, FolderData& currentFolder, const std::string& newName) {
+int core::PseudoFS::__renameFileHelper(std::vector<std::string> path, FolderData& currentFolder, const std::string& newName) {
     if (path.empty())
-        return false;
+        return core::PseudoFSCodes::PATH_IS_EMPTY;
     else if (path.size() == 1) {
         for (FileData& file : currentFolder.files) {
             bool newFileExists = std::any_of(currentFolder.files.begin(), currentFolder.files.end(), [&](const FileData& f) { return f.name == newName; });
@@ -202,11 +233,10 @@ bool core::PseudoFS::__renameFileHelper(std::vector<std::string> path, FolderDat
                 file.name = newName;
                 file.dataEdit = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
                 nrfs.getRoot().update();
-                return true;
+                return core::PseudoFSCodes::OK;
             }
             else if (newFileExists) {
-                core::print(core::red, "File '" + newName + "' already exists!\n");
-                return false;
+                return core::PseudoFSCodes::ALREADY_EXISTS;
             }
         }
     }
@@ -218,18 +248,18 @@ bool core::PseudoFS::__renameFileHelper(std::vector<std::string> path, FolderDat
             }
         }
     }
-    return false;
+    return core::PseudoFSCodes::NOT_FOUND;
 }
 
-bool core::PseudoFS::__deleteFileHelper(std::vector<std::string> path, FolderData& currentFolder) {
+int core::PseudoFS::__deleteFileHelper(std::vector<std::string> path, FolderData& currentFolder) {
     if (path.empty())
-        return false;
+        return core::PseudoFSCodes::PATH_IS_EMPTY;
     else if (path.size() == 1 && isFile(path.at(0))) {
         auto it = currentFolder.files.begin();
         for (FileData& file : currentFolder.files) {
             if (file.name == path.at(0)) {
                 currentFolder.files.erase(it);
-                return true;
+                return core::PseudoFSCodes::OK;
             }
             it++;
         }
@@ -243,12 +273,12 @@ bool core::PseudoFS::__deleteFileHelper(std::vector<std::string> path, FolderDat
             }
         }
     }
-    return false;
+    return core::PseudoFSCodes::NOT_FOUND;
 }
 
-bool core::PseudoFS::__moveFileHelper(std::vector<std::string> path, FolderData& currentFolder, const core::FileData& oldFileData, const std::string& oldPath) {
+int core::PseudoFS::__moveFileHelper(std::vector<std::string> path, FolderData& currentFolder, const core::FileData& oldFileData, const std::string& oldPath) {
     if (path.empty())
-        return false;
+        return core::PseudoFSCodes::PATH_IS_EMPTY;
     else if (path.size() == 1) {
         for (FolderData& folder : currentFolder.folders) {
             if (folder.name == path.at(0)) {
@@ -257,7 +287,7 @@ bool core::PseudoFS::__moveFileHelper(std::vector<std::string> path, FolderData&
                     folder.files.push_back(oldFileData);
                     deleteFile(oldPath);
                     nrfs.getRoot().update();
-                    return true;
+                    return core::PseudoFSCodes::OK;
                 }
             }
         }
@@ -270,21 +300,21 @@ bool core::PseudoFS::__moveFileHelper(std::vector<std::string> path, FolderData&
             }
         }
     }
-    return false;
+    return core::PseudoFSCodes::NOT_FOUND;
 }
 
-bool core::PseudoFS::__setFileAttHelper(std::vector<std::string> path, FolderData& currentFolder, const std::string& what, const std::any& newAtt) {
+int core::PseudoFS::__setFileAttHelper(std::vector<std::string> path, FolderData& currentFolder, const std::string& what, const std::any& newAtt) {
     if (path.empty())
-        return false;
+        return core::PseudoFSCodes::PATH_IS_EMPTY;
     else if (path.size() == 1) {
         for (FileData& file : currentFolder.files) {
             if (file.name == path.at(0)) {
-                if (what == "content") file.content = std::any_cast<std::string>(newAtt);
+                if (what == "content") file.content = static_cast<std::string>(std::any_cast<const char*>(newAtt));
                 else if (what == "hidden") file.hidden = std::any_cast<bool>(newAtt);
                 else if (what == "system") file.system = std::any_cast<bool>(newAtt);
                 file.dataEdit = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
                 nrfs.getRoot().update();
-                return true;
+                return core::PseudoFSCodes::OK;
             }
         }
     }
@@ -296,16 +326,23 @@ bool core::PseudoFS::__setFileAttHelper(std::vector<std::string> path, FolderDat
             }
         }
     }
-    return false;
+    return core::PseudoFSCodes::NOT_FOUND;
 }
 
-core::FileData core::PseudoFS::__getFileData(std::vector<std::string> path, FolderData& currentFolder) {
-    if (path.empty())
+core::FileData core::PseudoFS::__getFileData(std::vector<std::string> path, FolderData& currentFolder, int& code) {
+    if (path.empty()) {
+        code = core::PseudoFSCodes::PATH_IS_EMPTY;
         return {};
+    }
     else if (path.size() == 1) {
         for (FileData& file : currentFolder.files) {
             if (file.name == path.at(0)) {
-                return file;
+                if (file.link != nullptr && !file.linkPath.empty())
+                    return getFileData(file.linkPath, code);
+                else {
+                    code = core::PseudoFSCodes::OK;
+                    return file;
+                }
             }
         }
     }
@@ -313,19 +350,25 @@ core::FileData core::PseudoFS::__getFileData(std::vector<std::string> path, Fold
         for (FolderData& folder : currentFolder.folders) {
             if (folder.name == path.at(0)) {
                 path.erase(path.begin());
-                return __getFileData(path, folder);
+                return __getFileData(path, folder, code);
             }
         }
     }
-    core::print(core::red, "Error: Target file not found!\n");
+    code = core::PseudoFSCodes::NOT_FOUND;
     return {};
 }
 
-void core::PseudoFS::createFolder(std::string path, const FolderData& oneFolderData, bool silent) {
+int core::PseudoFS::createFolder(std::string path, const FolderData& oneFolderData) {
     std::vector<std::string> parsedPath = core::Utils::split(path, '/');
     if (parsedPath.size() == 2) {
+        bool folderExists = std::any_of(nrfs.getRoot().folders.begin(), nrfs.getRoot().folders.end(),
+            [&](const FolderData& f) { return f.name == parsedPath.at(1);}
+        );
+        if (folderExists)
+            return core::PseudoFSCodes::ALREADY_EXISTS;
+
         if (oneFolderData.name.empty()) {
-            nrfs.getRoot().folders.push_back({parsedPath.at(1), tempID++, std::chrono::system_clock::to_time_t(std::chrono::system_clock::now()), std::chrono::system_clock::to_time_t(std::chrono::system_clock::now()), {}, {}, false, false});
+            nrfs.getRoot().folders.push_back({parsedPath.at(1), tempID++, std::chrono::system_clock::to_time_t(std::chrono::system_clock::now()), std::chrono::system_clock::to_time_t(std::chrono::system_clock::now()), {}, {}, false, false, nullptr, ""});
         }
         else
             nrfs.getRoot().folders.push_back(oneFolderData);
@@ -336,155 +379,184 @@ void core::PseudoFS::createFolder(std::string path, const FolderData& oneFolderD
         for (FolderData& folder : nrfs.getRoot().folders) {
             if (parsedPath.at(0) == folder.name) {
                 parsedPath.erase(parsedPath.begin());
-                if (!__createFolderHelper(parsedPath, folder, oneFolderData) && !silent) {
-                    core::print(core::red, "Error: Create operation failed!\n");
-                }
-                return;
+                return __createFolderHelper(parsedPath, folder, oneFolderData);
             }
         }
-        if (!silent) core::print(core::red, "Error: Target folder not found!\n");
+        return core::PseudoFSCodes::NOT_FOUND;
     }
+    return core::PseudoFSCodes::OK;
 }
 
-void core::PseudoFS::renameFolder(std::string path, std::string newName, bool silent) {
+int core::PseudoFS::setFolderAtt(std::string path, std::string what, std::any newAtt) {
     std::vector<std::string> parsedPath = core::Utils::split(path, '/');
     if (parsedPath.size() == 2) {
-        bool successfully = false;
+        bool folderExists = std::any_of(nrfs.getRoot().folders.begin(), nrfs.getRoot().folders.end(),
+            [&](const FolderData& f) { return f.name == parsedPath.at(1); }
+        );
+        if (!folderExists)
+            return core::PseudoFSCodes::NOT_FOUND;
+
+        for (FolderData& folder : nrfs.getRoot().folders) {
+            if (folder.name == parsedPath.at(1)) {
+                if (what == "hidden") folder.hidden = std::any_cast<bool>(newAtt);
+                else if (what == "system") folder.system = std::any_cast<bool>(newAtt);
+                folder.dataEdit = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+                nrfs.getRoot().update();
+                break;
+            }
+        }
+    }
+    else {
+        parsedPath.erase(parsedPath.begin());
+        for (FolderData& folder : nrfs.getRoot().folders) {
+            if (parsedPath.at(0) == folder.name) {
+                parsedPath.erase(parsedPath.begin());
+                return __setFolderAttHelper(parsedPath, folder, what, newAtt);
+            }
+        }
+        return core::PseudoFSCodes::NOT_FOUND;
+    }
+    return core::PseudoFSCodes::OK;
+}
+
+int core::PseudoFS::renameFolder(std::string path, std::string newName) {
+    std::vector<std::string> parsedPath = core::Utils::split(path, '/');
+    if (parsedPath.size() == 2) {
+        bool folderExists = std::any_of(nrfs.getRoot().folders.begin(), nrfs.getRoot().folders.end(),
+            [&](const FolderData& f) { return f.name == parsedPath.at(1); }
+        );
+        if (!folderExists)
+            return core::PseudoFSCodes::NOT_FOUND;
+
         bool newFolderExists = std::any_of(nrfs.getRoot().folders.begin(), nrfs.getRoot().folders.end(),
-            [&](const FolderData& f) { return f.name == newName; });
+            [&](const FolderData& f) { return f.name == newName; }
+        );
+        if (newFolderExists)
+                return core::PseudoFSCodes::ALREADY_EXISTS;
         
         for (FolderData& folder : nrfs.getRoot().folders) {
-            if (folder.name == parsedPath.at(1) && !newFolderExists) {
-                successfully = true;
+            if (folder.name == parsedPath.at(1)) {
                 folder.name = newName;
                 folder.dataEdit = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
                 nrfs.getRoot().update();
                 break;
             }
-            else if (newFolderExists)
-                core::print(core::red, "Folder '" + newName + "' already exists!\n");
         }
-        if (!successfully && !silent)
-            core::print(core::red, "Error: Target folder not found!\n");
     }
     else {
         parsedPath.erase(parsedPath.begin());
         for (FolderData& folder : nrfs.getRoot().folders) {
             if (parsedPath.at(0) == folder.name) {
                 parsedPath.erase(parsedPath.begin());
-                if (!__renameFolderHelper(parsedPath, folder, newName) && !silent) {
-                    core::print(core::red, "Error: Rename operation failed!\n");
-                }
-                return;
+                return __renameFolderHelper(parsedPath, folder, newName);
             }
         }
-        if (!silent) core::print(core::red, "Error: Target folder not found!\n");
+        return core::PseudoFSCodes::NOT_FOUND;
     }
+    return core::PseudoFSCodes::OK;
 }
 
-void core::PseudoFS::deleteFolder(std::string path, bool silent) {
+int core::PseudoFS::deleteFolder(std::string path) {
     std::vector<std::string> parsedPath = core::Utils::split(path, '/');
     if (parsedPath.size() == 2) {
+        bool folderExists = std::any_of(nrfs.getRoot().folders.begin(), nrfs.getRoot().folders.end(), [&](const FolderData& f) { return f.name == parsedPath.at(1); });
+        if (!folderExists)
+            return core::PseudoFSCodes::NOT_FOUND;
+
         auto it = nrfs.getRoot().folders.begin();
         for (FolderData& folder : nrfs.getRoot().folders) {
-            if (folder.name == parsedPath.at(1))
+            if (folder.name == parsedPath.at(1)) {
                 nrfs.getRoot().folders.erase(it);
+                nrfs.getRoot().update();
+                break;
+            }
             it++;
         }
-        nrfs.getRoot().update();
     }
     else {
         parsedPath.erase(parsedPath.begin());
         for (FolderData& folder : nrfs.getRoot().folders) {
             if (parsedPath.at(0) == folder.name) {
                 parsedPath.erase(parsedPath.begin());
-                if (!__deleteFolderHelper(parsedPath, folder) && !silent) {
-                    core::print(core::red, "Error: Delete operation failed!\n");
-                }
-                return;
+                return __deleteFolderHelper(parsedPath, folder);
             }
         }
-        if (!silent) core::print(core::red, "Error: Target folder not found!\n");
+        return core::PseudoFSCodes::NOT_FOUND;
     }
+    return core::PseudoFSCodes::OK;
 }
 
-void core::PseudoFS::moveFolder(std::string path, const std::string& newPath, bool silent) {
+int core::PseudoFS::moveFolder(std::string path, const std::string& newPath) {
     std::vector<std::string> parsedPath = core::Utils::split(newPath, '/');
-    const FolderData oldFolderData = getFolderData(path);
+    int code = 0;
+    const FolderData oldFolderData = getFolderData(path, code);
+    if (code != 1)
+        return code;
     if (parsedPath.size() == 1) {
-        for (auto it = nrfs.getRoot().folders.begin(); it != nrfs.getRoot().folders.end(); ) {
-            if (it->name == oldFolderData.name) {
-                if (!silent) core::print(core::red, "Error: Folder already exists!\n");
-                return;
-            }
-            it++;
-        }
+        bool newFolderExists = std::any_of(nrfs.getRoot().folders.begin(), nrfs.getRoot().folders.end(), [&](const FolderData& f) { return f.name == oldFolderData.name; });
+        if (newFolderExists)
+            return core::PseudoFSCodes::ALREADY_EXISTS;
+
         nrfs.getRoot().folders.push_back(oldFolderData);
         deleteFolder(path);
         nrfs.getRoot().update();
     }
-    else if (parsedPath.size() == 2) {
-        for (FolderData& folder : nrfs.getRoot().folders) {
-            if (folder.name == parsedPath.at(1)) {
-                for (auto it = folder.folders.begin(); it != folder.folders.end(); ) {
-                    if (it->name == oldFolderData.name) {
-                        if (!silent) core::print(core::red, "Error: Folder already exists!\n");
-                        return;
-                    }
-                    it++;
-                }
-                folder.folders.push_back(oldFolderData);
-                deleteFolder(path);
-                nrfs.getRoot().update();
-            }
-        }
-    }
     else {
         parsedPath.erase(parsedPath.begin());
         for (FolderData& folder : nrfs.getRoot().folders) {
             if (parsedPath.at(0) == folder.name) {
-                parsedPath.erase(parsedPath.begin());
-                if (!__moveFolderHelper(parsedPath, folder, oldFolderData, path) && !silent) {
-                    core::print(core::red, "Error: Move operation failed!\n");
-                }
-                else {
+                if (parsedPath.size() > 2) parsedPath.erase(parsedPath.begin());
+                int code = __moveFolderHelper(parsedPath, folder, oldFolderData, path);
+                if (code)
                     deleteFolder(path);
-                }
-                return;
+                return code;
             }
         }
-        if (!silent) core::print(core::red, "Error: Target folder not found!\n");
+        return core::PseudoFSCodes::NOT_FOUND;
     }
+    return core::PseudoFSCodes::OK;
 }
 
-core::FolderData core::PseudoFS::getFolderData(std::string path, bool silent) {
+core::FolderData core::PseudoFS::getFolderData(std::string path, int& code) {
     std::vector<std::string> parsedPath = core::Utils::split(path, '/');
     if (parsedPath.size() == 2) {
         for (FolderData& folder : nrfs.getRoot().folders) {
-            if (folder.name == parsedPath.at(1))
-                return folder;
+            if (folder.name == parsedPath.at(1)) {
+                if (folder.link != nullptr && !folder.linkPath.empty())
+                    return getFolderData(folder.linkPath, code);
+                else {
+                    code = core::PseudoFSCodes::OK;
+                    return folder;
+                }
+            }
         }
-        if (!silent) core::print(core::red, "Error: Target folder not found!\n");
     }
     else {
         parsedPath.erase(parsedPath.begin());
+
         for (FolderData& folder : nrfs.getRoot().folders) {
             if (parsedPath.at(0) == folder.name) {
                 parsedPath.erase(parsedPath.begin());
-                return __getFolderData(parsedPath, folder);
+                return __getFolderData(parsedPath, folder, code);
             }
         }
-        if (!silent) core::print(core::red, "Error: Target folder not found!\n");
     }
+    code = core::PseudoFSCodes::NOT_FOUND;
     return {};
 }
 
-void core::PseudoFS::createFile(std::string path, const FileData& oneFileData, bool silent) {
+int core::PseudoFS::createFile(std::string path, const FileData& oneFileData) {
     std::vector<std::string> parsedPath = core::Utils::split(path, '/');
 
     if (parsedPath.size() == 2) {
+        bool fileExists = std::any_of(nrfs.getRoot().files.begin(), nrfs.getRoot().files.end(),
+            [&](const FileData& f) { return f.name == parsedPath.at(1); }
+        );
+        if (fileExists)
+            return core::PseudoFSCodes::ALREADY_EXISTS;
+
         if (oneFileData.name.empty()) {
-            nrfs.getRoot().files.push_back({parsedPath.at(1), "", tempID++, std::chrono::system_clock::to_time_t(std::chrono::system_clock::now()), std::chrono::system_clock::to_time_t(std::chrono::system_clock::now()), false, false});
+            nrfs.getRoot().files.push_back({parsedPath.at(1), "", tempID++, std::chrono::system_clock::to_time_t(std::chrono::system_clock::now()), std::chrono::system_clock::to_time_t(std::chrono::system_clock::now()), false, false, nullptr, ""});
         }
         else
             nrfs.getRoot().files.push_back(oneFileData);
@@ -492,56 +564,63 @@ void core::PseudoFS::createFile(std::string path, const FileData& oneFileData, b
     }
     else {
         parsedPath.erase(parsedPath.begin());
-
         for (FolderData& folder : nrfs.getRoot().folders) {
             if (parsedPath.at(0) == folder.name) {
                 parsedPath.erase(parsedPath.begin());
-                if (!__createFileHelper(parsedPath, folder, oneFileData) && !silent) {
-                    core::print(core::red, "Error: Create operation failed in folder: " + folder.name + "\n");
-                }
-                return;
+                return __createFileHelper(parsedPath, folder, oneFileData);
             }
         }
-        if (!silent) core::print(core::red, "Error: Target folder not found!\n");
+        return core::PseudoFSCodes::NOT_FOUND;
     }
+    return core::PseudoFSCodes::OK;
 }
 
-void core::PseudoFS::renameFile(std::string path, std::string newName, bool silent) {
+int core::PseudoFS::renameFile(std::string path, std::string newName) {
     std::vector<std::string> parsedPath = core::Utils::split(path, '/');
     if (parsedPath.size() == 2) {
-        bool newFileExists = std::any_of(nrfs.getRoot().files.begin(), nrfs.getRoot().files.end(), [&](const FileData& f) { return f.name == newName; });
+        bool fileExists = std::any_of(nrfs.getRoot().files.begin(), nrfs.getRoot().files.end(),
+            [&](const FileData& f) { return f.name == parsedPath.at(1); }
+        );
+        if (!fileExists)
+            return core::PseudoFSCodes::NOT_FOUND;
+
+        bool newFileExists = std::any_of(nrfs.getRoot().files.begin(), nrfs.getRoot().files.end(),
+            [&](const FileData& f) { return f.name == newName; }
+        );
+        if (newFileExists)
+                return core::PseudoFSCodes::ALREADY_EXISTS;
+
         for (FileData& file : nrfs.getRoot().files) {
-            if (file.name == parsedPath.at(1) && !newFileExists) {
+            if (file.name == parsedPath.at(1)) {
                 file.name = newName;
                 file.dataEdit = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
                 nrfs.getRoot().update();
-                return;
-            }
-            else if (newFileExists) {
-                if (!silent) core::print(core::red, "File '" + newName + "' already exists!\n");
-                return;
+                break;
             }
         }
-        core::print(core::red, "File not found!\n");
     }
     else {
         parsedPath.erase(parsedPath.begin());
         for (FolderData& folder : nrfs.getRoot().folders) {
             if (parsedPath.at(0) == folder.name) {
                 parsedPath.erase(parsedPath.begin());
-                if (!__renameFileHelper(parsedPath, folder, newName) && !silent) {
-                    core::print(core::red, "Error: Rename operation failed!\n");
-                }
-                return;
+                return __renameFileHelper(parsedPath, folder, newName);
             }
         }
-        if (!silent) core::print(core::red, "Error: Target file not found!\n");
+        return core::PseudoFSCodes::NOT_FOUND;
     }
+    return core::PseudoFSCodes::OK;
 }
 
-void core::PseudoFS::deleteFile(std::string path, bool silent) {
+int core::PseudoFS::deleteFile(std::string path) {
     std::vector<std::string> parsedPath = core::Utils::split(path, '/');
     if (parsedPath.size() == 2) {
+        bool fileExists = std::any_of(nrfs.getRoot().files.begin(), nrfs.getRoot().files.end(),
+            [&](const FileData& f) { return f.name == parsedPath.at(1); }
+        );
+        if (!fileExists)
+            return core::PseudoFSCodes::NOT_FOUND;    
+
         auto it = nrfs.getRoot().files.begin();
         for (FileData& file : nrfs.getRoot().files) {
             if (file.name == parsedPath.at(1))
@@ -551,123 +630,112 @@ void core::PseudoFS::deleteFile(std::string path, bool silent) {
         nrfs.getRoot().update();
     }
     else {
-        parsedPath.erase(parsedPath.begin());
+        parsedPath.erase(parsedPath.begin()); 
         for (FolderData& folder : nrfs.getRoot().folders) {
             if (parsedPath.at(0) == folder.name) {
                 parsedPath.erase(parsedPath.begin());
-                if (!__deleteFileHelper(parsedPath, folder) && !silent) {
-                    core::print(core::red, "Error: Delete operation failed!\n");
-                }
-                return;
+                return __deleteFileHelper(parsedPath, folder);
             }
         }
-        if (!silent) core::print(core::red, "Error: Target file not found!\n");
+        return core::PseudoFSCodes::NOT_FOUND;
     }
+    return core::PseudoFSCodes::OK;
 }
 
-void core::PseudoFS::moveFile(std::string path, const std::string& newPath, bool silent) {
+int core::PseudoFS::moveFile(std::string path, const std::string& newPath) {
     try {
         std::vector<std::string> parsedPath = core::Utils::split(newPath, '/');
-        const FileData& oldFileData = getFileData(path);
+        int code = 0;
+        const FileData& oldFileData = getFileData(path, code);
+        if (code != 1)
+            return code;
         if (parsedPath.size() == 1) {
-            for (auto it = nrfs.getRoot().files.begin(); it != nrfs.getRoot().files.end(); ) {
-                if (it->name == oldFileData.name) {
-                    if (!silent) core::print(core::red, "Error: File already exists!\n");
-                    return;
-                }
-                it++;
-            }
+            bool newFileExists = std::any_of(nrfs.getRoot().files.begin(), nrfs.getRoot().files.end(),
+                [&](const FileData& f) { return f.name == oldFileData.name; }
+            );
+            if (newFileExists)
+                return core::PseudoFSCodes::ALREADY_EXISTS;
+
             nrfs.getRoot().files.push_back(oldFileData);
             deleteFile(path);
             nrfs.getRoot().update();
-        }
-        else if (parsedPath.size() == 2) {
-            for (FolderData& folder : nrfs.getRoot().folders) {
-                if (folder.name == parsedPath.at(1)) {
-                    for (auto it = folder.files.begin(); it != folder.files.end(); ) {
-                        if (it->name == oldFileData.name) {
-                            if (!silent) core::print(core::red, "Error: File already exists!\n");
-                            return;
-                        }
-                        it++;
-                    }
-                    folder.files.push_back(oldFileData);
-                    deleteFile(path);
-                    nrfs.getRoot().update();
-                    return;
-                }
-            }
         }
         else {
             parsedPath.erase(parsedPath.begin());
 
             for (FolderData& folder : nrfs.getRoot().folders) {
                 if (parsedPath.at(0) == folder.name) {
-                    parsedPath.erase(parsedPath.begin());
-                    if (!__moveFileHelper(parsedPath, folder, oldFileData, path) && !silent) {
-                        core::print(core::red, "Error: Move operation failed!\n");
-                    }
-                    return;
+                    if (parsedPath.size() > 2) parsedPath.erase(parsedPath.begin());
+                    return __moveFileHelper(parsedPath, folder, oldFileData, path);
                 }
             }
-            if (!silent) core::print(core::red, "Error: Target file not found!\n");
+            return core::PseudoFSCodes::NOT_FOUND;
         }
     }
     catch(const std::exception& e) {
         core::print(core::red, "Error: " + static_cast<std::string>(e.what()) + "\n");
+        return core::PseudoFSCodes::UNKNOWN_ERROR;
     }
+    return core::PseudoFSCodes::OK;
 }
 
-void core::PseudoFS::setFileAtt(std::string path, std::string what, std::any newAtt, bool silent) {
+int core::PseudoFS::setFileAtt(std::string path, std::string what, std::any newAtt) {
     std::vector<std::string> parsedPath = core::Utils::split(path, '/');
     if (parsedPath.size() == 2) {
+        bool fileExists = std::any_of(nrfs.getRoot().files.begin(), nrfs.getRoot().files.end(),
+            [&](const FileData& f) { return f.name == parsedPath.at(1); }
+        );
+        if (!fileExists)
+            return core::PseudoFSCodes::NOT_FOUND;
+
         for (FileData& file : nrfs.getRoot().files) {
             if (file.name == parsedPath.at(1)) {
-                if (what == "content") file.content = std::any_cast<std::string>(newAtt);
+                if (what == "content") file.content = static_cast<std::string>(std::any_cast<const char*>(newAtt));
                 else if (what == "hidden") file.hidden = std::any_cast<bool>(newAtt);
                 else if (what == "system") file.system = std::any_cast<bool>(newAtt);
                 file.dataEdit = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
-                return;
+                nrfs.getRoot().update();
+                break;
             }
         }
-        if (!silent) core::print(core::red, "Error: Target file not found!\n");
-        nrfs.getRoot().update();
     }
     else {
         parsedPath.erase(parsedPath.begin());
-
         for (FolderData& folder : nrfs.getRoot().folders) {
             if (parsedPath.at(0) == folder.name) {
                 parsedPath.erase(parsedPath.begin());
-                if (!__setFileAttHelper(parsedPath, folder, what, newAtt) && !silent) {
-                    core::print(core::red, "Error: SetContent operation failed!\n");
-                }
-                return;
+                return __setFileAttHelper(parsedPath, folder, what, newAtt);
             }
         }
-        if (!silent) core::print(core::red, "Error: Target file not found!\n");
+        return core::PseudoFSCodes::NOT_FOUND;
     }
+    return core::PseudoFSCodes::OK;
 }
 
-core::FileData core::PseudoFS::getFileData(std::string path, bool silent) {
+core::FileData core::PseudoFS::getFileData(std::string path, int& code) {
     std::vector<std::string> parsedPath = core::Utils::split(path, '/');
     if (parsedPath.size() == 2) {
         for (FileData& file : nrfs.getRoot().files) {
             if (file.name == parsedPath.at(1)) {
-                return file;
+                if (file.link != nullptr && !file.linkPath.empty())
+                    return getFileData(file.linkPath, code);
+                else {
+                    code = core::PseudoFSCodes::OK;
+                    return file;
+                }
             }
         }
-        if (!silent) core::print(core::red, "Error: Target file not found!\n");
+        code = core::PseudoFSCodes::NOT_FOUND;
     }
     else {
         parsedPath.erase(parsedPath.begin());
         for (FolderData& folder : nrfs.getRoot().folders) {
             if (parsedPath.at(0) == folder.name) {
                 parsedPath.erase(parsedPath.begin());
-                return __getFileData(parsedPath, folder);
+                return __getFileData(parsedPath, folder, code);
             }
         }
-        if (!silent) core::print(core::red, "Error: Target file not found!\n");
+        code = core::PseudoFSCodes::NOT_FOUND;
     }
     return {};
 }
@@ -746,7 +814,8 @@ void core::PseudoFS::printAll(bool includeHidden, std::string startPath) {
     }
     else {
         parsedPath = {};
-        printAllHelper(getFolderData(startPath).folders, startPath, includeHidden);
+        int code = 0;
+        printAllHelper(getFolderData(startPath, code).folders, startPath, includeHidden);
     }
 }
 
@@ -809,7 +878,8 @@ void core::PseudoFS::showTree(bool includeHidden, bool showFiles, std::string st
     }
     else {
         parsedPath = {};
-        showTreeHelper(getFolderData(startPath), includeHidden, showFiles, 0);
+        int code = 0;
+        showTreeHelper(getFolderData(startPath, code), includeHidden, showFiles, 0);
     }
 }
 
@@ -822,7 +892,12 @@ core::NRFS& core::PseudoFS::getNRFS() {
 }
 
 void core::PseudoFS::init() {
-    if (getFolderData("./home", true).name.empty()) createFolder("./home");
+    int code = 0;
+    getFolderData("./home", code);
+    if (code == core::PseudoFSCodes::NOT_FOUND) {
+        createFolder("./home");
+        setFolderAtt("./home", "system", true);
+    }
 }
 
 nlohmann::json core::PseudoFS::__savePFSHelper(std::vector<core::FolderData>& folders) {
@@ -847,10 +922,10 @@ nlohmann::json core::PseudoFS::__savePFSHelper(std::vector<core::FileData>& file
 void core::PseudoFS::savePFS() {
     nlohmann::json PFSJsonData;
     for (FolderData& folder : nrfs.getRoot().folders) {
-        PFSJsonData["."].push_back({"folder", folder.name, folder.id, folder.dataCreate, folder.dataEdit, __savePFSHelper(folder.files) ,__savePFSHelper(folder.folders), folder.system, folder.hidden});
+        PFSJsonData["."].push_back({"folder", folder.name, folder.id, folder.dataCreate, folder.dataEdit, __savePFSHelper(folder.files) ,__savePFSHelper(folder.folders), folder.system, folder.hidden, folder.link == nullptr, folder.linkPath});
     }
     for (FileData& file : nrfs.getRoot().files) {
-        PFSJsonData["."].push_back({"file", file.name, file.content, file.id, file.dataCreate, file.dataEdit, file.system, file.hidden});
+        PFSJsonData["."].push_back({"file", file.name, file.content, file.id, file.dataCreate, file.dataEdit, file.system, file.hidden, file.link == nullptr, file.linkPath});
     }
 	std::ofstream file("Data/PFS-Data.json", std::ios::out);
     file << PFSJsonData.dump(4) << '\n';
@@ -865,7 +940,7 @@ std::vector<core::FolderData> core::PseudoFS::__loadPFSHelperFolders(nlohmann::j
             bool system = a.at(7).get<bool>();
             bool hidden = a.at(8).get<bool>();
             tempID = (id > tempID ? id : tempID);
-            FolderData folder = {a.at(1), a.at(2), a.at(3), a.at(4), __loadPFSHelperFiles(a.at(5)), __loadPFSHelperFolders(a.at(6)), system, hidden};
+            FolderData folder = {a.at(1), a.at(2), a.at(3), a.at(4), __loadPFSHelperFiles(a.at(5)), __loadPFSHelperFolders(a.at(6)), system, hidden, nullptr, ""};
             temp.push_back(folder);
         }
     }
@@ -880,35 +955,51 @@ std::vector<core::FileData> core::PseudoFS::__loadPFSHelperFiles(nlohmann::json 
             bool system = a.at(6).get<bool>();
             bool hidden = a.at(7).get<bool>();
             tempID = (id > tempID ? id : tempID);
-            FileData file = {a.at(1), a.at(2), a.at(3), a.at(4), a.at(5), system, hidden};
+            FileData file = {a.at(1), a.at(2), a.at(3), a.at(4), a.at(5), system, hidden, nullptr, ""};
             temp.push_back(file);
         }
     }
     return temp;
 }
 
-void core::PseudoFS::loadPFS() {
+void core::PseudoFS::__loadLinksFoldersAndFiles(FolderData& curFolder) {
+    for (FolderData& folder : curFolder.folders) {
+        if (folder.linkPath.empty()) continue;
+        int code;
+        FolderData linkFolder = getFolderData(folder.linkPath, code);
+        folder.link = &linkFolder;
+        if (!folder.folders.empty() || !folder.files.empty()) __loadLinksFoldersAndFiles(folder);
+    }
+    for (FileData& file : curFolder.files) {
+        if (file.linkPath.empty()) continue;
+        int code;
+        FileData linkFile = getFileData(file.linkPath, code);
+        file.link = &linkFile;
+    }
+}
+
+int core::PseudoFS::loadPFS() {
     FileManager FM;
     if (!FM.fileExist("Data/PFS-Data.json")) {
         FM.createFile("Data/PFS-Data.json");
         core::print(core::red, "Error: PFS-Data.json not found!\n");
         init();
-        return;
+        return core::PseudoFSCodes::NOT_FOUND;
     }
     else if (FM.readFile("Data/PFS-Data.json").empty()) {
         core::print(core::red, "Error: PFS-Data.json is empty!\n");
         init();
-        return;
+        return core::PseudoFSCodes::IS_EMPTY;
     }
     nlohmann::json jsonData = nlohmann::json::parse(FM.readFile("Data/PFS-Data.json"));
     try {
         for (nlohmann::json jsonDataPart : jsonData["."]) {
-            if (jsonDataPart[0] == "file") {
+            if (jsonDataPart.at(0).get<std::string>() == "file") {
                 int id = jsonDataPart.at(3).get<int>();
                 bool system = jsonDataPart.at(6).get<bool>();
                 bool hidden = jsonDataPart.at(7).get<bool>();
                 tempID = (id > tempID ? id : tempID);
-                createFile("./a", {jsonDataPart.at(1), jsonDataPart.at(2), jsonDataPart.at(3), jsonDataPart.at(4), jsonDataPart.at(5), system, hidden});
+                createFile("./a", {jsonDataPart.at(1), jsonDataPart.at(2), jsonDataPart.at(3), jsonDataPart.at(4), jsonDataPart.at(5), system, hidden, nullptr, jsonDataPart.at(9)});
             }
             else {
                 int id = jsonDataPart.at(2).get<int>();
@@ -917,42 +1008,57 @@ void core::PseudoFS::loadPFS() {
                 tempID = (id > tempID ? id : tempID);
                 std::vector<FolderData> folders = __loadPFSHelperFolders((jsonDataPart.at(6) != "null" ? jsonDataPart.at(6) : ""));
                 std::vector<FileData> files = __loadPFSHelperFiles((jsonDataPart.at(5) != "null" ? jsonDataPart.at(5) : ""));
-                createFolder("./a", {jsonDataPart.at(1), id, jsonDataPart.at(3), jsonDataPart.at(4), files, folders, system, hidden});
+                createFolder("./a", {jsonDataPart.at(1), id, jsonDataPart.at(3), jsonDataPart.at(4), files, folders, system, hidden, nullptr, jsonDataPart.at(10)});
             }
+        }
+        for (FolderData& folder : nrfs.getRoot().folders) {
+            if (folder.linkPath.empty()) continue;
+            int code;
+            FolderData linkFolder = getFolderData(folder.linkPath, code);
+            folder.link = &linkFolder;
+            if (!folder.folders.empty() || !folder.files.empty()) __loadLinksFoldersAndFiles(folder);
+        }
+        for (FileData& file : nrfs.getRoot().files) {
+            if (file.linkPath.empty()) continue;
+            int code;
+            FileData linkFile = getFileData(file.linkPath, code);
+            file.link = &linkFile;
         }
         ++tempID;
     }
     catch(const std::exception& e) {
         core::print(core::red, "Error: " + static_cast<std::string>(e.what()) + "\n");
+        return core::PseudoFSCodes::JSON_PARSING_FAILED;
     }
+    return core::PseudoFSCodes::OK;
 }
 
-bool core::PseudoFS::changePath(const std::string& newPath) {
+int core::PseudoFS::changePath(const std::string& newPath) {
     if (folderExists(newPath) || newPath == "./") {
         currentPath = newPath;
-        return true;
+        return core::PseudoFSCodes::OK;
     }
-    return false;
+    return core::PseudoFSCodes::NOT_FOUND;
 }
 
-bool core::PseudoFS::changeDirectory(const std::string& newDirectory) {
+int core::PseudoFS::changeDirectory(const std::string& newDirectory) {
     std::vector<std::string> parsedPath = core::Utils::split(currentPath, '/');
     if (newDirectory == ".." && parsedPath.size() > 1) {
         std::string currentPathTemp;
         for (const std::string& pathPart : parsedPath)
             currentPathTemp += pathPart + "/";
         currentPath = currentPathTemp.substr(0, currentPathTemp.length() - (parsedPath.back().length() + 1));
-        return true;
+        return core::PseudoFSCodes::OK;
     }
     else if (newDirectory == ".." && parsedPath.size() == 1)
-        return false;
+        return core::PseudoFSCodes::SMALL_SIZE;
     else {
         if (folderExists(currentPath + newDirectory)) {
             currentPath += newDirectory + "/";
-            return true;
+            return core::PseudoFSCodes::OK;
         }
     }
-    return false;
+    return core::PseudoFSCodes::BAD_PATH;
 }
 
 bool core::PseudoFS::__folderExistsHelper(std::vector<std::string> path, FolderData& currentFolder) {
@@ -969,7 +1075,6 @@ bool core::PseudoFS::__folderExistsHelper(std::vector<std::string> path, FolderD
             }
         }
     }
-    core::print(core::red, "Error: Target folder not found!\n");
     return false;
 }
 
@@ -990,7 +1095,6 @@ bool core::PseudoFS::folderExists(const std::string& path) {
                 }
             }
         }
-        core::print(core::red, "Error: Target folder not found!\n");
     }
     catch(const std::exception& e) {
         core::print(core::red, "Error: " + static_cast<std::string>(e.what()) + "\n");

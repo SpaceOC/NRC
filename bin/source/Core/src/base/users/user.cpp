@@ -1,7 +1,7 @@
 #include "Core/base/users/user.h"
 
 core::User::User() {}
-core::User::User(const std::string& username, const permissionsEC& permissions, const std::string& language, const std::string& password) {
+core::User::User(const std::string& username, const Permissions& permissions, const std::string& language, const std::string& password) {
     if (!userCreated) {
         this->username = this->displayName = username; this->permissions = permissions;
         this->language = language; this->password = password;
@@ -25,7 +25,7 @@ void core::User::editUsername(const std::string& newUsername) { this->username =
 void core::User::editDisplayName(const std::string& newDisplayName) { this->displayName = newDisplayName; }
 void core::User::editLanguage(const std::string& newLanguage) { this->language = newLanguage; }
 void core::User::editPassword(const std::string& newPassword) { this->password = newPassword; }
-void core::User::editPermissions(const core::permissionsEC& newPermissions) { this->permissions = newPermissions; }
+void core::User::editPermissions(const core::Permissions& newPermissions) { this->permissions = newPermissions; }
 void core::User::editVarFunction(const std::string& name, const std::function<void()>& function) {
     if (localVariables.count(name)) localVariables["%" + name + "%"].function = function;
 }
@@ -60,7 +60,7 @@ std::string core::User::getUsername() { return this->username; }
 std::string core::User::getDisplayName() { return this->displayName; }
 std::string core::User::getLanguage() { return this->language; }
 std::string core::User::getPassword() { return this->password; } // DANGER!!!!!!!!!!!!
-core::permissionsEC core::User::getPermissions() { return this->permissions; }
+core::Permissions core::User::getPermissions() { return this->permissions; }
 
 void core::User::varFuncStart(const std::string& name) {
     if (localVariables.empty()) return;

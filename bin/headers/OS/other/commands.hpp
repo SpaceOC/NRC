@@ -79,8 +79,7 @@ void hi() {
 }
 
 void addCommands() {
-    core::HandlerCommands HC;
-    HC.addCommand("counter", "No description", counter);
-    HC.addCommand("hi", "hiii!", hi);
-    HC.addCommand("exit", "exit", bye);
+    core::HandlerCommands::addCommand("counter", "No description", counter);
+    core::HandlerCommands::addCommand("hi", "hiii!", hi);
+    core::HandlerCommands::addCommand("exit", "exit", bye);
 }

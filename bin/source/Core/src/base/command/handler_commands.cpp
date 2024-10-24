@@ -28,11 +28,11 @@
 
 core::HandlerCommands::HandlerCommands() {}
 
-bool core::HandlerCommands::thisVariable(const std::string& command) const {
+bool core::HandlerCommands::thisVariable(const std::string& command) {
 	return (command.substr(0, 1) == "%" && command.substr(command.length() - 1, command.length()) == "%");
 }
 
-std::vector<core::CommandObject> core::HandlerCommands::parsing(const std::string& rawCommand) const {
+std::vector<core::CommandObject> core::HandlerCommands::parsing(const std::string& rawCommand) {
 	if (!rawCommand.empty()) {
 		std::vector<core::CommandObject> result;
 		std::vector<std::string> temp = core::Utils::split(rawCommand, ' ');
@@ -48,35 +48,33 @@ std::vector<core::CommandObject> core::HandlerCommands::parsing(const std::strin
 				result.push_back({commandName, anotherTemp});
 				anotherTemp = {};
 			}
-			
-			if (rawCommandData.substr(0, 1) == "\"" && !quoteOpened) {
+			else if (rawCommandData.substr(0, 1) == "\"" && !quoteOpened) {
 				goodString += (rawCommandData.substr(0, 1) == "\"" ?
 								rawCommandData.substr(1, rawCommandData.length()) :
 								rawCommandData)
 							+ " ";
 				backString = rawCommandData;
 				quoteOpened = true;
+				if (rawCommandData.back() == '"') {
+					anotherTemp.push_back(goodString.substr(0, goodString.length() - 2));
+					goodString.erase();
+					quoteOpened = false;
+					continue;
+				}
 			}
-			
-			if (rawCommandData.substr(rawCommandData.length() - 1, rawCommandData.length()) == "\"" && quoteOpened) {
-				
-				if (rawCommandData != backString)
-					goodString += rawCommandData + " ";
-				// deleting a space with " from a variable
+			else if (rawCommandData.back() == '"' && quoteOpened) {
+				goodString += rawCommandData + " ";
 				anotherTemp.push_back(goodString.substr(0, goodString.length() - 2));
 				goodString.erase();
 				quoteOpened = false;
 			}
-			else if (!quoteOpened && rawCommandData != commandSeparator) {
+			else if (quoteOpened && rawCommandData != commandSeparator && rawCommandData != backString) {
+				goodString += rawCommandData + " ";
+				backString = rawCommandData;
+			}
+			else {
 				if (!goodString.empty()) anotherTemp.push_back(goodString); goodString.erase();
 				anotherTemp.push_back(rawCommandData);
-			}
-			else if (quoteOpened && rawCommandData != commandSeparator && rawCommandData != temp.at(0)) {
-				goodString += (rawCommandData.substr(0, 1) == "\"" ?
-								rawCommandData.substr(1, rawCommandData.length()) :
-								rawCommandData)
-							+ " ";
-				backString = rawCommandData;
 			}
 		}
 		if (quoteOpened) {
@@ -88,7 +86,7 @@ std::vector<core::CommandObject> core::HandlerCommands::parsing(const std::strin
 	return {};
 }
 
-void core::HandlerCommands::sendCommand(const core::CommandObject& command) const {
+void core::HandlerCommands::sendCommand(const core::CommandObject& command) {
     auto it = commandMap.find(command.name);
     if (it != commandMap.end() && command.args.empty()) { it->second.function(); }
     else if (thisVariable(command.name)) {
@@ -138,7 +136,13 @@ void core::HandlerCommands::addCommand(const std::string& name, const core::Comm
 	commandWithArgsMap[name].description = temp;
 }
 
-std::map<std::string, core::CommandDescription> core::HandlerCommands::getCommand(const std::string& name) const {
+void core::HandlerCommands::deleteCommand(const std::string& name) {
+	if (!commandMap.count(name) && !commandWithArgsMap.count(name)) return;
+	if (commandMap.count(name)) commandMap.erase(name);
+	else commandWithArgsMap.erase(name);
+}
+
+std::map<std::string, core::CommandDescription> core::HandlerCommands::getCommand(const std::string& name) {
 	if (commandMap.count(name))
 		return {{name, {commandMap[name].description, {}}}};
 	else if (commandWithArgsMap.count(name))
@@ -146,7 +150,7 @@ std::map<std::string, core::CommandDescription> core::HandlerCommands::getComman
 	return {};
 }
 
-std::map<std::string, core::CommandDescription> core::HandlerCommands::getAllCommands() const {
+std::map<std::string, core::CommandDescription> core::HandlerCommands::getAllCommands() {
 	if (commandMap.empty()) return {};
 	std::map<std::string, core::CommandDescription> temp;
 	for (auto commandData : commandMap) { 

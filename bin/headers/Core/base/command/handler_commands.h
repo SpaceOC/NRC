@@ -59,22 +59,24 @@ namespace core {
 			HandlerCommands();
 
 			// Checks if the argument is a variable call.
-			virtual bool thisVariable(const std::string& command) const;
+			static bool thisVariable(const std::string& command);
 
 			// Parses argument.
-			virtual std::vector<CommandObject> parsing(const std::string& rawCommand) const;
+			static std::vector<CommandObject> parsing(const std::string& rawCommand);
 
 			// Executes a command (if it exists and meets the required execution conditions). If the command is a variable call, it starts the variable.
-			virtual void sendCommand(const core::CommandObject& command) const;
+			static void sendCommand(const core::CommandObject& command);
 
 			static void setCommandSeparator(const std::string& commandSeparator);
-			std::string getCommandSeparator();
+			static std::string getCommandSeparator();
 
 			static void addCommand(const std::string& name, const std::string& description, const std::function<void()>& function);
 			static void addCommand(const std::string& name, const CommandDescription& data, const std::function<void(std::vector<std::string>)>& function, int minArgs, int maxArgs);
 			
-			virtual std::map<std::string, CommandDescription> getCommand(const std::string& name) const;
-			virtual std::map<std::string, CommandDescription> getAllCommands() const;
+			static void deleteCommand(const std::string& name);
+
+			static std::map<std::string, CommandDescription> getCommand(const std::string& name);
+			static std::map<std::string, CommandDescription> getAllCommands();
 	};
 }
 

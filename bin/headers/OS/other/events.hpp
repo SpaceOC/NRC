@@ -30,9 +30,8 @@ core::structDataEvents::NRCShutdownEvent goodbyeNRC(core::structDataEvents::NRCS
 }
 
 void addEvents() {
-    core::EventManager EM;
-    EM.addEvent(newUserEvent);
-    EM.addEvent(changeUserEvent);
-    EM.addEvent(deleteUserEvent);
-    EM.addEvent(goodbyeNRC);
+    core::EventManager::addEvent(newUserEvent);
+    core::EventManager::addEvent(changeUserEvent);
+    core::EventManager::addEvent(deleteUserEvent);
+    core::EventManager::addEvent(goodbyeNRC);
 }

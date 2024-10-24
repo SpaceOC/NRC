@@ -26,13 +26,13 @@ namespace core {
         private:
             std::map<std::string, VariableData> localVariables;
             std::string username, displayName, language, password;
-            permissionsEC permissions;
+            Permissions permissions;
             bool userCreated = false;
         public:
 
             User();
             // User Creation.
-            User(const std::string& username, const permissionsEC& permissions, const std::string& language = "English", const std::string& password = "");
+            User(const std::string& username, const Permissions& permissions, const std::string& language = "English", const std::string& password = "");
             
             // Creating a local (for the user) variable.
             void addVar(const std::string& name, const std::string& description, const std::function<void()>& varFunction);
@@ -41,7 +41,7 @@ namespace core {
             void editDisplayName(const std::string& newDisplayName);
             void editLanguage(const std::string& newLanguage);
             void editPassword(const std::string& password);
-            void editPermissions(const permissionsEC& newPermissions);
+            void editPermissions(const Permissions& newPermissions);
 
             // Changes the function of a variable.
             void editVarFunction(const std::string& name, const std::function<void()>& function);
@@ -67,7 +67,7 @@ namespace core {
             std::string getDisplayName();
             std::string getLanguage();
             std::string getPassword();
-            permissionsEC getPermissions();
+            Permissions getPermissions();
 
             // Starts a variable function.
             void varFuncStart(const std::string& name);

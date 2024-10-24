@@ -4,8 +4,7 @@
 #include "Core/base/filesystem/pseudo_fs.h"
 
 void addFolderAndFiles() {
-    core::PseudoFS FS;
-    FS.createFolder("./yourPseudoOS");
-    FS.createFile("./yourPseudoOS/info.txt");
-    FS.setFileAtt("./yourPseudoOS/info.txt", "content", "Hello :D");
+    core::PseudoFS::createFolder("./yourPseudoOS");
+    core::PseudoFS::createFile("./yourPseudoOS/info.txt");
+    core::PseudoFS::setFileAtt("./yourPseudoOS/info.txt", "content", "Hello :D");
 }

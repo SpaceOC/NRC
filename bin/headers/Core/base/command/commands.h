@@ -31,16 +31,16 @@ namespace core {
         void CORE_COMMAND_cd(const std::vector<std::string>& args);
 
         void CORE_COMMAND_createFile(const std::vector<std::string>& args);
+        void CORE_COMMAND_createLinkFile(const std::vector<std::string>& args);
         void CORE_COMMAND_deleteFile(const std::vector<std::string>& args);
         void CORE_COMMAND_renameFile(const std::vector<std::string>& args);
         void CORE_COMMAND_moveFile(const std::vector<std::string>& args);
 
         void CORE_COMMAND_createFolder(const std::vector<std::string>& args);
+        void CORE_COMMAND_createLinkFolder(const std::vector<std::string>& args);
         void CORE_COMMAND_deleteFolder(const std::vector<std::string>& args);
         void CORE_COMMAND_renameFolder(const std::vector<std::string>& args);
         void CORE_COMMAND_moveFolder(const std::vector<std::string>& args);
-
-        void CORE_COMMAND_NRFSSize();
 
         void CORE_COMMAND_whereIm();
 
@@ -56,22 +56,11 @@ namespace core {
 
         //   -------------- Users "Manager" ---------------
 
-        void CORE_COMMAND_setPasswordWithDialogue();
         void CORE_COMMAND_setPassword(const std::vector<std::string>& args); 
-
-        void CORE_COMMAND_editDisplayNameWithDialogue();
         void CORE_COMMAND_editDisplayName(const std::vector<std::string>& args);
-
-        void CORE_COMMAND_addUserWithDialogue();
-        void CORE_COMMAND_addUser(const std::vector<std::string>& args);
-
-        void CORE_COMMAND_deleteUserWithDialogue();
+        void CORE_COMMAND_createUser(const std::vector<std::string>& args);
         void CORE_COMMAND_deleteUser(const std::vector<std::string>& args);
-
-        void CORE_COMMAND_renameUserWithDialogue();
         void CORE_COMMAND_renameUser(const std::vector<std::string>& args);
-
-        void CORE_COMMAND_setPermissionsUserWithDialogue();
         void CORE_COMMAND_setPermissionsUser(const std::vector<std::string>& args);
 
         //void CORE_COMMAND_addLocalVar();

@@ -46,10 +46,9 @@ void core::UserManager::userLogin(const std::string& username) {
 	userIsLogined = true;
 }
 
-void core::UserManager::addUserFromData(const std::string& username, const std::string& displayName, const permissionsEC& permissions, const std::string& language, const std::string& password) {
+void core::UserManager::addUserFromData(const std::string& username, const std::string& displayName, const Permissions& permissions, const std::string& language, const std::string& password) {
 	users.push_back(User(username, permissions, language, password));
 	users[userVectorPos(username)].editDisplayName(displayName);
-	core::EventManager EM;
 
 	core::structDataEvents::UserAddEvent eventData = {
 		username,
@@ -58,14 +57,18 @@ void core::UserManager::addUserFromData(const std::string& username, const std::
 		static_cast<size_t>(userVectorPos(username))
 	};
 
-	EM.eventsStart(USER_ADD_EVENT, eventData);
-	core::PseudoFS FS;
-	if (FS.getFolderData("./home/" + username, true).name.empty()) FS.createFolder("./home/" + username);
-	FS.savePFS();
+	core::EventManager::eventsStart(USER_ADD_EVENT, eventData);
+	int code = 0;
+	core::PseudoFS::getFolderData("./home/" + username, code);
+	if (code == core::PseudoFSCodes::NOT_FOUND) {
+		core::PseudoFS::createFolder("./home/" + username);
+		core::PseudoFS::setFolderAtt("./home/" + username, "system", true);
+	}
+	core::PseudoFS::savePFS();
 	saveUserData(username);
 }
 
-core::UserManager::UserManager() { checkOOBE_Passed(); }
+core::UserManager::UserManager() {}
 bool core::UserManager::userIsYou(const std::string& username) { return username == currentUser; }
 bool core::UserManager::userExist(const std::string& username) {
 	for (User& user : users) {
@@ -74,11 +77,11 @@ bool core::UserManager::userExist(const std::string& username) {
 	return false;
 }
 bool core::UserManager::havePassword(const std::string& username) { return users[userVectorPos(username)].havePassword(); }
-bool core::UserManager::userHaveAdminPermissions(const std::string& username) { return users[userVectorPos(username)].getPermissions() == permissionsEC::admin; }
+bool core::UserManager::userHaveAdminPermissions(const std::string& username) { return users[userVectorPos(username)].getPermissions() == Permissions::admin; }
 
-bool core::UserManager::permissionsCheck(const permissionsEC& permissions) {
-	for (int i = static_cast<int>(permissionsEC::ghost); i <= static_cast<int>(permissionsEC::admin); i++)
-		if (permissions == static_cast<permissionsEC>(i)) 
+bool core::UserManager::permissionsCheck(const Permissions& permissions) {
+	for (int i = static_cast<int>(Permissions::ghost); i <= static_cast<int>(Permissions::admin); i++)
+		if (permissions == static_cast<Permissions>(i)) 
 			return true;
 	return false;
 }
@@ -88,7 +91,7 @@ bool core::UserManager::permissionsHighCurrentUser(const std::string& username) 
 }
 
 bool core::UserManager::getUserIsLogined() { return userIsLogined; }
-bool core::UserManager::getOOBE_Passed() { return OOBE_Passed; }
+bool core::UserManager::getOOBEPassed() { return OOBEPassed; }
 
 int core::UserManager::userVectorPos(const std::string& username) {
 	int realUsersSize = users.size() - (users.size() == 1 ? 0 : 1);
@@ -128,29 +131,28 @@ std::map<std::string, std::string> core::UserManager::getLanguageMap() {
 	return temp;
 }
 
-std::map<std::string, core::permissionsEC> core::UserManager::getPermissionsMap() {
-	std::map<std::string, permissionsEC> temp;
+std::map<std::string, core::Permissions> core::UserManager::getPermissionsMap() {
+	std::map<std::string, Permissions> temp;
 
 	for (User& user : users)
 		temp[user.getUsername()] = user.getPermissions();
 	return temp;
 }
 
-void core::UserManager::checkOOBE_Passed() {
+void core::UserManager::checkOOBE() {
 	DataManager DM;
 	FileManager FM;
 
 	if (FM.fileExist(mainDataFilePath))
-		OOBE_Passed = DM.readAllData(mainDataFilePath)["OOBE_Passed"] == "1";
+		OOBEPassed = DM.readAllData(mainDataFilePath)["OOBE_Passed"] == "1";
 }
 
-void core::UserManager::system_addUser(const std::string& username) {
+void core::UserManager::systemAddUser(const std::string& username) {
 	DataManager DM;
-	users.push_back(User(username, permissionsEC::admin));
+	users.push_back(User(username, Permissions::admin));
 	currentUser = username;
 	userIsLogined = true;
 	DM.createVectorData(usersListFilePath, {username});
-	core::EventManager EM;
 
 	core::structDataEvents::UserAddEvent eventData = {
 		username,
@@ -159,24 +161,27 @@ void core::UserManager::system_addUser(const std::string& username) {
 		static_cast<size_t>(userVectorPos(username))
 	};
 
-	EM.eventsStart(USER_ADD_EVENT, eventData);
+	core::EventManager::eventsStart(USER_ADD_EVENT, eventData);
 
-	core::PseudoFS FS;
-	if (FS.getFolderData("./home/" + username, true).name.empty()) FS.createFolder("./home/" + username);
-	FS.savePFS();
+	int code = 0;
+	core::PseudoFS::getFolderData("./home/" + username, code);
+	if (code == core::PseudoFSCodes::NOT_FOUND) {
+		core::PseudoFS::createFolder("./home/" + username);
+		core::PseudoFS::setFolderAtt("./home/" + username, "system", true);
+	}
+	core::PseudoFS::savePFS();
 	saveUserData(username);
 	DM.changeData(mainDataFilePath, "OOBE_Passed", "1");
-	checkOOBE_Passed();
+	checkOOBE();
 }
 
-void core::UserManager::addUser(const std::string& username, const permissionsEC& permissions) {
+void core::UserManager::addUser(const std::string& username, const Permissions& permissions) {
 	DataManager DM;
 	if (!userExist(username) && permissionsCheck(permissions) && 
 	userHaveAdminPermissions(currentUser) && (users.size() < static_cast<size_t>(maxUsers))) 
 	{
 		users.push_back(User(username, permissions));
 		if (!DM.valueExist(usersListFilePath, username)) { DM.addVectorData(usersListFilePath, username); }
-		core::EventManager EM;
 
 		core::structDataEvents::UserAddEvent eventData = {
 			username,
@@ -185,10 +190,14 @@ void core::UserManager::addUser(const std::string& username, const permissionsEC
 			static_cast<size_t>(userVectorPos(username))
 		};
 
-		EM.eventsStart(USER_ADD_EVENT, eventData);
-		core::PseudoFS FS;
-		if (FS.getFolderData("./home/" + username, true).name.empty()) FS.createFolder("./home/" + username);
-		FS.savePFS();
+		core::EventManager::eventsStart(USER_ADD_EVENT, eventData);
+		int code = 0;
+		core::PseudoFS::getFolderData("./home/" + username, code);
+		if (code == core::PseudoFSCodes::NOT_FOUND) {
+			core::PseudoFS::createFolder("./home/" + username);
+			core::PseudoFS::setFolderAtt("./home/" + username, "system", true);
+		}
+		core::PseudoFS::savePFS();
 		saveUserData(username);
 	}
 	else print(colors::red, "Failed to create a user\n");
@@ -203,20 +212,19 @@ void core::UserManager::deleteUser(const std::string& username) {
 		auto iter = users.begin();
 		for (User& user : users) {
 			if (user.getUsername() == username) {
-				core::EventManager EM;
-
 				core::structDataEvents::UserDeleteEvent eventData = {
 					username,
 					users[userVectorPos(username)].getDisplayName(),
 					users[userVectorPos(username)].getPermissions()
 				};
 
-				EM.eventsStart(USER_DELETE_EVENT, eventData);
+				core::EventManager::eventsStart(USER_DELETE_EVENT, eventData);
 
 				users.erase(iter);
-				core::PseudoFS FS;
-				if (!FS.getFolderData("./home/" + username, true).name.empty()) FS.deleteFolder("./home/" + username);
-				FS.savePFS();
+				int code = 0;
+				core::PseudoFS::getFolderData("./home/" + username, code);
+				if (code == core::PseudoFSCodes::OK) core::PseudoFS::deleteFolder("./home/" + username);
+				core::PseudoFS::savePFS();
 				break;
 			}
 			iter++;
@@ -247,7 +255,6 @@ void core::UserManager::renameUser(const std::string& username, const std::strin
 		FM.renameFile(usersPath + username + ".json", usersPath + newUsername + ".json");
 		DM.changeVectorData(usersListFilePath, username, newUsername);
 		DM.changeData(usersPath + newUsername + ".json", "Username", newUsername);
-		core::EventManager EM;
 
 		core::structDataEvents::UserChangeEvent eventData = {
 			username, newUsername,
@@ -256,18 +263,17 @@ void core::UserManager::renameUser(const std::string& username, const std::strin
 			static_cast<size_t>(userVectorPos(username))
 		};
 
-		EM.eventsStart(USER_CHANGE_EVENT, eventData);
+		core::EventManager::eventsStart(USER_CHANGE_EVENT, eventData);
 	}
 	else print(colors::red, "This user could not be renamed\n");
 }
 
-void core::UserManager::changePermissionsUser(const std::string& username, const permissionsEC& newPermissions) {
+void core::UserManager::changePermissionsUser(const std::string& username, const Permissions& newPermissions) {
 	DataManager DM;
 	if (userExist(username) && !permissionsHighCurrentUser(username) && userHaveAdminPermissions(currentUser)) {
-		core::permissionsEC past = users[userVectorPos(username)].getPermissions();
+		core::Permissions past = users[userVectorPos(username)].getPermissions();
 		users[userVectorPos(username)].editPermissions(newPermissions);
 		DM.changeData(usersPath + username + ".json", "Permissions", std::to_string(static_cast<int>(newPermissions)));
-		core::EventManager EM;
 
 		core::structDataEvents::UserChangeEvent eventData = {
 			username, username,
@@ -276,7 +282,7 @@ void core::UserManager::changePermissionsUser(const std::string& username, const
 			static_cast<size_t>(userVectorPos(username))
 		};
 
-		EM.eventsStart(USER_CHANGE_EVENT, eventData);	
+		core::EventManager::eventsStart(USER_CHANGE_EVENT, eventData);	
 	}
 	else print(colors::red, "This user failed to change permissions\n");
 }
@@ -317,10 +323,10 @@ void core::UserManager::readUserData(const std::string& username) {
 			users[userPos].editDisplayName(DM.getValue("Data/Users/" + username + ".json", "Display Name"));
 	
 	if (users[userPos].getPermissions() !=
-		static_cast<permissionsEC>(stoi(
+		static_cast<Permissions>(stoi(
 			DM.getValue("Data/Users/" + username + ".json","Permissions")
 			))) 
-				users[userPos].editPermissions((static_cast<permissionsEC>(stoi(
+				users[userPos].editPermissions((static_cast<Permissions>(stoi(
 					DM.getValue("Data/Users/" + username + ".json", "Permissions")
 				))));
 	
@@ -336,7 +342,7 @@ void core::UserManager::readAllUsersData() {
 	DataManager DM;
 	for (const std::string& user : DM.readAllVectorData(usersListFilePath)) {
 		if (!userExist(user) && FM.fileExist("Data/Users/" + user + ".json")) 
-			addUserFromData(user, DM.readAllData(usersPath + user + ".json")["Display Name"], static_cast<permissionsEC>(stoi(DM.readAllData(usersPath + user + ".json")["Permissions"])), DM.readAllData(usersPath + user + ".json")["Language"], DM.readAllData(usersPath + user + ".json")["Password"]);
+			addUserFromData(user, DM.readAllData(usersPath + user + ".json")["Display Name"], static_cast<Permissions>(stoi(DM.readAllData(usersPath + user + ".json")["Permissions"])), DM.readAllData(usersPath + user + ".json")["Language"], DM.readAllData(usersPath + user + ".json")["Password"]);
 		else if (userExist(user) && FM.fileExist("Data/Users/" + user + ".json")) 
 			readUserData(user);
 		else 
