@@ -19,6 +19,9 @@
 #include <string>
 #include <vector>
 
+#define NRFS_VERSION "0.1.1"
+#define NRFS_VERSION_TYPE "alpha"
+
 namespace core {
     // Contains all of the file's data.
     struct FileData {
@@ -29,6 +32,8 @@ namespace core {
         time_t dataEdit;
         bool system; // Whether the file is a system file.
         bool hidden; // Whether the file is a hidden file.
+        FileData* link = nullptr;
+        std::string linkPath;
     };
 
     // Contains all folder data
@@ -41,6 +46,8 @@ namespace core {
         std::vector<FolderData> folders; // Contains the folders that are in this folder.
         bool system; // Whether the folder is a system folder.
         bool hidden; // Whether the folder is hidden.
+        FolderData* link = nullptr;
+        std::string linkPath;
     };
 
     class NRFSDisk {

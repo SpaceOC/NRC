@@ -43,10 +43,10 @@ void core::main::addCommands() {
     );
 
     HandlerCommands::addCommand(
-        "add_user",
+        "create_user",
         {"creating a new user in the system", {"name", "perms."}},
-        core::commands::CORE_COMMAND_addUser,
-        0,
+        core::commands::CORE_COMMAND_createUser,
+        1,
         2
     );
 
@@ -66,6 +66,14 @@ void core::main::addCommands() {
         core::commands::CORE_COMMAND_createFile,
         1,
         1
+    );
+
+	HandlerCommands::addCommand(
+        "create_link_file",
+        {"create a new linked file", {"where, file"}},
+        core::commands::CORE_COMMAND_createLinkFile,
+        2,
+        2
     );
 
 	HandlerCommands::addCommand(
@@ -117,6 +125,14 @@ void core::main::addCommands() {
     );
 
 	HandlerCommands::addCommand(
+        "create_link_folder",
+        {"creates a new linked folder", {"where", "folder"}},
+        core::commands::CORE_COMMAND_createLinkFolder,
+        2,
+        2
+    );
+
+	HandlerCommands::addCommand(
         "rename_folder",
         {"renames the folder", {"full-path", "new-name"}},
         core::commands::CORE_COMMAND_renameFolder,
@@ -149,7 +165,7 @@ void core::main::addCommands() {
 	HandlerCommands::addCommand(
         "disk_size",
         "show disk size",
-        core::commands::CORE_COMMAND_NRFSSize
+        core::PseudoFS::printDiskSize
     );
 
 	HandlerCommands::addCommand(
@@ -188,7 +204,7 @@ void core::main::addCommands() {
         "edit_display_name",
         {"edit display name", {"name"}},
         core::commands::CORE_COMMAND_editDisplayName,
-        0,
+        1,
         1
     );
 
@@ -196,7 +212,7 @@ void core::main::addCommands() {
         "delete_user",
         {"deleting a user in the system", {"username"}},
         core::commands::CORE_COMMAND_deleteUser,
-        0,
+        1,
         1
     );
 
@@ -204,7 +220,7 @@ void core::main::addCommands() {
         "set_user_permissions",
         {"user permission change", {"name", "perms."}},
         core::commands::CORE_COMMAND_setPermissionsUser,
-        0,
+        2,
         2
     );
 
@@ -212,7 +228,7 @@ void core::main::addCommands() {
         "set_password",
         {"set password", {"old/new", "new"}},
         core::commands::CORE_COMMAND_setPassword,
-        0,
+        1,
         2
     );
 
@@ -240,7 +256,7 @@ void core::main::addCommands() {
         "rename_user",
         {"renames the user", {"old", "new"}},
         core::commands::CORE_COMMAND_renameUser,
-        0,
+        2,
         2
     );
 
@@ -260,42 +276,35 @@ void core::main::addCommands() {
 core::main::main() {
     fixNOW();
     addCommands();
-    EventManager EM;
-    UserManager UM;
-    PseudoFS FS;
-    UM.checkOOBE_Passed();
-    EM.enableEvents = true;
-    if (!UM.getOOBE_Passed() && UM.yourUsername().empty()) {
+    core::UserManager::checkOOBE();
+    core::EventManager::enableEvents = true;
+    if (!core::UserManager::getOOBEPassed() && core::UserManager::yourUsername().empty()) {
         FileManager FM;
         FM.createFolders({"Data", "Data/Users", "Modules", "Temp"});
         FM.createFiles({"Data/MainData.json", "Data/Users.json", "Data/PFS-Data.json"});
-        FS.init();
-        FS.createFile("./hello.txt");
-        FS.setFileAtt("./hello.txt", "content", "Hello from NRC!");
-        FS.savePFS();
+        core::PseudoFS::init();
+        core::PseudoFS::createFile("./hello.txt");
+        core::PseudoFS::setFileAtt("./hello.txt", "content", "Hello from NRC!");
+        core::PseudoFS::savePFS();
         DataManager DM;
         DM.createData("Data/MainData.json", "OOBE_Passed", "0");
         OOBE();
     }
     else {
-        FS.loadPFS();
-        UM.userLists();
+        core::PseudoFS::loadPFS();
+        core::UserManager::userLists();
     }
 }
 
 core::main::~main() {
-    UserManager UM;
-    PseudoFS FS;
-    EventManager EM;
-
 	core::structDataEvents::NRCShutdownEvent eventData = {
-		UM.yourUsername(),
-		UM.currentUserData().getPermissions(),
-		static_cast<size_t>(UM.userVectorPos(UM.yourUsername()))
+		core::UserManager::yourUsername(),
+		core::UserManager::currentUserData().getPermissions(),
+		static_cast<size_t>(core::UserManager::userVectorPos(core::UserManager::yourUsername()))
 	};
 
-	EM.eventsStart(NRC_SHUTDOWN_EVENT, eventData);
+	core::EventManager::eventsStart(NRC_SHUTDOWN_EVENT, eventData);
 
-    FS.savePFS();
-    std::cout << "Goodbye, " + (UM.yourUsername() != "" ? UM.yourUsername() : "user") + ".\n";
+    core::PseudoFS::savePFS();
+    std::cout << "Goodbye, " + (core::UserManager::yourUsername() != "" ? core::UserManager::yourUsername() : "user") + ".\n";
 }

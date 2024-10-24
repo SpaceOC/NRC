@@ -20,6 +20,7 @@
 #include <vector>
 #include <map>
 #include <type_traits>
+#include <any>
 
 namespace core {
     // colors for the print class
@@ -63,8 +64,6 @@ namespace core {
             print(const colors& color, const std::map<std::string, double>& yourMap);
             print(const colors& color, const std::map<std::string, char>& yourMap);
             print(const colors& color, const std::map<std::string, bool>& yourMap);
-            //template<typename T, typename = typename std::enable_if<std::is_class<T>::value>::type>
-            //print(const colors& color, T yourClass);
             //template<typename T, typename A>
             //print(const colors& color, const std::map<T, A>& map); // hard
     };

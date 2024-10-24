@@ -21,18 +21,18 @@
 #include "Core/base/print.h"
 #include "Core/extra/variables.h"
 
-std::map<std::string, core::VariableData> core::SystemVariablesManager::getVariable(std::string name) const {
+std::map<std::string, core::VariableData> core::SystemVariablesManager::getVariable(std::string name) {
 	if (!data.count(name)) 
 		return {};
 	return {{name, {data.at(name).description, data.at(name).function}}}; 
 }
 
-void core::SystemVariablesManager::sendVariable(std::string variable) const {
+void core::SystemVariablesManager::sendVariable(std::string variable) {
 	auto it = data.find(variable);
 	if (it != data.end()) it->second.function();
 }
 
-void core::SystemVariablesManager::addSystemVar(std::string name, std::string description, std::function<void()> function) const {
+void core::SystemVariablesManager::addSystemVar(std::string name, std::string description, std::function<void()> function) {
 	try {
 		if (name.empty()) throw std::runtime_error("the 'name' argument was empty!");
 		data["%" + name + "%"].description = description;
@@ -43,7 +43,7 @@ void core::SystemVariablesManager::addSystemVar(std::string name, std::string de
 	}
 }
 
-std::map<std::string, std::string> core::SystemVariablesManager::getAllVars() const {
+std::map<std::string, std::string> core::SystemVariablesManager::getAllVars() {
 	if (data.empty()) return {};
 	std::map<std::string, std::string> temp;
 	for (auto elements : data) temp[elements.first] = elements.second.description;

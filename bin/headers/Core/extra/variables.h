@@ -33,16 +33,16 @@ namespace core {
             static inline std::map<std::string, VariableData> data;
         public:
             // Returns the data of the variable.
-            virtual std::map<std::string, VariableData> getVariable(std::string name) const;
+            static std::map<std::string, VariableData> getVariable(std::string name);
 
             // Runs a variable function.
-            virtual void sendVariable(std::string variable) const;
+            static void sendVariable(std::string variable);
 
             // Runs a variable function.
-            virtual void addSystemVar(std::string name, std::string description = "", std::function<void()> function = []{}) const;
+            static void addSystemVar(std::string name, std::string description = "", std::function<void()> function = []{});
 
             // Returns all variables.
-            virtual std::map<std::string, std::string> getAllVars() const;
+            static std::map<std::string, std::string> getAllVars();
     };
 }
 

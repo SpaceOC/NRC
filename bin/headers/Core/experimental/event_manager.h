@@ -35,7 +35,7 @@ namespace core {
         struct UserAddEvent {
             std::string username; // Username of the user (who has just been created in the NRC)
             std::string displayName; // Displayed name of the user (who was just created in the NRC)
-            permissionsEC permissions; // Permissions of the user (who has just been created in the NRC)
+            Permissions permissions; // Permissions of the user (who has just been created in the NRC)
             size_t id; // ID (position in the users vector) of the user (who has just been created in the NRC)
 
             //bool cancelled;
@@ -47,8 +47,8 @@ namespace core {
             std::string username; // The user's new username.
             std::string oldDisplayName; // The old display username.
             std::string displayName; // New displayed user name.
-            permissionsEC oldPermissions; // Old user permissions.
-            permissionsEC permissions; // New user permissions.
+            Permissions oldPermissions; // Old user permissions.
+            Permissions permissions; // New user permissions.
             size_t id; // ID (position in the users vector) of the user.
 
             //bool cancelled;
@@ -58,7 +58,7 @@ namespace core {
         struct UserDeleteEvent {
             std::string username; // Username of the user.
             std::string displayName; // Displayed name of the user.
-            permissionsEC permissions; // Permissions of the user.
+            Permissions permissions; // Permissions of the user.
 
             //bool cancelled;
         };
@@ -66,7 +66,7 @@ namespace core {
         // Contains data about the current user who started the Pseudo-OS (and NRC) shutdown process.
         struct NRCShutdownEvent {
             std::string username; // Username of the user.
-            permissionsEC permissions; // Permissions of the user.
+            Permissions permissions; // Permissions of the user.
             size_t id; // ID (position in the users vector) of the user.
         };
     };
@@ -81,13 +81,13 @@ namespace core {
             static inline bool enableEvents;
 
             // Starts all functions of a certain event.
-            void eventsStart(std::string name, std::any event);
+            static void eventsStart(std::string name, std::any event);
             //auto eventStart(std::string name, std::any event, size_t id);
 
-            void addEvent(std::function<core::structDataEvents::UserAddEvent(core::structDataEvents::UserAddEvent)> func);
-            void addEvent(std::function<core::structDataEvents::UserChangeEvent(core::structDataEvents::UserChangeEvent)> func);
-            void addEvent(std::function<core::structDataEvents::UserDeleteEvent(core::structDataEvents::UserDeleteEvent)> func);
-            void addEvent(std::function<core::structDataEvents::NRCShutdownEvent(core::structDataEvents::NRCShutdownEvent)> func);
+            static void addEvent(std::function<core::structDataEvents::UserAddEvent(core::structDataEvents::UserAddEvent)> func);
+            static void addEvent(std::function<core::structDataEvents::UserChangeEvent(core::structDataEvents::UserChangeEvent)> func);
+            static void addEvent(std::function<core::structDataEvents::UserDeleteEvent(core::structDataEvents::UserDeleteEvent)> func);
+            static void addEvent(std::function<core::structDataEvents::NRCShutdownEvent(core::structDataEvents::NRCShutdownEvent)> func);
     };
 
 };

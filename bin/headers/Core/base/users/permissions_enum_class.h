@@ -20,13 +20,13 @@
 #include <vector>
 
 namespace core {
-    enum class permissionsEC {
+    enum Permissions {
         ghost = -1,
         user,
         admin
     };
 
     // Returns a name depending on the argument.
-    std::string permissionsS(permissionsEC permissions);
+    std::string permissionsS(Permissions permissions);
 }
 #endif
