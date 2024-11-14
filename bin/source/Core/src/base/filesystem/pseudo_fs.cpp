@@ -673,7 +673,7 @@ int core::PseudoFS::moveFile(std::string path, const std::string& newPath) {
         }
     }
     catch(const std::exception& e) {
-        core::print(core::red, "Error: " + static_cast<std::string>(e.what()) + "\n");
+        core::print("Error: " + static_cast<std::string>(e.what()) + "\n", core::PrintColors::red);
         return core::PseudoFSCodes::UNKNOWN_ERROR;
     }
     return core::PseudoFSCodes::OK;
@@ -982,12 +982,12 @@ int core::PseudoFS::loadPFS() {
     FileManager FM;
     if (!FM.fileExist("Data/PFS-Data.json")) {
         FM.createFile("Data/PFS-Data.json");
-        core::print(core::red, "Error: PFS-Data.json not found!\n");
+        core::print("Error: PFS-Data.json not found!\n", core::PrintColors::red);
         init();
         return core::PseudoFSCodes::NOT_FOUND;
     }
     else if (FM.readFile("Data/PFS-Data.json").empty()) {
-        core::print(core::red, "Error: PFS-Data.json is empty!\n");
+        core::print("Error: PFS-Data.json is empty!\n", core::PrintColors::red);
         init();
         return core::PseudoFSCodes::IS_EMPTY;
     }
@@ -1027,7 +1027,7 @@ int core::PseudoFS::loadPFS() {
         ++tempID;
     }
     catch(const std::exception& e) {
-        core::print(core::red, "Error: " + static_cast<std::string>(e.what()) + "\n");
+        core::print("Error: " + static_cast<std::string>(e.what()) + "\n", core::PrintColors::red);
         return core::PseudoFSCodes::JSON_PARSING_FAILED;
     }
     return core::PseudoFSCodes::OK;
@@ -1097,7 +1097,7 @@ bool core::PseudoFS::folderExists(const std::string& path) {
         }
     }
     catch(const std::exception& e) {
-        core::print(core::red, "Error: " + static_cast<std::string>(e.what()) + "\n");
+        core::print("Error: " + static_cast<std::string>(e.what()) + "\n", core::PrintColors::red);
     }
     return false;
 }

@@ -39,7 +39,7 @@ void core::commands::CORE_COMMAND_help(const std::vector<std::string>& args) {
                     argsNames += " <" + arg + ">";
                 }
             }
-            print(colors::light_green, command.first + argsNames + command.second.description + '\n');
+            print(command.first + argsNames + command.second.description + '\n', PrintColors::light_green);
         }
     }
     else {
@@ -53,7 +53,7 @@ void core::commands::CORE_COMMAND_help(const std::vector<std::string>& args) {
                     argsNames += " <" + arg + ">";
                 }
             }
-            print(colors::light_green, args.at(0) + argsNames + temp[args.at(0)].description + '\n');
+            print(args.at(0) + argsNames + temp[args.at(0)].description + '\n', PrintColors::light_green);
         }
     }
 };
@@ -79,9 +79,9 @@ void core::commands::CORE_COMMAND_time(const std::vector<std::string>& args) {
     core::HandlerCommands::sendCommand(command);
     auto end = std::chrono::steady_clock::now();
     long long duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
-    core::print(core::colors::light_green, "time: ");
+    core::print("time: ", core::PrintColors::light_green);
     std::cout << duration;
-    core::print(core::colors::light_green, "ms\n");
+    core::print("ms\n", core::PrintColors::light_green);
 }
 
 /*
@@ -95,7 +95,7 @@ void core::commands:: core::commands:: CORE_COMMAND_exit() {
 
 void core::commands::CORE_COMMAND_cd(const std::vector<std::string>& args) {
     if (args.at(0).empty()) {
-        core::print(core::red, "Command error: The first argument cannot be empty!\n");
+        core::print("Command error: The first argument cannot be empty!\n", core::PrintColors::red);
         return;
     }
     else {
@@ -105,18 +105,18 @@ void core::commands::CORE_COMMAND_cd(const std::vector<std::string>& args) {
         if ((where != ".." || args.at(0)._Starts_with("./"))) {
             if (folder.link != nullptr && !folder.linkPath.empty()) {
                 if (!core::PseudoFS::changePath(folder.linkPath)) {
-                    core::print(core::red, "Error: Change path operation failed!\n");
+                    core::print("Error: Change path operation failed!\n", core::PrintColors::red);
                 }
             }
             else {
                 if (core::PseudoFS::changeDirectory(where)) {
-                    core::print(core::red, "Error: Change directory operation failed!\n");
+                    core::print("Error: Change directory operation failed!\n", core::PrintColors::red);
                 }
             }
         }
         else {
             if (!core::PseudoFS::changePath((folder.link != nullptr && !folder.linkPath.empty() ? folder.linkPath : where))) {
-                core::print(core::red, "Error: Change path operation failed!\n");
+                core::print("Error: Change path operation failed!\n", core::PrintColors::red);
             }
         }
     }
@@ -124,24 +124,24 @@ void core::commands::CORE_COMMAND_cd(const std::vector<std::string>& args) {
 
 void core::commands::CORE_COMMAND_createFile(const std::vector<std::string>& args) {
     if (args.at(0).empty()) {
-        core::print(core::red, "Command error: The first argument cannot be empty!\n");
+        core::print("Command error: The first argument cannot be empty!\n", core::PrintColors::red);
         return;
     }
     else {
         std::string where = (args.at(0)._Starts_with("./") ? args.at(0) : core::PseudoFS::getCurrentPath() + args.at(0));
         if (core::UserManager::currentUserData().getPermissions() < Permissions::user) {
-            core::print(core::red, "Error: Not enough permissions to perform this action.\n");
+            core::print("Error: Not enough permissions to perform this action.\n", core::PrintColors::red);
             return;
         }
         switch (core::PseudoFS::createFile(where)) {
             case core::PseudoFSCodes::NOT_FOUND:
-                core::print(core::red, "Folder not found!\n");
+                core::print("Folder not found!\n", core::PrintColors::red);
                 break;
             case core::PseudoFSCodes::ALREADY_EXISTS:
-                core::print(core::red, "This file already exists!\n");
+                core::print("This file already exists!\n", core::PrintColors::red);
                 break;
             case core::PseudoFSCodes::PATH_IS_EMPTY:
-                core::print(core::red, "The file creation operation was not completed - PATH IS EMPTY!\n");
+                core::print("The file creation operation was not completed - PATH IS EMPTY!\n", core::PrintColors::red);
                 break;
             default:
                 core::PseudoFS::savePFS();
@@ -152,27 +152,27 @@ void core::commands::CORE_COMMAND_createFile(const std::vector<std::string>& arg
 
 void core::commands::CORE_COMMAND_createLinkFile(const std::vector<std::string>& args) {
     if (args.at(0).empty() || args.at(1).empty()) {
-        core::print(core::red, "Command error: One of the arguments is empty!\n");
+        core::print("Command error: One of the arguments is empty!\n", core::PrintColors::red);
         return;
     }
     else {
         std::string where = (args.at(0)._Starts_with("./") ? args.at(0) : core::PseudoFS::getCurrentPath() + args.at(0));
         std::string where2 = (args.at(1)._Starts_with("./") ? args.at(1) : core::PseudoFS::getCurrentPath() + args.at(1));
         if (core::UserManager::currentUserData().getPermissions() < Permissions::user) {
-            core::print(core::red, "Error: Not enough permissions to perform this action.\n");
+            core::print("Error: Not enough permissions to perform this action.\n", core::PrintColors::red);
             return;
         }
         int code;
         FileData file = core::PseudoFS::getFileData(where2, code);
         switch (core::PseudoFS::createFile(where, {core::Utils::split(where, '/').back(), "", -1, 0, 0, false, file.hidden, &file, where2})) {
             case core::PseudoFSCodes::NOT_FOUND:
-                core::print(core::red, "Folder not found!\n");
+                core::print("Folder not found!\n", core::PrintColors::red);
                 break;
             case core::PseudoFSCodes::ALREADY_EXISTS:
-                core::print(core::red, "This file already exists!\n");
+                core::print("This file already exists!\n", core::PrintColors::red);
                 break;
             case core::PseudoFSCodes::PATH_IS_EMPTY:
-                core::print(core::red, "The file creation operation was not completed - PATH IS EMPTY!\n");
+                core::print("The file creation operation was not completed - PATH IS EMPTY!\n", core::PrintColors::red);
                 break;
             default:
                 core::PseudoFS::savePFS();
@@ -183,7 +183,7 @@ void core::commands::CORE_COMMAND_createLinkFile(const std::vector<std::string>&
 
 void core::commands::CORE_COMMAND_deleteFile(const std::vector<std::string>& args) {
     if (args.at(0).empty()) {
-        core::print(core::red, "Command error: The first argument cannot be empty!\n");
+        core::print("Command error: The first argument cannot be empty!\n", core::PrintColors::red);
         return;
     }
     else {
@@ -191,16 +191,16 @@ void core::commands::CORE_COMMAND_deleteFile(const std::vector<std::string>& arg
         int code;
         core::PseudoFS::getFileData(where, code);
         if (code == core::PseudoFSCodes::NOT_FOUND) {
-            core::print(core::red, "File not found!\n");
+            core::print("File not found!\n", core::PrintColors::red);
             return;
         }
         
         if (core::UserManager::currentUserData().getPermissions() < Permissions::user) {
-            core::print(core::red, "Error: Not enough permissions to perform this action.\n");
+            core::print("Error: Not enough permissions to perform this action.\n", core::PrintColors::red);
             return;
         }
         else if (core::UserManager::currentUserData().getPermissions() < Permissions::admin && core::PseudoFS::getFileData(where, code).system) {
-            core::print(core::red, "Error: Not enough permissions to perform this action.\n");
+            core::print("Error: Not enough permissions to perform this action.\n", core::PrintColors::red);
             return;
         }
 
@@ -211,35 +211,35 @@ void core::commands::CORE_COMMAND_deleteFile(const std::vector<std::string>& arg
 
 void core::commands::CORE_COMMAND_renameFile(const std::vector<std::string>& args) {
     if (args.at(0).empty() || args.at(1).empty()) {
-        core::print(core::red, "Command error: One of the arguments is empty!\n");
+        core::print("Command error: One of the arguments is empty!\n", core::PrintColors::red);
         return;
     }
     else {
         int code;
         core::PseudoFS::getFileData(args.at(0), code);
         if (code == core::PseudoFSCodes::NOT_FOUND) {
-            core::print(core::red, "File not found!\n");
+            core::print("File not found!\n", core::PrintColors::red);
             return;
         }
         
         if (core::UserManager::currentUserData().getPermissions() < Permissions::user) {
-            core::print(core::red, "Error: Not enough permissions to perform this action.\n");
+            core::print("Error: Not enough permissions to perform this action.\n", core::PrintColors::red);
             return;
         }
         else if (core::UserManager::currentUserData().getPermissions() < Permissions::admin && core::PseudoFS::getFileData(args.at(0), code).system) {
-            core::print(core::red, "Error: Not enough permissions to perform this action.\n");
+            core::print("Error: Not enough permissions to perform this action.\n", core::PrintColors::red);
             return;
         }
 
         switch (core::PseudoFS::renameFile(args.at(0), args.at(1))) {
             case core::PseudoFSCodes::NOT_FOUND:
-                core::print(core::red, "Folder not found!\n");
+                core::print("Folder not found!\n", core::PrintColors::red);
                 break;
             case core::PseudoFSCodes::ALREADY_EXISTS:
-                core::print(core::red, "This file already exists!\n");
+                core::print("This file already exists!\n", core::PrintColors::red);
                 break;
             case core::PseudoFSCodes::PATH_IS_EMPTY:
-                core::print(core::red, "The file renaming operation was not completed - PATH IS EMPTY!\n");
+                core::print("The file renaming operation was not completed - PATH IS EMPTY!\n", core::PrintColors::red);
                 break;
             default:
                 core::PseudoFS::savePFS();
@@ -250,35 +250,35 @@ void core::commands::CORE_COMMAND_renameFile(const std::vector<std::string>& arg
 
 void core::commands::CORE_COMMAND_moveFile(const std::vector<std::string>& args) {
     if (args.at(0).empty() || args.at(1).empty()) {
-        core::print(core::red, "Command error: One of the arguments is empty!\n");
+        core::print("Command error: One of the arguments is empty!\n", core::PrintColors::red);
         return;
     }
     else {
         int code;
         core::PseudoFS::getFileData(args.at(0), code);
         if (code == core::PseudoFSCodes::NOT_FOUND) {
-            core::print(core::red, "File not found!\n");
+            core::print("File not found!\n", core::PrintColors::red);
             return;
         }
         
         if (core::UserManager::currentUserData().getPermissions() < Permissions::user) {
-            core::print(core::red, "Error: Not enough permissions to perform this action.\n");
+            core::print("Error: Not enough permissions to perform this action.\n", core::PrintColors::red);
             return;
         }
         else if (core::UserManager::currentUserData().getPermissions() < Permissions::admin && core::PseudoFS::getFileData(args.at(0), code).system) {
-            core::print(core::red, "Error: Not enough permissions to perform this action.\n");
+            core::print("Error: Not enough permissions to perform this action.\n", core::PrintColors::red);
             return;
         }
 
         switch (core::PseudoFS::moveFile(args.at(0), args.at(1)))  {
             case core::PseudoFSCodes::NOT_FOUND:
-                core::print(core::red, "Folder not found!\n");
+                core::print("Folder not found!\n", core::PrintColors::red);
                 break;
             case core::PseudoFSCodes::ALREADY_EXISTS:
-                core::print(core::red, "This file already exists!\n");
+                core::print("This file already exists!\n", core::PrintColors::red);
                 break;
             case core::PseudoFSCodes::PATH_IS_EMPTY:
-                core::print(core::red, "File move operation was not completed - PATH IS EMPTY!\n");
+                core::print("File move operation was not completed - PATH IS EMPTY!\n", core::PrintColors::red);
                 break;
             default:
                 core::PseudoFS::savePFS();
@@ -289,7 +289,7 @@ void core::commands::CORE_COMMAND_moveFile(const std::vector<std::string>& args)
 
 void core::commands::CORE_COMMAND_showFileData(const std::vector<std::string>& args) {
     if (args.at(0).empty()) {
-        core::print(core::red, "Command error: The first argument cannot be empty!\n");
+        core::print("Command error: The first argument cannot be empty!\n", core::PrintColors::red);
         return;
     }
     else {
@@ -297,41 +297,41 @@ void core::commands::CORE_COMMAND_showFileData(const std::vector<std::string>& a
         int code;
         core::PseudoFS::getFileData(where, code);
         if (code == core::PseudoFSCodes::NOT_FOUND) {
-            core::print(core::red, "File not found!\n");
+            core::print("File not found!\n", core::PrintColors::red);
             return;
         }
         
         if (core::UserManager::currentUserData().getPermissions() < Permissions::user && (core::PseudoFS::getFileData(where, code).hidden || core::PseudoFS::getFileData(where, code).system)) {
-            core::print(core::red, "Error: Not enough permissions to perform this action.\n");
+            core::print("Error: Not enough permissions to perform this action.\n", core::PrintColors::red);
             return;
         }
         
-        core::print(core::aqua, "File name: " + core::PseudoFS::getFileData(where, code).name + "\n");
-        core::print(core::aqua, "File content: " + core::PseudoFS::getFileData(where, code).content + "\n");
-        core::print(core::aqua, "File ID: " + std::to_string(core::PseudoFS::getFileData(where, code).id) + "\n");
+        core::print("File name: " + core::PseudoFS::getFileData(where, code).name + "\n", core::PrintColors::aqua);
+        core::print("File content: " + core::PseudoFS::getFileData(where, code).content + "\n", core::PrintColors::aqua);
+        core::print("File ID: " + std::to_string(core::PseudoFS::getFileData(where, code).id) + "\n", core::PrintColors::aqua);
     }
 }
 
 void core::commands::CORE_COMMAND_createFolder(const std::vector<std::string>& args) {
     if (args.at(0).empty()) {
-        core::print(core::red, "Command error: The first argument cannot be empty!\n");
+        core::print("Command error: The first argument cannot be empty!\n", core::PrintColors::red);
         return;
     }
     else {
         if (core::UserManager::currentUserData().getPermissions() < Permissions::user) {
-            core::print(core::red, "Error: Not enough permissions to perform this action.\n");
+            core::print("Error: Not enough permissions to perform this action.\n", core::PrintColors::red);
             return;
         }
         std::string where = (args.at(0)._Starts_with("./") ? args.at(0) : core::PseudoFS::getCurrentPath() + args.at(0));
         switch (core::PseudoFS::createFolder(where)) {
             case core::PseudoFSCodes::NOT_FOUND: 
-                core::print(core::red, "Folder not found!\n");
+                core::print("Folder not found!\n", core::PrintColors::red);
                 break;
             case core::PseudoFSCodes::ALREADY_EXISTS:
-                core::print(core::red, "This folder already exists!\n");
+                core::print("This folder already exists!\n", core::PrintColors::red);
                 break;
             case core::PseudoFSCodes::PATH_IS_EMPTY:
-                core::print(core::red, "Folder creation operation was not completed - PATH IS EMPTY!\n");
+                core::print("Folder creation operation was not completed - PATH IS EMPTY!\n", core::PrintColors::red);
                 break;
             default:
                 core::PseudoFS::savePFS();
@@ -342,12 +342,12 @@ void core::commands::CORE_COMMAND_createFolder(const std::vector<std::string>& a
 
 void core::commands::CORE_COMMAND_createLinkFolder(const std::vector<std::string>& args) {
     if (args.at(0).empty() || args.at(1).empty()) {
-        core::print(core::red, "Command error: One of the arguments is empty!\n");
+        core::print("Command error: One of the arguments is empty!\n", core::PrintColors::red);
         return;
     }
     else {
         if (core::UserManager::currentUserData().getPermissions() < Permissions::user) {
-            core::print(core::red, "Error: Not enough permissions to perform this action.\n");
+            core::print("Error: Not enough permissions to perform this action.\n", core::PrintColors::red);
             return;
         }
         std::string where = (args.at(0)._Starts_with("./") ? args.at(0) : core::PseudoFS::getCurrentPath() + args.at(0));
@@ -356,13 +356,13 @@ void core::commands::CORE_COMMAND_createLinkFolder(const std::vector<std::string
         FolderData folder = core::PseudoFS::getFolderData(where2, code);
         switch (core::PseudoFS::createFolder(where, {core::Utils::split(where, '/').back(), -1, 0, 0, {}, {}, false, folder.hidden, &folder, where2})) {
             case core::PseudoFSCodes::NOT_FOUND: 
-                core::print(core::red, "Folder not found!\n");
+                core::print("Folder not found!\n", core::PrintColors::red);
                 break;
             case core::PseudoFSCodes::ALREADY_EXISTS:
-                core::print(core::red, "This folder already exists!\n");
+                core::print("This folder already exists!\n", core::PrintColors::red);
                 break;
             case core::PseudoFSCodes::PATH_IS_EMPTY:
-                core::print(core::red, "Folder creation operation was not completed - PATH IS EMPTY!\n");
+                core::print("Folder creation operation was not completed - PATH IS EMPTY!\n", core::PrintColors::red);
                 break;
             default:
                 core::PseudoFS::savePFS();
@@ -373,7 +373,7 @@ void core::commands::CORE_COMMAND_createLinkFolder(const std::vector<std::string
 
 void core::commands::CORE_COMMAND_deleteFolder(const std::vector<std::string>& args) {
     if (args.at(0).empty()) {
-        core::print(core::red, "Command error: The first argument cannot be empty!\n");
+        core::print("Command error: The first argument cannot be empty!\n", core::PrintColors::red);
         return;
     }
     else {
@@ -381,16 +381,16 @@ void core::commands::CORE_COMMAND_deleteFolder(const std::vector<std::string>& a
         int code;
         core::PseudoFS::getFolderData(where, code);
         if (code == core::PseudoFSCodes::NOT_FOUND) {
-            core::print(core::red, "Folder not found!\n");
+            core::print("Folder not found!\n", core::PrintColors::red);
             return;
         }
         
         if (core::UserManager::currentUserData().getPermissions() < Permissions::user) {
-            core::print(core::red, "Error: Not enough permissions to perform this action.\n");
+            core::print("Error: Not enough permissions to perform this action.\n", core::PrintColors::red);
             return;
         }
         else if (core::UserManager::currentUserData().getPermissions() < Permissions::admin && core::PseudoFS::getFolderData(where, code).system) {
-            core::print(core::red, "Error: Not enough permissions to perform this action.\n");
+            core::print("Error: Not enough permissions to perform this action.\n", core::PrintColors::red);
             return;
         }
         core::PseudoFS::deleteFolder(where);
@@ -400,32 +400,32 @@ void core::commands::CORE_COMMAND_deleteFolder(const std::vector<std::string>& a
 
 void core::commands::CORE_COMMAND_renameFolder(const std::vector<std::string>& args) {
     if (args.at(0).empty() || args.at(1).empty()) {
-        core::print(core::red, "Command error: One of the arguments is empty!\n");
+        core::print("Command error: One of the arguments is empty!\n", core::PrintColors::red);
         return;
     }
     else {
         int code;
         core::PseudoFS::getFolderData(args.at(0), code);
         if (code == core::PseudoFSCodes::NOT_FOUND) {
-            core::print(core::red, "Folder not found!\n");
+            core::print("Folder not found!\n", core::PrintColors::red);
             return;
         }
         
         if (core::UserManager::currentUserData().getPermissions() < Permissions::user) {
-            core::print(core::red, "Error: Not enough permissions to perform this action.\n");
+            core::print("Error: Not enough permissions to perform this action.\n", core::PrintColors::red);
             return;
         }
         else if (core::UserManager::currentUserData().getPermissions() < Permissions::admin && core::PseudoFS::getFolderData(args.at(0), code).system) {
-            core::print(core::red, "Error: Not enough permissions to perform this action.\n");
+            core::print("Error: Not enough permissions to perform this action.\n", core::PrintColors::red);
             return;
         }
 
         switch (core::PseudoFS::renameFolder(args.at(0), args.at(1))) {
             case core::PseudoFSCodes::ALREADY_EXISTS:
-                core::print(core::red, "This folder already exists!\n");
+                core::print("This folder already exists!\n", core::PrintColors::red);
                 break;
             case core::PseudoFSCodes::PATH_IS_EMPTY:
-                core::print(core::red, "The folder renaming operation was not completed - PATH IS EMPTY!\n");
+                core::print("The folder renaming operation was not completed - PATH IS EMPTY!\n", core::PrintColors::red);
                 break;
             default:
                 core::PseudoFS::savePFS();
@@ -436,35 +436,35 @@ void core::commands::CORE_COMMAND_renameFolder(const std::vector<std::string>& a
 
 void core::commands::CORE_COMMAND_moveFolder(const std::vector<std::string>& args) {
     if (args.at(0).empty() || args.at(1).empty()) {
-        core::print(core::red, "Command error: One of the arguments is empty!\n");
+        core::print("Command error: One of the arguments is empty!\n", core::PrintColors::red);
         return;
     }
     else {
         int code;
         core::PseudoFS::getFolderData(args.at(0), code);
         if (code == core::PseudoFSCodes::NOT_FOUND) {
-            core::print(core::red, "Folder not found!\n");
+            core::print("Folder not found!\n", core::PrintColors::red);
             return;
         }    
 
         if (core::UserManager::currentUserData().getPermissions() < Permissions::user) {
-            core::print(core::red, "Error: Not enough permissions to perform this action.\n");
+            core::print("Error: Not enough permissions to perform this action.\n", core::PrintColors::red);
             return;
         }
         else if (core::UserManager::currentUserData().getPermissions() < Permissions::admin && core::PseudoFS::getFolderData(args.at(0), code).system) {
-            core::print(core::red, "Error: Not enough permissions to perform this action.\n");
+            core::print("Error: Not enough permissions to perform this action.\n", core::PrintColors::red);
             return;
         }
 
         switch (core::PseudoFS::moveFolder(args.at(0), args.at(1))) {
             case core::PseudoFSCodes::NOT_FOUND:
-                core::print(core::red, "Folder not found!\n");
+                core::print("Folder not found!\n", core::PrintColors::red);
                 break;
             case core::PseudoFSCodes::ALREADY_EXISTS:
-                core::print(core::red, "This folder already exists!\n");
+                core::print("This folder already exists!\n", core::PrintColors::red);
                 break;
             case core::PseudoFSCodes::PATH_IS_EMPTY:
-                core::print(core::red, "Folder move operation was not completed - PATH IS EMPTY!\n");
+                core::print("Folder move operation was not completed - PATH IS EMPTY!\n", core::PrintColors::red);
                 break;
             default:
                 core::PseudoFS::savePFS();
@@ -475,7 +475,7 @@ void core::commands::CORE_COMMAND_moveFolder(const std::vector<std::string>& arg
 
 void core::commands::CORE_COMMAND_showFolderData(const std::vector<std::string>& args) {
     if (args.at(0).empty()) {
-        core::print(core::red, "Command error: The first argument cannot be empty!\n");
+        core::print("Command error: The first argument cannot be empty!\n", core::PrintColors::red);
         return;
     }
     else {
@@ -483,17 +483,17 @@ void core::commands::CORE_COMMAND_showFolderData(const std::vector<std::string>&
         int code;
         core::PseudoFS::getFolderData(where, code);
         if (code == core::PseudoFSCodes::NOT_FOUND) {
-            core::print(core::red, "Folder not found!\n");
+            core::print("Folder not found!\n", core::PrintColors::red);
             return;
         }
         
         if (core::UserManager::currentUserData().getPermissions() < Permissions::user && (core::PseudoFS::getFolderData(where, code).hidden || core::PseudoFS::getFolderData(where, code).system)) {
-            core::print(core::red, "Error: Not enough permissions to perform this action.\n");
+            core::print("Error: Not enough permissions to perform this action.\n", core::PrintColors::red);
             return;
         }
         
-        core::print(core::aqua, "Folder name: " + core::PseudoFS::getFolderData(where, code).name + "\n");
-        core::print(core::aqua, "Folder ID: " + std::to_string(core::PseudoFS::getFolderData(where, code).id) + "\n");
+        core::print("Folder name: " + core::PseudoFS::getFolderData(where, code).name + "\n", core::PrintColors::aqua);
+        core::print("Folder ID: " + std::to_string(core::PseudoFS::getFolderData(where, code).id) + "\n", core::PrintColors::aqua);
     }
 }
 
@@ -505,7 +505,7 @@ void core::commands::CORE_COMMAND_dir(const std::vector<std::string>& args) {
     const std::vector<FileData> files = (core::PseudoFS::getCurrentPath() == "./" ? core::PseudoFS::getNRFS().getRoot().files : core::PseudoFS::getFolderData(core::PseudoFS::getCurrentPath(), code).files);
     for (core::FolderData folder : folders) {
         if (folder.hidden && showHidden) {
-            core::print(core::light_aqua, folder.name + "    " + (fCount >= 5 ? "\n" : ""));
+            core::print(folder.name + "    " + (fCount >= 5 ? "\n" : ""), core::PrintColors::light_aqua);
             if (fCount >= 5) fCount = 0;
             else ++fCount;
         }
@@ -517,7 +517,7 @@ void core::commands::CORE_COMMAND_dir(const std::vector<std::string>& args) {
     }
     for (core::FileData file : files) {
         if (file.hidden && showHidden) {
-            core::print(core::light_aqua, file.name + "    " + (fCount >= 5 ? "\n" : ""));
+            core::print(file.name + "    " + (fCount >= 5 ? "\n" : ""), core::PrintColors::light_aqua);
             if (fCount >= 5) fCount = 0;
             else ++fCount;
         }
@@ -598,8 +598,8 @@ void core::commands::CORE_COMMAND_searchFileHelper(const core::FolderData& curFo
 
 void core::commands::CORE_COMMAND_whereIm() {
     std::vector<std::string> parsedPath = core::Utils::split(core::PseudoFS::getCurrentPath(), '/');
-    core::print(core::aqua, "You're in the folder: " + parsedPath.back() + "\n");
-    core::print(core::aqua, "Full path: " + core::PseudoFS::getCurrentPath() + "\n");
+    core::print("You're in the folder: " + parsedPath.back() + "\n", core::PrintColors::aqua);
+    core::print("Full path: " + core::PseudoFS::getCurrentPath() + "\n", core::PrintColors::aqua);
 }
 
 
@@ -608,7 +608,7 @@ void core::commands::CORE_COMMAND_whereIm() {
 void core::commands::CORE_COMMAND_setPassword(const std::vector<std::string>& args) {
     if (core::UserManager::havePassword(core::UserManager::yourUsername())) {
         if (!core::UserManager::currentUserData().truePassword(args[0])) {
-            print(colors::red, "Wrong password!\n");
+            print("Wrong password!\n", core::PrintColors::red);
             return;
         }
     }
@@ -623,23 +623,23 @@ void core::commands::CORE_COMMAND_editDisplayName(const std::vector<std::string>
 
 void core::commands::CORE_COMMAND_createUser(const std::vector<std::string>& args) {
     if (!core::UserManager::userExist(args.at(0))) {
-        core::print(core::colors::red, "COMMAND ERROR: The user doesn't exist!\n");
+        core::print("COMMAND ERROR: The user doesn't exist!\n", core::PrintColors::red);
         return;
     }
     else if (args.at(1).empty()) {
-        core::print(core::colors::yellow, "COMMAND WARNING: A user will be created with \"User\" permissions\n");
+        core::print("COMMAND WARNING: A user will be created with \"User\" permissions\n", core::PrintColors::yellow);
     }
     else {
         long long int pos = 1;
         for (const char& letter : args.at(0)) {
             if (ispunct(letter) || letter == ',' || letter == '.') {
-                core::print(core::colors::red, "COMMAND ERROR: Invalid character found (position " + std::to_string(pos) + ")\n");
+                core::print("COMMAND ERROR: Invalid character found (position " + std::to_string(pos) + ")\n", core::PrintColors::red);
                 return;
             }
             pos++;
         }
         if (!core::Utils::stringIsNumbers(args.at(1))) {
-            core::print(core::colors::red, "COMMAND ERROR\n");
+            core::print("COMMAND ERROR\n", core::PrintColors::red);
             return;
         }
     }
@@ -648,14 +648,14 @@ void core::commands::CORE_COMMAND_createUser(const std::vector<std::string>& arg
 
 void core::commands::CORE_COMMAND_deleteUser(const std::vector<std::string>& args) {
     if (!core::UserManager::userExist(args.at(0))) {
-        core::print(core::colors::red, "COMMAND ERROR: The user doesn't exist!\n");
+        core::print("COMMAND ERROR: The user doesn't exist!\n", core::PrintColors::red);
         return;
     }
     else {
         long long int pos = 1;
         for (const char& letter : args.at(0)) {
             if (ispunct(letter) || letter == ',' || letter == '.') {
-                core::print(core::colors::red, "COMMAND ERROR: Invalid character found (position " + std::to_string(pos) + ")\n");
+                core::print("COMMAND ERROR: Invalid character found (position " + std::to_string(pos) + ")\n", core::PrintColors::red);
                 return;
             }
             pos++;
@@ -666,14 +666,14 @@ void core::commands::CORE_COMMAND_deleteUser(const std::vector<std::string>& arg
 
 void core::commands::CORE_COMMAND_renameUser(const std::vector<std::string>& args) {
     if (!core::UserManager::userExist(args.at(0))) {
-        core::print(core::colors::red, "COMMAND ERROR: The user doesn't exist!\n");
+        core::print("COMMAND ERROR: The user doesn't exist!\n", core::PrintColors::red);
         return;
     }
     else {
         long long int pos = 1;
         for (const char& letter : args.at(0)) {
             if (ispunct(letter) || letter == ',' || letter == '.') {
-                core::print(core::colors::red, "COMMAND ERROR: Invalid character found (position " + std::to_string(pos) + ")\n");
+                core::print("COMMAND ERROR: Invalid character found (position " + std::to_string(pos) + ")\n", core::PrintColors::red);
                 return;
             }
             pos++;
@@ -681,7 +681,7 @@ void core::commands::CORE_COMMAND_renameUser(const std::vector<std::string>& arg
         pos = 1;
         for (const char& letter : args.at(1)) {
             if (ispunct(letter) || letter == ',' || letter == '.') {
-                core::print(core::colors::red, "COMMAND ERROR: Invalid character found (position " + std::to_string(pos) + ")\n");
+                core::print("COMMAND ERROR: Invalid character found (position " + std::to_string(pos) + ")\n", core::PrintColors::red);
                 return;
             }
             pos++;
@@ -692,20 +692,20 @@ void core::commands::CORE_COMMAND_renameUser(const std::vector<std::string>& arg
 
 void core::commands::CORE_COMMAND_setPermissionsUser(const std::vector<std::string>& args) {
     if (!core::UserManager::userExist(args.at(0))) {
-        core::print(core::colors::red, "COMMAND ERROR: The user doesn't exist!\n");
+        core::print("COMMAND ERROR: The user doesn't exist!\n", core::PrintColors::red);
         return;
     }
     else {
         long long int pos = 1;
         for (const char& letter : args.at(0)) {
             if (ispunct(letter) || letter == ',' || letter == '.') {
-                core::print(core::colors::red, "COMMAND ERROR: Invalid character found (position " + std::to_string(pos) + ")\n");
+                core::print("COMMAND ERROR: Invalid character found (position " + std::to_string(pos) + ")\n", core::PrintColors::red);
                 return;
             }
             pos++;
         }
         if (!core::Utils::stringIsNumbers(args.at(1))) {
-            core::print(core::colors::red, "COMMAND ERROR\n");
+            core::print("COMMAND ERROR\n", core::PrintColors::red);
             return;
         }
     }
@@ -729,7 +729,7 @@ void core::commands::CORE_COMMAND_whoim() {
 
 void core::commands::CORE_COMMAND_infoUser(const std::vector<std::string>& args) {
     if (!core::UserManager::userExist(args.at(0))) {
-        core::print(core::colors::red, "COMMAND ERROR: The user doesn't exist!\n");
+        core::print("COMMAND ERROR: The user doesn't exist!\n", core::PrintColors::red);
         return;
     }
     std::cout << "Username: " << args.at(0) << '\n';
@@ -748,13 +748,13 @@ void core::commands::CORE_COMMAND_allInfoUsers() {
 
 void core::commands::CORE_COMMAND_logout() {
     std::string choice;
-    print(colors::yellow, "Are you sure you want to log out of your current user account? (Y/N): ");
+    print("Are you sure you want to log out of your current user account? (Y/N): ", core::PrintColors::yellow);
     std::cin >> choice;
     while (true) {
         if (choice == "Y") { core::UserManager::userLogout(); break; }
         else if (choice == "N") { break; }
         else { 
-            print(colors::red, "Error. Are you sure you want to log out of the current user account? (Y/N): ");
+            print("Error. Are you sure you want to log out of the current user account? (Y/N): ", core::PrintColors::red);
             std::cin >> choice;
         }
     }
@@ -766,14 +766,14 @@ void core::commands::CORE_COMMAND_logout() {
 
 void core::commands::CORE_COMMAND_allSystemVars() {
     for (auto var : core::SystemVariablesManager::getAllVars()) {
-        print(colors::light_aqua, var.first + " - ");
-        print(colors::light_blue, var.second + "\n");
+        print(var.first + " - ", core::PrintColors::light_aqua);
+        print(var.second + "\n", core::PrintColors::light_blue);
     }
 }
 
 void core::commands::CORE_COMMAND_allLocalVars() {
     for (auto var : core::UserManager::getLocalVarsMap(core::UserManager::yourUsername())) {
-        print(colors::light_aqua, var.first + " - ");
-        print(colors::light_blue, var.second + "\n");
+        print(var.first + " - ", core::PrintColors::light_aqua);
+        print(var.second + "\n", core::PrintColors::light_blue);
     }
 }

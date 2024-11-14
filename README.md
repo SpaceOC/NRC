@@ -7,7 +7,7 @@ NRC (Not Real Core) is a core designed to simplify and speed up the creation of 
 - Pseudo-FS!!!
 - Commands (whoim, delete_user, etc.).
 - Embedded OS (bin/source/OS). Modify it as you wish.
-- And also printing (with support for outputting colors that are in core::colors).
+- And also printing (print) (with support for outputting colors that are in core::PrintColors).
 - And something else, but I'm lazy.
 
 # Requirements
@@ -24,5 +24,5 @@ make
 ```
 
 # Documentation
-- EN: https://github.com/SpaceOC/NRC/wiki
-- RU: https://spaceoc.gitbook.io/nrc-docs-ru/
+- EN: https://github.com/SpaceOC/NRC/wiki (not finished + outdated)
+- RU: https://spaceoc.gitbook.io/nrc-docs-ru/ (outdated)

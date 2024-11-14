@@ -20,20 +20,26 @@
 #include <string>
 #include "Core/extra/variables.h"
 #include "permissions_enum_class.h"
+#include "Core/base/printable.h"
 
 namespace core {
-    class User {
+    class User : public PrintableClass {
         private:
             std::map<std::string, VariableData> localVariables;
             std::string username, displayName, language, password;
             Permissions permissions;
             bool userCreated = false;
+            bool havePasswordV = false;
+
+            std::string toString() const override {
+                return "[User] | { Username - " + username + " | Display Name - " + displayName + " | Language - " + language + " | havePassword - " + (havePasswordV ? "true" : "false") + " }";
+            }
         public:
 
             User();
             // User Creation.
             User(const std::string& username, const Permissions& permissions, const std::string& language = "English", const std::string& password = "");
-            
+
             // Creating a local (for the user) variable.
             void addVar(const std::string& name, const std::string& description, const std::function<void()>& varFunction);
 

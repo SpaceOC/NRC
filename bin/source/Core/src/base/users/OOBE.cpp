@@ -5,7 +5,7 @@
 
 void core::OOBE() {
     std::string firstUsername;
-    print(colors::aqua, "Enter username: ");
+    print("Enter username: ", PrintColors::aqua);
     while (!(std::cin >> std::ws)) {
         std::cin.clear();
         std::cin.ignore(10000, '\n');
