@@ -11,8 +11,8 @@ int main() {
     }
     catch(const std::exception& e)
     {
-        core::print(core::colors::red, "ERROR: ");
-        core::print(core::colors::red, e.what());
+        core::print("ERROR: ", core::PrintColors::red);
+        core::print(e.what(), core::PrintColors::red);
     }
     return 0;
 }

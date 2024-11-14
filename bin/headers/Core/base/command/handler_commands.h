@@ -44,7 +44,6 @@ namespace core {
 		std::vector<std::string> argsNames;
 	};
 
-	// Stores the name and arguments (for parsing, sendCommand).
 	struct CommandObject {
 		std::string name;
 		std::vector<std::string> args = {};
@@ -62,13 +61,13 @@ namespace core {
 			static bool thisVariable(const std::string& command);
 
 			// Parses argument.
-			static std::vector<CommandObject> parsing(const std::string& rawCommand);
+			static std::vector<CommandObject> parsing(const std::string& raw);
 
 			// Executes a command (if it exists and meets the required execution conditions). If the command is a variable call, it starts the variable.
 			static void sendCommand(const core::CommandObject& command);
 
-			static void setCommandSeparator(const std::string& commandSeparator);
-			static std::string getCommandSeparator();
+			static void setCommandSeparator(const std::string& newCommandSeparator) { commandSeparator = newCommandSeparator; }
+			static std::string getCommandSeparator() { return commandSeparator; }
 
 			static void addCommand(const std::string& name, const std::string& description, const std::function<void()>& function);
 			static void addCommand(const std::string& name, const CommandDescription& data, const std::function<void(std::vector<std::string>)>& function, int minArgs, int maxArgs);

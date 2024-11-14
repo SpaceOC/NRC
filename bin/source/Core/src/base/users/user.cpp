@@ -6,6 +6,7 @@ core::User::User(const std::string& username, const Permissions& permissions, co
         this->username = this->displayName = username; this->permissions = permissions;
         this->language = language; this->password = password;
         userCreated = true;
+        havePasswordV = havePassword();
     }
 }
 
@@ -24,7 +25,7 @@ void core::User::addVar(const std::string& name, const std::string& description,
 void core::User::editUsername(const std::string& newUsername) { this->username = newUsername; }
 void core::User::editDisplayName(const std::string& newDisplayName) { this->displayName = newDisplayName; }
 void core::User::editLanguage(const std::string& newLanguage) { this->language = newLanguage; }
-void core::User::editPassword(const std::string& newPassword) { this->password = newPassword; }
+void core::User::editPassword(const std::string& newPassword) { this->password = newPassword; havePasswordV = havePassword(); }
 void core::User::editPermissions(const core::Permissions& newPermissions) { this->permissions = newPermissions; }
 void core::User::editVarFunction(const std::string& name, const std::function<void()>& function) {
     if (localVariables.count(name)) localVariables["%" + name + "%"].function = function;

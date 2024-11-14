@@ -25,10 +25,10 @@ void counterMov() {
         if (!work) break;
 
         if (i == 2024) {
-            core::print(core::colors::blue, "GOOD JOB\n");
-            core::print(core::colors::green, "Thread id: ");
+            core::print("GOOD JOB\n", core::PrintColors::blue);
+            core::print("Thread id: ", core::PrintColors::green);
             std::cout << processNew.getThread("main")->get_id() << '\n';
-            core::print(core::colors::aqua, "NRC Process name: main\n");
+            core::print("NRC Process name: main\n", core::PrintColors::aqua);
         }
     }
 }

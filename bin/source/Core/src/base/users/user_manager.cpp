@@ -8,7 +8,7 @@
 
 void core::UserManager::userLogic() {
 	std::string usernameTemp; std::vector<std::string> temp;
-	print(colors::aqua, "Enter username: ");
+	print("Enter username: ", PrintColors::aqua);
     while (!(std::cin >> std::ws)) {
         std::cin.clear();
         std::cin.ignore(10000, '\n');
@@ -19,7 +19,7 @@ void core::UserManager::userLogic() {
 	if (std::find(temp.begin(), temp.end(), usernameTemp) != temp.end())
 		userLogin(usernameTemp);
 	else { 
-		print(colors::red, "User not found\n");
+		print("User not found\n", PrintColors::red);
 		userLogic();
 	}
 }
@@ -29,7 +29,7 @@ void core::UserManager::userLogin(const std::string& username) {
 		bool passwordNotPassed = true;
 		while (passwordNotPassed) {
 			std::string password;
-			print(colors::aqua, "Enter password: ");
+			print("Enter password: ", PrintColors::aqua);
 			while (!(std::cin >> std::ws)) {
 				std::cin.clear();
 				std::cin.ignore(10000, '\n');
@@ -37,7 +37,7 @@ void core::UserManager::userLogin(const std::string& username) {
 			std::getline(std::cin, password);
 
 			if (!users[userVectorPos(username)].truePassword(password))
-				print(colors::red, "Wrong password!\n");
+				print("Wrong password!\n", PrintColors::red);
 			else
 				passwordNotPassed = false;
 		}
@@ -200,7 +200,7 @@ void core::UserManager::addUser(const std::string& username, const Permissions& 
 		core::PseudoFS::savePFS();
 		saveUserData(username);
 	}
-	else print(colors::red, "Failed to create a user\n");
+	else print("Failed to create a user\n", PrintColors::red);
 }
 
 void core::UserManager::deleteUser(const std::string& username) {
@@ -232,7 +232,7 @@ void core::UserManager::deleteUser(const std::string& username) {
 		FM.deleteFile(usersPath + username + ".json");
 		DM.deleteVectorData(usersListFilePath, username);
 	}
-	else print(colors::red, "This user could not be deleted\n");
+	else print("This user could not be deleted\n", PrintColors::red);
 }
 
 void core::UserManager::renameUser(const std::string& username, const std::string& newUsername) {
@@ -265,7 +265,7 @@ void core::UserManager::renameUser(const std::string& username, const std::strin
 
 		core::EventManager::eventsStart(USER_CHANGE_EVENT, eventData);
 	}
-	else print(colors::red, "This user could not be renamed\n");
+	else print("This user could not be renamed\n", PrintColors::red);
 }
 
 void core::UserManager::changePermissionsUser(const std::string& username, const Permissions& newPermissions) {
@@ -284,7 +284,7 @@ void core::UserManager::changePermissionsUser(const std::string& username, const
 
 		core::EventManager::eventsStart(USER_CHANGE_EVENT, eventData);	
 	}
-	else print(colors::red, "This user failed to change permissions\n");
+	else print("This user failed to change permissions\n", PrintColors::red);
 }
 
 void core::UserManager::userLists() {
@@ -346,6 +346,6 @@ void core::UserManager::readAllUsersData() {
 		else if (userExist(user) && FM.fileExist("Data/Users/" + user + ".json")) 
 			readUserData(user);
 		else 
-			print(colors::red, "An error occurred while trying to create user '" + user + "'\n");
+			print("An error occurred while trying to create user '" + user + "'\n", PrintColors::red);
 	}
 }

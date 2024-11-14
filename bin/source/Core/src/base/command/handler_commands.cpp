@@ -32,10 +32,10 @@ bool core::HandlerCommands::thisVariable(const std::string& command) {
 	return (command.substr(0, 1) == "%" && command.substr(command.length() - 1, command.length()) == "%");
 }
 
-std::vector<core::CommandObject> core::HandlerCommands::parsing(const std::string& rawCommand) {
-	if (!rawCommand.empty()) {
+std::vector<core::CommandObject> core::HandlerCommands::parsing(const std::string& raw) {
+	if (!raw.empty()) {
 		std::vector<core::CommandObject> result;
-		std::vector<std::string> temp = core::Utils::split(rawCommand, ' ');
+		std::vector<std::string> temp = core::Utils::split(raw, ' ');
 		temp.push_back(commandSeparator);
 		std::vector<std::string> anotherTemp;
 		std::string goodString = "";
@@ -78,7 +78,7 @@ std::vector<core::CommandObject> core::HandlerCommands::parsing(const std::strin
 			}
 		}
 		if (quoteOpened) {
-			core::print(core::colors::red, "ERROR: One of the arguments was not closed (missing \" at the end of the argument)\n");
+			core::print("ERROR: One of the arguments was not closed (missing \" at the end of the argument)\n", core::PrintColors::red);
 			return {};
 		}
 		return result;
@@ -105,14 +105,6 @@ void core::HandlerCommands::sendCommand(const core::CommandObject& command) {
 		else
 			std::cout << "Command not found" << '\n';
 	}
-}
-
-void core::HandlerCommands::setCommandSeparator(const std::string& newCommandSeparator) {
-	commandSeparator = newCommandSeparator;
-}
-
-std::string core::HandlerCommands::getCommandSeparator() {
-	return commandSeparator;
 }
 
 void core::HandlerCommands::addCommand(const std::string& name, const std::string& description, const std::function<void()>& function) {

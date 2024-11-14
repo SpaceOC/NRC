@@ -39,7 +39,7 @@ void core::SystemVariablesManager::addSystemVar(std::string name, std::string de
 		data["%" + name + "%"].function = function;
 	}
 	catch (const std::exception& e) {
-		print(colors::red, e.what());
+		print(e.what(), PrintColors::red);
 	}
 }
 
