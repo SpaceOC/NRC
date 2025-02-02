@@ -22,10 +22,10 @@ void commandsZone() {
             std::cin.ignore(10000, '\n');
         }
         getline(std::cin, userInputResult);
-        std::vector<core::CommandObject> parsedCommands = core::HandlerCommands::parsing(userInputResult);
+        std::vector<core::CommandObject> parsedCommands = core::handlerCommands()->parsing(userInputResult);
 
         for (const core::CommandObject& command : parsedCommands)
-            core::HandlerCommands::sendCommand(command);
+            core::handlerCommands()->sendCommand(command);
     }
 }
 

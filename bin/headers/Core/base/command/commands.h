@@ -1,85 +1,97 @@
-/*
-    Copyright (C) 2024-2024  SpaceOC
-
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
 #ifndef NRC_BASE_COMMAND_COMMANDS_H_
 #define NRC_BASE_COMMAND_COMMANDS_H_
 
-#include "Core/base/filesystem/nrfs.h"
+#include "Core/settings.h"
+
+// if str is not empty - the print function is called with parameters: str + "\n", core::PrintColors::red. And also return the function the value of str
+#define COMMAND_ERROR_OUTPUT(str, returnable) if (!str.empty()) {       \
+    if (!returnable)                                                    \
+        core::print(str + "\n", core::PrintColors::red);                \
+    return str;                                                         \
+}
 
 namespace core {
+    class User;
+    struct FolderData;
+    struct FileData;
+
     namespace commands {
-        void CORE_COMMAND_help(const std::vector<std::string>& args);
-        void CORE_COMMAND_info();
-        void CORE_COMMAND_time(const std::vector<std::string>& args);
-        //void CORE_COMMAND_exit();
+        std::string CORE_COMMAND_help(core::User* who, const std::vector<std::string>& args, bool returnable);
+        std::string CORE_COMMAND_info(core::User* who, bool returnable);
+        std::string CORE_COMMAND_time(core::User* who, const std::vector<std::string>& args, bool returnable);
+        //void CORE_COMMAND_exit(core::User* who, bool returnable);
 
         //   -------------- Pseudo FS Commands ---------------
 
-        void CORE_COMMAND_cd(const std::vector<std::string>& args);
+        std::string CORE_COMMAND_cd(core::User* who, const std::vector<std::string>& args, bool returnable);
 
-        void CORE_COMMAND_createFile(const std::vector<std::string>& args);
-        void CORE_COMMAND_createLinkFile(const std::vector<std::string>& args);
-        void CORE_COMMAND_deleteFile(const std::vector<std::string>& args);
-        void CORE_COMMAND_renameFile(const std::vector<std::string>& args);
-        void CORE_COMMAND_moveFile(const std::vector<std::string>& args);
+        std::string CORE_COMMAND_createFile(core::User* who, const std::vector<std::string>& args, bool returnable);
+        std::string CORE_COMMAND_createLinkFile(core::User* who, const std::vector<std::string>& args, bool returnable);
+        std::string CORE_COMMAND_deleteFile(core::User* who, const std::vector<std::string>& args, bool returnable);
+        std::string CORE_COMMAND_renameFile(core::User* who, const std::vector<std::string>& args, bool returnable);
+        std::string CORE_COMMAND_moveFile(core::User* who, const std::vector<std::string>& args, bool returnable);
+        std::string CORE_COMMAND_editFile(core::User* who, const std::vector<std::string>& args, bool returnable);
+        std::string CORE_COMMAND_writeOnNewLineFile(core::User* who, const std::vector<std::string>& args, bool returnable);
+        std::string CORE_COMMAND_writeFile(core::User* who, const std::vector<std::string>& args, bool returnable);
+        std::string CORE_COMMAND_rewriteFile(core::User* who, const std::vector<std::string>& args, bool returnable);
+        std::string CORE_COMMAND_clearFile(core::User* who, const std::vector<std::string>& args, bool returnable);
+        std::string CORE_COMMAND_setNewFileOwner(core::User* who, const std::vector<std::string>& args, bool returnable);
 
-        void CORE_COMMAND_createFolder(const std::vector<std::string>& args);
-        void CORE_COMMAND_createLinkFolder(const std::vector<std::string>& args);
-        void CORE_COMMAND_deleteFolder(const std::vector<std::string>& args);
-        void CORE_COMMAND_renameFolder(const std::vector<std::string>& args);
-        void CORE_COMMAND_moveFolder(const std::vector<std::string>& args);
+        std::string CORE_COMMAND_createFolder(core::User* who, const std::vector<std::string>& args, bool returnable);
+        std::string CORE_COMMAND_createLinkFolder(core::User* who, const std::vector<std::string>& args, bool returnable);
+        std::string CORE_COMMAND_deleteFolder(core::User* who, const std::vector<std::string>& args, bool returnable);
+        std::string CORE_COMMAND_renameFolder(core::User* who, const std::vector<std::string>& args, bool returnable);
+        std::string CORE_COMMAND_moveFolder(core::User* who, const std::vector<std::string>& args, bool returnable);
+        std::string CORE_COMMAND_clearFolder(core::User* who, const std::vector<std::string>& args, bool returnable);
+        std::string CORE_COMMAND_setNewFolderOwner(core::User* who, const std::vector<std::string>& args, bool returnable);
 
-        void CORE_COMMAND_whereIm();
+        std::string CORE_COMMAND_whereIm(core::User* who, bool returnable);
 
-        void CORE_COMMAND_showFileData(const std::vector<std::string>& args);
-        void CORE_COMMAND_showFolderData(const std::vector<std::string>& args);
+        std::string CORE_COMMAND_showFileData(core::User* who, const std::vector<std::string>& args, bool returnable);
+        std::string CORE_COMMAND_showFolderData(core::User* who, const std::vector<std::string>& args, bool returnable);
 
-        void CORE_COMMAND_dir(const std::vector<std::string>& args);
-        void CORE_COMMAND_tree(const std::vector<std::string>& args);
-        void CORE_COMMAND_showAll(const std::vector<std::string>& args);
+        std::string CORE_COMMAND_dir(core::User* who, const std::vector<std::string>& args, bool returnable);
+        std::string CORE_COMMAND_tree(core::User* who, const std::vector<std::string>& args, bool returnable);
+        std::string CORE_COMMAND_showAll(core::User* who, const std::vector<std::string>& args, bool returnable);
 
-        void CORE_COMMAND_searchFile(const std::vector<std::string>& args);
-        void CORE_COMMAND_searchFileHelper(const core::FolderData& curFolder, const std::string& what, std::vector<std::string> path, std::string stringPath);
+        std::string CORE_COMMAND_searchFile(core::User* who, const std::vector<std::string>& args, bool returnable);
+        std::string CORE_COMMAND_searchFileHelper(const core::FolderData& curFolder, const std::string& what, std::vector<std::string> path, std::string stringPath, bool returnable = false);
+
+        std::string CORE_COMMAND_printDiskSize(core::User* who, bool returnable);
 
         //   -------------- Users "Manager" ---------------
 
-        void CORE_COMMAND_setPassword(const std::vector<std::string>& args); 
-        void CORE_COMMAND_editDisplayName(const std::vector<std::string>& args);
-        void CORE_COMMAND_createUser(const std::vector<std::string>& args);
-        void CORE_COMMAND_deleteUser(const std::vector<std::string>& args);
-        void CORE_COMMAND_renameUser(const std::vector<std::string>& args);
-        void CORE_COMMAND_setPermissionsUser(const std::vector<std::string>& args);
+        std::string CORE_COMMAND_setPassword(core::User* who, const std::vector<std::string>& args, bool returnable); 
+        std::string CORE_COMMAND_editDisplayName(core::User* who, const std::vector<std::string>& args, bool returnable);
+        std::string CORE_COMMAND_createUser(core::User* who, const std::vector<std::string>& args, bool returnable);
+        std::string CORE_COMMAND_deleteUser(core::User* who, const std::vector<std::string>& args, bool returnable);
+        std::string CORE_COMMAND_renameUser(core::User* who, const std::vector<std::string>& args, bool returnable);
+        std::string CORE_COMMAND_setPermissionsUser(core::User* who, const std::vector<std::string>& args, bool returnable);
 
-        //void CORE_COMMAND_addLocalVar();
-        //void CORE_COMMAND_renameLocalVar();
-        //void CORE_COMMAND_editLocalVarFunction();
-        //void CORE_COMMAND_editLocalVarDescription();
+        std::string CORE_COMMAND_addLocalVar(core::User* who, const std::vector<std::string>& args, bool returnable);
+        std::string CORE_COMMAND_renameLocalVar(core::User* who, const std::vector<std::string>& args, bool returnable);
 
         //   -------------- Users ---------------
 
-        void CORE_COMMAND_whoim();
-        void CORE_COMMAND_infoUser(const std::vector<std::string>& args);
-        void CORE_COMMAND_allInfoUsers();
-        void CORE_COMMAND_logout();
+        std::string CORE_COMMAND_whoim(core::User* who, bool returnable);
+        std::string CORE_COMMAND_infoUser(core::User* who, const std::vector<std::string>& args, bool returnable);
+        std::string CORE_COMMAND_allInfoUsers(core::User* who, bool returnable);
+        std::string CORE_COMMAND_logout(core::User* who, bool returnable);
 
         //   ---------------- Other ---------------
 
-        //void CORE_COMMAND_addSystemVar();
-        void CORE_COMMAND_allSystemVars();
-        void CORE_COMMAND_allLocalVars();
+        //std::string CORE_COMMAND_addSystemVar(core::User* who, const std::vector<std::string>& args, bool returnable);
+        std::string CORE_COMMAND_allSystemVars(core::User* who, bool returnable);
+        std::string CORE_COMMAND_allLocalVars(core::User* who, bool returnable);
     }
+
+    std::string checkUserPermissionsForCommand(core::User* who);
+    std::string checkUserPermissionsForPFSCommand(core::User* who, const core::FileData& target);
+    std::string checkUserPermissionsForPFSCommand(core::User* who, const core::FolderData& target);
+    std::string checkFileCodeForPFSCommand(int code);
+    std::string checkFolderCodeForPFSCommand(int code);
+    void fixCreateSamePFSObject(const std::string& path, size_t curDisk, const core::FileData& target, int& code);
+    void fixCreateSamePFSObject(const std::string& path, size_t curDisk, const core::FolderData& target, int& code);
 }
+
 #endif

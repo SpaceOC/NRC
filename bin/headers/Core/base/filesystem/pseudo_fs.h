@@ -1,19 +1,3 @@
-/*
-    Copyright (C) 2024-2024  SpaceOC
-
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
 #ifndef NRC_BASE_FILESYSTEM_PSEUDO_FS_H_
 #define NRC_BASE_FILESYSTEM_PSEUDO_FS_H_
 #include <iostream>
@@ -21,9 +5,13 @@
 #include <vector>
 #include <map>
 #include <nlohmann/json.hpp>
-#include "Core/base/filesystem/nrfs.h"
+#include "Core/settings.h"
 
 namespace core {
+	class NRFS;
+	struct FileData;
+	struct FolderData;
+
 	enum PseudoFSCodes {
 		UNKNOWN_ERROR,
 		OK = 1,
@@ -40,69 +28,90 @@ namespace core {
 		SMALL_SIZE
 	};
 
+	std::string pseudoFSCodesS(int t);
+
 	class PseudoFS {
 		private:
-			static inline NRFS nrfs;
-			static inline int tempID = 0;
-			static inline std::string currentPath = "./";
+			NRFS* nrfs;
+			int tempID = 0;
+			std::string currentPath = "./";
+			size_t curDisk = 0;
 
-			static bool isFile(std::string path);
+			bool __folderExistsHelper(std::vector<std::string> path, FolderData* currentFolder);
+			bool __fileExistsHelper(std::vector<std::string> path, FolderData* currentFolder);
 
-			static bool __folderExistsHelper(std::vector<std::string> path, FolderData& currentFolder);
+			nlohmann::json __savePFSHelper(std::vector<FolderData*>& folders);
+			nlohmann::json __savePFSHelper(std::vector<FileData*>& files);
+			std::vector<FolderData*> __loadPFSHelperFolders(nlohmann::json folderJsonData);
+			std::vector<FileData*> __loadPFSHelperFiles(nlohmann::json filesJsonData);
+			void __loadLinksFoldersAndFiles(FolderData* curFolder, size_t diskId);
 
-			static nlohmann::json __savePFSHelper(std::vector<FolderData>& folders);
-			static nlohmann::json __savePFSHelper(std::vector<FileData>& files);
-			static std::vector<FolderData> __loadPFSHelperFolders(nlohmann::json folderJsonData);
-			static std::vector<FileData> __loadPFSHelperFiles(nlohmann::json filesJsonData);
-			static void __loadLinksFoldersAndFiles(FolderData& curFolder);
+			int __createFolderHelper(std::vector<std::string> path, FolderData* currentFolder, FolderData* oneFolderData = nullptr);
+			int __setFolderAttHelper(std::vector<std::string> path, FolderData* currentFolder, const std::string& what, const std::any& newAtt);
+			int __renameFolderHelper(std::vector<std::string> path, FolderData* currentFolder, const std::string& newName);
+			int __deleteFolderHelper(std::vector<std::string> path, FolderData* currentFolder);
+			int __moveFolderHelper(std::vector<std::string> path, size_t diskId, FolderData* currentFolder, const FolderData& oldFolderData, const std::string& oldPath);
+			FolderData __getFolderData(std::vector<std::string> path, size_t diskId, FolderData* currentFolder, int& code);
 
-			static int __createFolderHelper(std::vector<std::string> path, FolderData& currentFolder, const FolderData& oneFolderData = {});
-			static int __setFolderAttHelper(std::vector<std::string> path, FolderData& currentFolder, const std::string& what, const std::any& newAtt);
-			static int __renameFolderHelper(std::vector<std::string> path, FolderData& currentFolder, const std::string& newName);
-			static int __deleteFolderHelper(std::vector<std::string> path, FolderData& currentFolder);
-			static int __moveFolderHelper(std::vector<std::string> path, FolderData& currentFolder, const FolderData& oldFolderData, const std::string& oldPath);
-			static FolderData __getFolderData(std::vector<std::string> path, FolderData& currentFolder, int& code);
-
-			static int __createFileHelper(std::vector<std::string> path, FolderData& currentFolder, const FileData& oneFileData = {});
-			static int __renameFileHelper(std::vector<std::string> path, FolderData& currentFolder, const std::string& newName);
-			static int __deleteFileHelper(std::vector<std::string> path, FolderData& currentFolder);
-			static int __moveFileHelper(std::vector<std::string> path, FolderData& currentFolder, const FileData& oldFileData, const std::string& oldPath);
-			static int __setFileAttHelper(std::vector<std::string> path, FolderData& currentFolder, const std::string& what, const std::any& newAtt);
-			static FileData __getFileData(std::vector<std::string> path, FolderData& currentFolder, int& code);
+			int __createFileHelper(std::vector<std::string> path, FolderData* currentFolder, FileData* oneFileData = nullptr);
+			int __renameFileHelper(std::vector<std::string> path, FolderData* currentFolder, const std::string& newName);
+			int __deleteFileHelper(std::vector<std::string> path, FolderData* currentFolder);
+			int __moveFileHelper(std::vector<std::string> path, size_t diskId, FolderData* currentFolder, const FileData& oldFileData, const std::string& oldPath);
+			int __setFileAttHelper(std::vector<std::string> path, FolderData* currentFolder, const std::string& what, const std::any& newAtt);
+			FileData __getFileData(std::vector<std::string> path, size_t diskId, FolderData* currentFolder, int& code);
 		public:
-			static int createFolder(std::string path, const FolderData& oneFolderData = {});
-			static int setFolderAtt(std::string path, std::string what, std::any newAtt);
-			static int renameFolder(std::string path, std::string newName);
-			static int deleteFolder(std::string path);
-			static int moveFolder(std::string path, const std::string& newPath);
-			static FolderData getFolderData(std::string path, int& code);
+			PseudoFS() = default;
+			PseudoFS(PseudoFS&) = delete;
+			PseudoFS(const PseudoFS&&) = delete;
+			bool isFile(std::string path);
 
-			static int createFile(std::string path, const FileData& oneFileData = {});
-			static int setFileAtt(std::string path, std::string what, std::any newAtt);
-			static int renameFile(std::string path, std::string newName);
-			static int deleteFile(std::string path);
-			static int moveFile(std::string path, const std::string& newPath);
-			static FileData getFileData(std::string path, int& code);
+			int createFolder(std::string path, size_t diskId, FolderData* oneFolderData = nullptr);
+			int setFolderAtt(std::string path, size_t diskId, std::string what, std::any newAtt);
+			int renameFolder(std::string path, size_t diskId, std::string newName);
+			int deleteFolder(std::string path, size_t diskId);
+			int moveFolder(std::string path, size_t diskId, const std::string& newPath, size_t anotherDiskId);
+			FolderData getFolderData(std::string path, size_t diskId, int& code);
 
-            static void printAllHelper(const std::vector<FolderData>& folders, const std::string &path, bool includeHidden);
-            static void printAll(bool includeHidden, std::string startPath = "./");
-            static void showTreeHelper(const FolderData &curFolder, bool includeHidden, bool showFiles, int level);
-            static void showTree(bool includeHidden, bool showFiles, std::string startPath = "./");
-            static void printDiskSize();
+			int createFile(std::string path, size_t diskId, FileData* oneFileData = nullptr);
+			int setFileAtt(std::string path, size_t diskId, std::string what, std::any newAtt);
+			int renameFile(std::string path, size_t diskId, std::string newName);
+			int deleteFile(std::string path, size_t diskId);
+			int moveFile(std::string path, size_t diskId, const std::string& newPath, size_t anotherDiskId);
+			FileData getFileData(std::string path, size_t diskId, int& code);
 
-			static NRFS& getNRFS();
+            void printAllHelper(const std::vector<FolderData*>& folders, const std::string &path, bool includeHidden);
+			void printAllHelper(const std::vector<FolderData*>& folders, const std::string &path, bool includeHidden, std::string& str);
+            void printAll(bool includeHidden, size_t diskId, std::string startPath = "./");
+			void printAll(bool includeHidden, size_t diskId, std::string startPath, std::string& str);
+            void showTreeHelper(const FolderData &curFolder, bool includeHidden, bool showFiles, int level);
+			void showTreeHelper(const FolderData &curFolder, bool includeHidden, bool showFiles, int level, std::string& str);
+            void showTree(bool includeHidden, size_t diskId, bool showFiles, std::string startPath = "./");
+			void showTree(bool includeHidden, size_t diskId, bool showFiles, std::string startPath, std::string& str);
 
-			static void savePFS();
-			static int loadPFS();
+			NRFS* getNRFS();
 
-			static int changePath(const std::string& newPath);
-			static int changeDirectory(const std::string& newDirectory);
-			static bool folderExists(const std::string& path);
+			void savePFS();
+			int loadPFS();
 
-			static const std::string getCurrentPath();
+			int changePath(const std::string& newPath, size_t diskId);
+			int changeDirectory(const std::string& newDirectory, size_t diskId);
+			int changeDisk(char diskLetter);
+			bool folderExists(const std::string& path, size_t diskId);
+			bool fileExists(const std::string& path, size_t diskId);
 
-			static void init();
+			const std::string getCurrentPath();
+			size_t getCurDiskId() { return curDisk; }
+			int getLastPFSObjectID() { return tempID; }
+			void newLastPFSObjectID() { ++tempID; }
+
+			std::string getFileFromPath(const std::string& path);
+			std::string getFolderFromPath(const std::string& path);
+
+			void init();
+			void postInit();
 	};
+
+	extern PseudoFS* pseudoFS();
 }
 
 #endif

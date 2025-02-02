@@ -1,32 +1,25 @@
-/*
-    Copyright (C) 2024-2024  SpaceOC
-
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
 #include <string>
 #include "Core/main.h"
 #include "Core/base/users/OOBE.h"
 #include "Core/base/filesystem/pseudo_fs.h"
+#include "Core/base/filesystem/nrfs.h"
 #include "Core/base/users/user_manager.h"
 #include "Core/base/data/file_manager.h"
 #include "Core/base/data/data_manager.h"
 #include "Core/base/command/handler_commands.h"
 #include "Core/base/command/commands.h"
+#include "Core/base/users/user.h"
 #include "Core/experimental/event_manager.h"
+#include "Core/base/print.h"
+#include "Core/logs.h"
+#include "Core/extra/variables.h"
+
+#include "Core/experimental/run_js_code.h"
+
+std::string outputLog;
 
 void core::main::addCommands() {
-	HandlerCommands::addCommand(
+	handlerCommands()->addCommand(
         "help",
         {"shows a list of all commands", {"name"}},
         core::commands::CORE_COMMAND_help,
@@ -34,7 +27,7 @@ void core::main::addCommands() {
         1
     );
 
-	HandlerCommands::addCommand(
+	handlerCommands()->addCommand(
         "time",
         {"shows the execution time of a certain command", {"command"}},
         core::commands::CORE_COMMAND_time,
@@ -42,17 +35,9 @@ void core::main::addCommands() {
         999
     );
 
-    HandlerCommands::addCommand(
-        "create_user",
-        {"creating a new user in the system", {"name", "perms."}},
-        core::commands::CORE_COMMAND_createUser,
-        1,
-        2
-    );
+    //handlerCommands()->addCommand("exit", "exit", core::commands::CORE_COMMAND_exit);
 
-    //HandlerCommands::addCommand("exit", "exit", core::commands::CORE_COMMAND_exit);
-
-	HandlerCommands::addCommand(
+	handlerCommands()->addCommand(
         "cd",
         {"cd", {"where"}},
         core::commands::CORE_COMMAND_cd,
@@ -60,23 +45,23 @@ void core::main::addCommands() {
         1
     );
 
-	HandlerCommands::addCommand(
+	handlerCommands()->addCommand(
         "create_file",
         {"creates a new file", {"full-path"}},
         core::commands::CORE_COMMAND_createFile,
         1,
-        1
+        2
     );
 
-	HandlerCommands::addCommand(
+	handlerCommands()->addCommand(
         "create_link_file",
-        {"create a new linked file", {"where, file"}},
+        {"create a new linked file", {"target-file", "where-create"}},
         core::commands::CORE_COMMAND_createLinkFile,
         2,
         2
     );
 
-	HandlerCommands::addCommand(
+	handlerCommands()->addCommand(
         "delete_file",
         {"deletes the file", {"full-path"}},
         core::commands::CORE_COMMAND_deleteFile,
@@ -84,7 +69,7 @@ void core::main::addCommands() {
         1
     );
 
-	HandlerCommands::addCommand(
+	handlerCommands()->addCommand(
         "rename_file",
         {"renames the file", {"full-path", "new-name"}},
         core::commands::CORE_COMMAND_renameFile,
@@ -92,7 +77,7 @@ void core::main::addCommands() {
         2
     );
 
-	HandlerCommands::addCommand(
+	handlerCommands()->addCommand(
         "move_file",
         {"moves the file", {"full-path", "new-path"}},
         core::commands::CORE_COMMAND_moveFile,
@@ -100,23 +85,23 @@ void core::main::addCommands() {
         2
     );
 
-	HandlerCommands::addCommand(
-        "show_file_data",
+	handlerCommands()->addCommand(
+        "file_data",
         {"show file data", {"full-path"}},
         core::commands::CORE_COMMAND_showFileData,
         1,
         1
     );
 
-	HandlerCommands::addCommand(
+	handlerCommands()->addCommand(
         "create_folder",
         {"creates new folder", {"full-path"}},
         core::commands::CORE_COMMAND_createFolder,
         1,
-        1
+        2
     );
 
-	HandlerCommands::addCommand(
+	handlerCommands()->addCommand(
         "delete_folder",
         {"deletes the folder", {"full-path"}},
         core::commands::CORE_COMMAND_deleteFolder,
@@ -124,15 +109,15 @@ void core::main::addCommands() {
         1
     );
 
-	HandlerCommands::addCommand(
+	handlerCommands()->addCommand(
         "create_link_folder",
-        {"creates a new linked folder", {"where", "folder"}},
+        {"creates a new linked folder", {"target-folder", "where-create"}},
         core::commands::CORE_COMMAND_createLinkFolder,
         2,
         2
     );
 
-	HandlerCommands::addCommand(
+	handlerCommands()->addCommand(
         "rename_folder",
         {"renames the folder", {"full-path", "new-name"}},
         core::commands::CORE_COMMAND_renameFolder,
@@ -140,7 +125,7 @@ void core::main::addCommands() {
         2
     );
 
-	HandlerCommands::addCommand(
+	handlerCommands()->addCommand(
         "move_folder",
         {"moves the folder", {"full-path", "new-path"}},
         core::commands::CORE_COMMAND_moveFolder,
@@ -148,27 +133,27 @@ void core::main::addCommands() {
         2
     );
 
-	HandlerCommands::addCommand(
-        "show_folder_data",
+	handlerCommands()->addCommand(
+        "folder_data",
         {"show folder data", {"full-path"}},
         core::commands::CORE_COMMAND_showFolderData,
         1,
         1
     );
 
-	HandlerCommands::addCommand(
+	handlerCommands()->addCommand(
         "whereim",
         "displays information about the current folder and its full path",
         core::commands::CORE_COMMAND_whereIm
     );
     
-	HandlerCommands::addCommand(
+	handlerCommands()->addCommand(
         "disk_size",
         "show disk size",
-        core::PseudoFS::printDiskSize
+        core::commands::CORE_COMMAND_printDiskSize
     );
 
-	HandlerCommands::addCommand(
+	handlerCommands()->addCommand(
         "tree",
         {"shows all folders in a tree view", {"start-path", "include"}},
         core::commands::CORE_COMMAND_tree,
@@ -176,7 +161,7 @@ void core::main::addCommands() {
         2
     );
 
-	HandlerCommands::addCommand(
+	handlerCommands()->addCommand(
         "show_all",
         {"shows all files and folders", {"start-path", "include"}},
         core::commands::CORE_COMMAND_showAll,
@@ -184,7 +169,7 @@ void core::main::addCommands() {
         2
     );
 
-	HandlerCommands::addCommand(
+	handlerCommands()->addCommand(
         "dir",
         {"shows all files and folders in current directory", {"include"}},
         core::commands::CORE_COMMAND_dir,
@@ -192,7 +177,7 @@ void core::main::addCommands() {
         1
     );
 
-	HandlerCommands::addCommand(
+	handlerCommands()->addCommand(
         "search_file",
         {"search files", {"what", "start-path"}},
         core::commands::CORE_COMMAND_searchFile,
@@ -200,7 +185,7 @@ void core::main::addCommands() {
         2
     );
 
-	HandlerCommands::addCommand(
+	handlerCommands()->addCommand(
         "edit_display_name",
         {"edit display name", {"name"}},
         core::commands::CORE_COMMAND_editDisplayName,
@@ -208,23 +193,7 @@ void core::main::addCommands() {
         1
     );
 
-    HandlerCommands::addCommand(
-        "delete_user",
-        {"deleting a user in the system", {"username"}},
-        core::commands::CORE_COMMAND_deleteUser,
-        1,
-        1
-    );
-
-	HandlerCommands::addCommand(
-        "set_user_permissions",
-        {"user permission change", {"name", "perms."}},
-        core::commands::CORE_COMMAND_setPermissionsUser,
-        2,
-        2
-    );
-
-    HandlerCommands::addCommand(
+    handlerCommands()->addCommand(
         "set_password",
         {"set password", {"old/new", "new"}},
         core::commands::CORE_COMMAND_setPassword,
@@ -232,19 +201,13 @@ void core::main::addCommands() {
         2
     );
 
-	HandlerCommands::addCommand(
+	handlerCommands()->addCommand(
         "all_users_info",
         "shows all information about all users",
         core::commands::CORE_COMMAND_allInfoUsers
     );
 
-    HandlerCommands::addCommand(
-        "whoim",
-        "shows information about the current user",
-        core::commands::CORE_COMMAND_whoim
-    );
-
-	HandlerCommands::addCommand(
+	handlerCommands()->addCommand(
         "user_info",
         {"shows information about the current user", {"username"}},
         core::commands::CORE_COMMAND_infoUser,
@@ -252,7 +215,14 @@ void core::main::addCommands() {
         1
     );
 
-	HandlerCommands::addCommand(
+    #ifndef NRC_WEB
+    handlerCommands()->addCommand(
+        "whoim",
+        "shows information about the current user",
+        core::commands::CORE_COMMAND_whoim
+    );
+
+	handlerCommands()->addCommand(
         "rename_user",
         {"renames the user", {"old", "new"}},
         core::commands::CORE_COMMAND_renameUser,
@@ -260,51 +230,218 @@ void core::main::addCommands() {
         2
     );
 
-	HandlerCommands::addCommand(
+    handlerCommands()->addCommand(
+        "delete_user",
+        {"deleting a user in the system", {"username"}},
+        core::commands::CORE_COMMAND_deleteUser,
+        1,
+        1
+    );
+
+	handlerCommands()->addCommand(
+        "set_user_permissions",
+        {"user permission change", {"name", "perms."}},
+        core::commands::CORE_COMMAND_setPermissionsUser,
+        2,
+        2
+    );
+
+    handlerCommands()->addCommand(
+        "create_user",
+        {"creating a new user in the system", {"name", "perms."}},
+        core::commands::CORE_COMMAND_createUser,
+        1,
+        2
+    );
+    #endif
+
+    #ifdef NRC_WEB
+    handlerCommands()->addCommand(
+        "whoim",
+        "shows information about the current user",
+        core::commands::CORE_COMMAND_whoim
+    );
+    #endif
+
+	handlerCommands()->addCommand(
         "core_info",
         "shows information about the core",
         core::commands::CORE_COMMAND_info
     );
 
-	HandlerCommands::addCommand(
+	handlerCommands()->addCommand(
         "logout",
         "logging out of the current user account",
         core::commands::CORE_COMMAND_logout
     );
+
+	handlerCommands()->addCommand(
+        "edit_file",
+        {"edit file", {"full-path", "content"}},
+        core::commands::CORE_COMMAND_editFile,
+        1,
+        2,
+        {2}
+    );
+
+    handlerCommands()->addCommand(
+        "wrl",
+        {"write content in new line", {"file-path", "text"}},
+        core::commands::CORE_COMMAND_writeOnNewLineFile,
+        2,
+        3,
+        {2}
+    );
+
+    handlerCommands()->addCommand(
+        "wr",
+        {"write content in end file", {"file-path", "text"}},
+        core::commands::CORE_COMMAND_writeFile,
+        2,
+        3,
+        {2}
+    );
+
+    handlerCommands()->addCommand(
+        "rewr",
+        {"rewrite all content in file", {"file-path", "text"}},
+        core::commands::CORE_COMMAND_rewriteFile,
+        2,
+        3,
+        {2}
+    );
+
+    handlerCommands()->addCommand(
+        "fileclr",
+        {"clear all content in file", {"file-path"}},
+        core::commands::CORE_COMMAND_rewriteFile,
+        1,
+        1
+    );
+
+    handlerCommands()->addCommand(
+        "set_file_owner",
+        {"set new file owner (if arg1 == '[ NONE ]' - none)", {"file-path", "new-owner"}},
+        core::commands::CORE_COMMAND_setNewFileOwner,
+        2,
+        2
+    );
+
+    handlerCommands()->addCommand(
+        "set_folder_owner",
+        {"set new folder owner (if arg1 == '[ NONE ]' - none)", {"file-path", "new-owner"}},
+        core::commands::CORE_COMMAND_setNewFolderOwner,
+        2,
+        2
+    );
+
+    handlerCommands()->addCommand(
+        "set",
+        {"set new value", {"name", "type", "value"}},
+        core::commands::CORE_COMMAND_addLocalVar,
+        3,
+        3,
+        {3}
+    );
+
+    handlerCommands()->addCommand(
+        "vars",
+        "show all local vars",
+        core::commands::CORE_COMMAND_allLocalVars
+    );
+}
+
+void core::main::addCRules() {
+    // Adding a check that the command name is a call to an environment variable
+    handlerCommands()->addCustomRules([](const core::CommandObject& c, core::User* who, std::string& ret, std::string&) -> bool {
+        if (!handlerCommands()->thisVariable(c.name))
+            return false;
+		std::string varName = c.name.substr(1, c.name.length() - 2);
+		if (who->varExists(varName))
+			who->varFuncStart(varName, ret);
+		else if (core::systemVariablesManager()->exists(varName))
+        	core::systemVariablesManager()->start(c.name, ret);
+        return true;
+    });
+
+    // Adding a check that this is a call to a .clf file
+    handlerCommands()->addCustomRules([](const core::CommandObject& c, core::User* who, std::string& ret, std::string& err) -> bool {
+        if (!c.name._Starts_with("./"))
+            return false;
+        else if (!core::Utils::endsWith(c.name, ".clf")) {
+            err = "Error: This is NOT .clf file";
+            return false;
+        }
+
+        int code;
+        size_t curDisk = core::pseudoFS()->getCurDiskId();
+        std::string commandLinesFileCode = core::pseudoFS()->getFileData(
+            core::pseudoFS()->getCurrentPath() + c.name.substr(2, c.name.length()),
+            curDisk,
+            code
+        ).content;
+        if (code != core::PseudoFSCodes::OK) {
+            err = "Error: " + core::pseudoFSCodesS(code);
+            return false;
+        }
+        std::vector<std::string> clfc = core::Utils::split(commandLinesFileCode, '\n');
+        #ifdef NRC_WEB
+        std::string output;
+        #endif
+        for (const std::string& uir : clfc) {
+            std::vector<core::CommandObject> parsedCommands = core::handlerCommands()->parsing(uir, who);
+            for (core::CommandObject& command : parsedCommands) {
+                #ifndef NRC_WEB
+                command.returnable = false;
+                core::handlerCommands()->sendCommand(who, command);
+                #else
+                std::string str;
+                core::handlerCommands()->sendCommand(command, str);
+                output += "\n" + str;
+                #endif
+            }
+        }
+        #ifdef NRC_WEB
+        ret = output;
+        #else
+        ret = "";
+        #endif
+        return true;
+    });
 }
 
 core::main::main() {
     fixNOW();
     addCommands();
-    core::UserManager::checkOOBE();
+    addCRules();
     core::EventManager::enableEvents = true;
-    if (!core::UserManager::getOOBEPassed() && core::UserManager::yourUsername().empty()) {
+    core::pseudoFS()->init();
+    core::pseudoFS()->loadPFS();
+    core::pseudoFS()->postInit();
+    core::userManager()->readAllUsersData();
+    core::userManager()->checkOOBE();
+    if (!core::userManager()->getOOBEPassed() && core::userManager()->yourUsername().empty()) {
         FileManager FM;
         FM.createFolders({"Data", "Data/Users", "Modules", "Temp"});
         FM.createFiles({"Data/MainData.json", "Data/Users.json", "Data/PFS-Data.json"});
-        core::PseudoFS::init();
-        core::PseudoFS::createFile("./hello.txt");
-        core::PseudoFS::setFileAtt("./hello.txt", "content", "Hello from NRC!");
-        core::PseudoFS::savePFS();
         DataManager DM;
         DM.createData("Data/MainData.json", "OOBE_Passed", "0");
         OOBE();
     }
     else {
-        core::PseudoFS::loadPFS();
-        core::UserManager::userLists();
+        core::userManager()->userLists();
     }
 }
 
 core::main::~main() {
 	core::structDataEvents::NRCShutdownEvent eventData = {
-		core::UserManager::yourUsername(),
-		core::UserManager::currentUserData().getPermissions(),
-		static_cast<size_t>(core::UserManager::userVectorPos(core::UserManager::yourUsername()))
+		core::userManager()->yourUsername(),
+		core::userManager()->currentUserData().getPermissions(),
+		static_cast<size_t>(core::userManager()->userVectorPos(core::userManager()->yourUsername()))
 	};
 
 	core::EventManager::eventsStart(NRC_SHUTDOWN_EVENT, eventData);
 
-    core::PseudoFS::savePFS();
-    std::cout << "Goodbye, " + (core::UserManager::yourUsername() != "" ? core::UserManager::yourUsername() : "user") + ".\n";
+    core::pseudoFS()->savePFS();
+    //std::cout << "Goodbye, " + (core::userManager()->yourUsername() != "" ? core::userManager()->yourUsername() : "user") + ".\n";
 }

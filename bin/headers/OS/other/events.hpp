@@ -3,7 +3,7 @@
 #include "Core/experimental/event_manager.h"
 
 core::structDataEvents::UserAddEvent newUserEvent(core::structDataEvents::UserAddEvent data) {
-    core::print("OMG!!! New user!!!\n");
+    core::print("New user!\n");
     core::print("Username - " + data.username + "\n");
     return data;
 }

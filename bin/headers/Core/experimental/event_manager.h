@@ -1,26 +1,12 @@
-/*
-    Copyright (C) 2024-2024  SpaceOC
-
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
 #ifndef NRC_EXPERIMENTAL_EVENT_MANAGER_H_
 #define NRC_EXPERIMENTAL_EVENT_MANAGER_H_
 
-#define USER_DELETE_EVENT "UDE"
-#define USER_ADD_EVENT "UAE"
-#define USER_CHANGE_EVENT "UCE"
-#define NRC_SHUTDOWN_EVENT "NRC-S"
+#define USER_DELETE_EVENT 0
+#define USER_ADD_EVENT 1
+#define USER_CHANGE_EVENT 2
+#define NRC_SHUTDOWN_EVENT 3
+#define PFS_INIT_EVENT 4
+#define PFS_POST_INIT_EVENT 5
 
 #include <string>
 #include <map>
@@ -69,6 +55,14 @@ namespace core {
             Permissions permissions; // Permissions of the user.
             size_t id; // ID (position in the users vector) of the user.
         };
+
+        struct PFSInit {
+
+        };
+
+        struct PFSPostInit {
+
+        };
     };
 
     class EventManager {
@@ -77,17 +71,21 @@ namespace core {
             static inline std::vector<std::function<core::structDataEvents::UserDeleteEvent(core::structDataEvents::UserDeleteEvent)>> userDeleteEvents;
             static inline std::vector<std::function<core::structDataEvents::UserChangeEvent(core::structDataEvents::UserChangeEvent)>> userChangeEvents;
             static inline std::vector<std::function<core::structDataEvents::NRCShutdownEvent(core::structDataEvents::NRCShutdownEvent)>> NRCShutdownEvents;
+            static inline std::vector<std::function<core::structDataEvents::PFSInit(core::structDataEvents::PFSInit)>> pseudoFSInitEvents;
+            static inline std::vector<std::function<core::structDataEvents::PFSPostInit(core::structDataEvents::PFSPostInit)>> pseudoFSPostInitEvents;
         public:
             static inline bool enableEvents;
 
             // Starts all functions of a certain event.
-            static void eventsStart(std::string name, std::any event);
+            static void eventsStart(int eventId, std::any event);
             //auto eventStart(std::string name, std::any event, size_t id);
 
             static void addEvent(std::function<core::structDataEvents::UserAddEvent(core::structDataEvents::UserAddEvent)> func);
             static void addEvent(std::function<core::structDataEvents::UserChangeEvent(core::structDataEvents::UserChangeEvent)> func);
             static void addEvent(std::function<core::structDataEvents::UserDeleteEvent(core::structDataEvents::UserDeleteEvent)> func);
             static void addEvent(std::function<core::structDataEvents::NRCShutdownEvent(core::structDataEvents::NRCShutdownEvent)> func);
+            static void addEvent(std::function<core::structDataEvents::PFSInit(core::structDataEvents::PFSInit)> func);
+            static void addEvent(std::function<core::structDataEvents::PFSPostInit(core::structDataEvents::PFSPostInit)> func);
     };
 
 };

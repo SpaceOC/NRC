@@ -1,49 +1,69 @@
-/*
-    Copyright (C) 2024-2024  SpaceOC
-
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
 #ifndef NRC_EXTRA_VARIABLES_H_
 #define NRC_EXTRA_VARIABLES_H_
+#include <sstream>
 #include <iostream>
 #include <string>
 #include <functional>
 #include <map>
+#include <type_traits>
+#include <cassert>
+#include "Core/base/print.h"
+#include "Core/base/users/permissions_enum_class.h"
+#include "Core/base/command/handler_commands.h"
+#include "Core/experimental/run_js_code.h"
+#include "Core/base/utils.h"
+#include "Core/extra/variable_type_enum.h"
 
 namespace core {
-    // Stores a description and a function.
+    // Stores a name, type and function.
     struct VariableData {
-        std::string description;
-        std::function<void()> function;
+        std::string name;
+        VariableType type;
+        bool outputReturn;
+        core::Permissions permissionsRun = core::Permissions::user;
+        std::string username;
+        std::string commandOrCode;
+        std::function<std::string(VariableData)> function;
+
+        friend std::ostream& operator<<(std::ostream& os, const VariableData& vd) {
+            return os << "{ Name: " << vd.name << ", Type: " << (vd.type == VariableType::FUNC ? "Function" : (vd.type == VariableType::COMMAND ? "Command" : "JavaScript code")) << " }";
+        }
     };
 
-    class SystemVariablesManager {
+    class VariablesManager {
         private:
-            static inline std::map<std::string, VariableData> data;
+            std::vector<VariableData> data;
+        protected:
+            bool isSystem;
         public:
+			VariablesManager() = default;
+            VariablesManager(bool a) : isSystem(a) {};
+			VariablesManager(VariablesManager&) = delete;
+			VariablesManager(const VariablesManager&&) = delete;
+
             // Returns the data of the variable.
-            static std::map<std::string, VariableData> getVariable(std::string name);
+            VariableData getVariable(std::string_view name);
+
+            bool exists(std::string_view name);
 
             // Runs a variable function.
-            static void sendVariable(std::string variable);
+            void start(std::string_view variableName);
+            void start(std::string_view variableName, std::string& str);
 
-            // Runs a variable function.
-            static void addSystemVar(std::string name, std::string description = "", std::function<void()> function = []{});
+            void rename(const std::string& oldName, const std::string& newName);
+
+            void addVar(std::string name, VariableType type, core::Permissions permissionsRun, const std::string& f, const std::string& username, bool outputReturn = false);
+            void addVar(std::string name, VariableType type, core::Permissions permissionsRun, const std::function<std::string(VariableData)>& f, const std::string& username, bool outputReturn = false);
 
             // Returns all variables.
-            static std::map<std::string, std::string> getAllVars();
+            std::vector<core::VariableData> getAllVars();
+
+            friend std::ostream& operator<<(std::ostream& os, VariablesManager& vm) {
+                return os << "[VariablesManager] { " << core::Utils::vectorToString(vm.getAllVars()) <<  " }";
+            }
     };
+
+    extern VariablesManager* systemVariablesManager();
 }
 
 #endif

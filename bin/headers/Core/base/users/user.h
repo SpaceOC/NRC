@@ -1,47 +1,58 @@
-/*
-    Copyright (C) 2024-2024  SpaceOC
-
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
 #ifndef NRC_BASE_USERS_USER_H_
 #define NRC_BASE_USERS_USER_H_
 
 #include <string>
-#include "Core/extra/variables.h"
+#include <functional>
+#include "Core/settings.h"
 #include "permissions_enum_class.h"
-#include "Core/base/printable.h"
+#include "Core/base/print_tools.h"
+#include "Core/extra/variable_type_enum.h"
 
 namespace core {
+    class VariablesManager;
+    #ifdef NRC_WEB
+    /*
+    class PseudoFS;
+    */
+    #endif
+    class UserManager;
+    struct VariableData;
+
     class User : public PrintableClass {
         private:
-            std::map<std::string, VariableData> localVariables;
-            std::string username, displayName, language, password;
-            Permissions permissions;
             bool userCreated = false;
             bool havePasswordV = false;
 
+            friend class UserManager;
+            #ifdef NRC_WEB
+            /*
+            friend class PseudoFS;
+            */
+            #endif
+        protected:
+            VariablesManager* vm;
+            std::string username, displayName, language, password;
+            Permissions permissions;
+            #ifdef NRC_WEB
+            /*
+            std::string curPath;
+            size_t curDisk;
+            */
+            #endif
+        public:
             std::string toString() const override {
                 return "[User] | { Username - " + username + " | Display Name - " + displayName + " | Language - " + language + " | havePassword - " + (havePasswordV ? "true" : "false") + " }";
             }
-        public:
 
             User();
             // User Creation.
             User(const std::string& username, const Permissions& permissions, const std::string& language = "English", const std::string& password = "");
+            User(User&);
 
             // Creating a local (for the user) variable.
-            void addVar(const std::string& name, const std::string& description, const std::function<void()>& varFunction);
+            void addVar(const std::string& name, const core::VariableType type, const std::string& c);
+            // Creating a local (for the user) variable.
+            void addVar(const std::string& name, const core::VariableType type, const std::function<std::string(core::VariableData)>& f);
 
             void editUsername(const std::string& newUsername);
             void editDisplayName(const std::string& newDisplayName);
@@ -49,10 +60,6 @@ namespace core {
             void editPassword(const std::string& password);
             void editPermissions(const Permissions& newPermissions);
 
-            // Changes the function of a variable.
-            void editVarFunction(const std::string& name, const std::function<void()>& function);
-            // Modifies the description of the variable.
-            void editVarDescription(const std::string& name, const std::string& description);
             // Renaming a variable
             void renameVar(const std::string& oldName, const std::string& newName);
 
@@ -64,19 +71,43 @@ namespace core {
             //bool trueKey(std::string longUserKey);
 
             // @return Returns the names and descriptions of all local variables or {} (empty map) if the localVariables variable is empty.
-            std::map<std::string, std::string> getAllVars();
+            std::vector<VariableData> getAllVars();
 
-            // @return Returns the variable description or an empty value if the localVariables variable is empty.
-            std::string getVarDescription(std::string name);
 
             std::string getUsername();
             std::string getDisplayName();
             std::string getLanguage();
-            std::string getPassword();
             Permissions getPermissions();
 
             // Starts a variable function.
-            void varFuncStart(const std::string& name);
+            void varFuncStart(std::string_view name);
+            // Starts a variable function (and return).
+            void varFuncStart(std::string_view name, std::string& str);
+
+            bool varExists(std::string_view name);
+
+            /*
+            constexpr bool operator==(const core::Permissions permissions) {
+                return (this->permissions == permissions);
+            }
+
+            constexpr bool operator==(const std::string& username) {
+                return (this->username == username);
+            }
+            */
+
+            constexpr bool operator==(const User& user) {
+                return (this->username == user.username && this->password == user.password && this->permissions == user.permissions);
+            }
+
+            constexpr bool operator<(const User& user) {
+                return (this->permissions < user.permissions);
+            }
+
+            constexpr bool operator>(const User& user) {
+                return (this->permissions > user.permissions);
+            }
+            
     };
 }
 

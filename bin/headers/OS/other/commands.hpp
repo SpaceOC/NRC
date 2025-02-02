@@ -7,8 +7,10 @@
 
 extern bool work;
 
+class core::User;
+
 // Да, я взял код counter.cpp прямиком из SpaceDOS и немного ... переписал... переделал.... 
-void counter() {
+std::string counter(core::User*, bool) {
     int a, b = 0;
     core::print("Min number: ");
 
@@ -64,22 +66,25 @@ void counter() {
     std::string yourChoice;
     core::print("Exit? (Y/N) \t");
     std::cin >> yourChoice;
-    if (yourChoice == "N") { counter(); } 
-    else { return; }
+    if (yourChoice == "N") { return counter(nullptr, false); } 
+    return "";
 }
 
-void bye() {
+std::string bye(core::User*, bool) {
     work = false;
+    return "";
 }
 
-void hi() {
+std::string hello(core::User*, bool returnable) {
     srand(static_cast<unsigned int>(time(0)));
     std::vector<std::string> messages = {"hi", "HII", "hello :D", "hiiiiii"};
-    core::print(messages[rand() % (messages.size() - 1)] + '\n');
+    if (!returnable)
+        core::print(messages[rand() % (messages.size() - 1)] + '\n');
+    return messages[rand() % (messages.size() - 1)];
 }
 
 void addCommands() {
-    core::HandlerCommands::addCommand("counter", "No description", counter);
-    core::HandlerCommands::addCommand("hi", "hiii!", hi);
-    core::HandlerCommands::addCommand("exit", "exit", bye);
+    core::handlerCommands()->addCommand("counter", "No description", counter);
+    core::handlerCommands()->addCommand("hi", "hiii!", hello);
+    core::handlerCommands()->addCommand("exit", "exit", bye);
 }

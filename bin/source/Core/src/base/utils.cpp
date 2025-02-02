@@ -1,21 +1,7 @@
-/*
-    Copyright (C) 2024-2024  SpaceOC
-
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
 #include <iostream>
 #include <sstream>
+#include <fstream>
+#include <filesystem>
 #include "Core/base/utils.h"
 
 core::Utils::Utils() {}
@@ -41,4 +27,28 @@ std::vector<std::string> core::Utils::split(const std::string& content, const ch
     while (std::getline(tokenStream, temp, what))
         result.push_back(temp);
     return result;
+}
+
+std::string core::Utils::replace(std::string& content, const std::string& a, const std::string& b) {
+    size_t i = content.find(a);
+    while (i != std::string::npos) {
+        content.erase(i, 3);
+        content.insert(i, b);
+        i = content.find(a);
+    }
+    return content;
+}
+
+std::string core::Utils::getFileContent(const std::string& path) {
+	std::ifstream file;
+    file.open(path, std::ios::in);
+    if (!file.is_open()) return "";
+	std::string line, temp;
+	while (std::getline(file, line)) { temp += line; }
+	file.close();
+	return temp;
+}
+
+bool core::Utils::endsWith(const std::string& str, const std::string& str2) {
+    return str.substr(str.length() - str2.length(), str.length()) == str2;
 }

@@ -1,51 +1,141 @@
-/*
-    Copyright (C) 2024-2024  SpaceOC
-
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
 #include <iostream>
 #include <string>
 #include <functional>
 #include <map>
 #include "Core/base/print.h"
+#include "Core/base/users/user.h"
+#include "Core/base/users/user_manager.h"
 #include "Core/extra/variables.h"
 
-std::map<std::string, core::VariableData> core::SystemVariablesManager::getVariable(std::string name) {
-	if (!data.count(name)) 
-		return {};
-	return {{name, {data.at(name).description, data.at(name).function}}}; 
+core::VariablesManager svm;
+core::VariablesManager* core::systemVariablesManager() {
+	return &svm;
 }
 
-void core::SystemVariablesManager::sendVariable(std::string variable) {
-	auto it = data.find(variable);
-	if (it != data.end()) it->second.function();
-}
+void core::VariablesManager::addVar(std::string name, VariableType type, core::Permissions permissionsRun, const std::string& f, const std::string& username, bool outputReturn) {
+    try {
+        VariableData v;
+        v.name = name;
+        v.type = type;
+        v.username = username;
+        v.outputReturn = outputReturn;
+        v.commandOrCode = f;
+        v.permissionsRun = (!isSystem ? permissionsRun : core::Permissions::root);
+        if (type == VariableType::COMMAND) {
+            auto func = [](VariableData a) -> std::string {
+                std::vector<core::CommandObject> tc = core::handlerCommands()->parsing(a.commandOrCode);
+                std::string output;
+				core::User* who = (
+					!a.username.empty() && core::userManager()->userExist(a.username) ? 
+					&core::userManager()->getUser(a.username) :
+					NULL
+				);
 
-void core::SystemVariablesManager::addSystemVar(std::string name, std::string description, std::function<void()> function) {
-	try {
-		if (name.empty()) throw std::runtime_error("the 'name' argument was empty!");
-		data["%" + name + "%"].description = description;
-		data["%" + name + "%"].function = function;
+                for (auto command : tc) {
+                    std::string temp;
+					if (!who)
+						core::handlerCommands()->sendCommand(a.permissionsRun, command, temp);
+					else
+						core::handlerCommands()->sendCommand(who, command, temp);
+                    output += "\n" + temp;
+                }
+                if (a.outputReturn)
+                    return output;
+                return "";
+            };
+        	v.function = func;
+        }
+        else if (type == VariableType::JS_CODE) {
+            auto func = [](VariableData a) -> std::string {
+				core::User* who = (
+					!a.username.empty() && core::userManager()->userExist(a.username) ? 
+					&core::userManager()->getUser(a.username) :
+					NULL
+				);
+				
+				std::string str;
+				if (!who)
+                	core_experimental::runCode(a.commandOrCode, a.permissionsRun, str);
+				else
+					core_experimental::runCode(a.commandOrCode, who, str);
+				if (a.outputReturn)
+                    return str;
+                return "";
+        	};
+            v.function = func;
+        }
+        this->data.push_back(v);
+    }
+    catch (const std::exception& e) {
+        core::print(e.what(), core::PrintColors::red);
 	}
-	catch (const std::exception& e) {
-		print(e.what(), PrintColors::red);
+}
+
+void core::VariablesManager::addVar(std::string name, VariableType type, core::Permissions permissionsRun, const std::function<std::string(VariableData)>& f, const std::string& username, bool outputReturn) {
+    try {
+        VariableData v;
+        v.name = name;
+        v.type = type;
+        v.username = username;
+        v.outputReturn = outputReturn;
+        v.commandOrCode = "";
+        v.permissionsRun = (!isSystem ? permissionsRun : core::Permissions::root);
+        v.function = f;
+        this->data.push_back(v);
+    }
+    catch (const std::exception& e) {
+        print(e.what(), PrintColors::red);
+    }
+}
+
+core::VariableData core::VariablesManager::getVariable(std::string_view name) {
+	for (auto a : data) {
+		if (a.name == name) {
+			return a;
+		}
+	}
+	return {};
+}
+
+bool core::VariablesManager::exists(std::string_view name) {
+	for (auto a : data) {
+		if (a.name == name) {
+			return true;
+		}
+	}
+	return false;
+}
+
+void core::VariablesManager::start(std::string_view variableName) {
+	for (auto a : data) {
+		if (a.name == variableName) {
+			a.function(a);
+			break;
+		}
 	}
 }
 
-std::map<std::string, std::string> core::SystemVariablesManager::getAllVars() {
+void core::VariablesManager::start(std::string_view variableName, std::string& str) {
+	for (auto a : data) {
+		if (a.name == variableName) {
+			str = a.function(a);
+			break;
+		}
+	}
+}
+
+void core::VariablesManager::rename(const std::string& oldName, const std::string& newName) {
+	for (auto a : data) {
+		if (a.name == oldName) {
+			a.name = newName;
+			break;
+		}
+	}
+}
+
+std::vector<core::VariableData> core::VariablesManager::getAllVars() {
 	if (data.empty()) return {};
-	std::map<std::string, std::string> temp;
-	for (auto elements : data) temp[elements.first] = elements.second.description;
+	std::vector<core::VariableData> temp;
+	for (auto a : data) temp.push_back(a);
 	return temp;
 }

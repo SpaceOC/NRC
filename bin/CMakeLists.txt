@@ -13,5 +13,6 @@ set(CMAKE_CXX_STANDARD 17)
 
 include_directories(headers)
 
+add_subdirectory(${CMAKE_SOURCE_DIR}/source/ThirdParty/mjs)
 add_subdirectory(${CMAKE_SOURCE_DIR}/source/Core)
 add_subdirectory(${CMAKE_SOURCE_DIR}/source/OS)

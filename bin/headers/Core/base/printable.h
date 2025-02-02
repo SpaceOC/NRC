@@ -11,7 +11,6 @@ class PrintableClass {
             os << yourClass.toString();
             return os;
         }
-    private:
         virtual std::string toString() const { return "[PrintableClass]"; }
 };
 

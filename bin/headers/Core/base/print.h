@@ -1,61 +1,19 @@
-/*
-    Copyright (C) 2024-2024  SpaceOC
-
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
 #ifndef NRC_BASE_PRINT_H_
 #define NRC_BASE_PRINT_H_
+#include <iostream>
 #include <sstream>
 #include <string>
 #include <vector>
 #include <map>
 #include <type_traits>
 #include <any>
-#include "Core/base/printable.h"
+#include "Core/base/print_tools.h"
+#include "Core/base/utils.h"
 
-#define DEFAULT_PRINT_COLOR     core::PrintColors::white
-
-template<typename T>
-using is_not_printable_class = std::enable_if_t<!std::is_base_of_v<core::PrintableClass, T>, bool>;
+#define strace(...)             core::print(DEFAULT_PRINT_COLOR, FILENAME + "::", __LINE__, "::[" + std::string(__FUNCTION__) + "]: ", __VA_ARGS__); core::print()
+#define trace(color, ...)       core::print(color, FILENAME + "::", __LINE__, "::[" + std::string(__FUNCTION__) + "]: ", __VA_ARGS__); core::print()
 
 namespace core {
-    // colors for the print class
-    enum PrintColors {
-        black, white, blue, yellow,
-        red, aqua, purple, green, grey,
-        light_blue, light_green, light_aqua, light_red,
-        light_purple, light_yellow, bright_white 
-    };
-
-    class ColorsSequence {
-        public:
-            static const std::string black, red, green, yellow, blue;
-            static const std::string purple, aqua, white, grey;
-            static const std::string light_red, light_green, light_yellow, light_blue;
-            static const std::string light_purple, light_aqua,bright_white;
-    };
-
-    std::string getColorEscapeSequence(const PrintColors& color);
-
-    // for print
-    template<typename T>
-    std::string valueToString(const T& value) {
-        std::ostringstream oss;
-        oss << value;
-        return oss.str();
-    }
-
     void print();
     void print(const std::string& message, const PrintColors& color = DEFAULT_PRINT_COLOR);
     template<typename T, typename = is_not_printable_class<T>>
@@ -70,9 +28,9 @@ namespace core {
         auto it = yourVector.begin();
         for (const T& str : yourVector) {
             if (it == yourVector.begin())
-                temp += valueToString(str);
+                temp += Utils::valueToString(str);
             else
-                temp += ", " + valueToString(str);
+                temp += ", " + Utils::valueToString(str);
             it++;
         }
         temp += " ]";
@@ -85,15 +43,22 @@ namespace core {
         auto it = yourMap.begin();
         for (const auto& str : yourMap) {
             if (it == yourMap.begin())
-                temp += "[ '" + valueToString(str.first) + "': '" + valueToString(str.second) + "']";
+                temp += "[ '" + Utils::valueToString(str.first) + "': '" + Utils::valueToString(str.second) + "']";
             else
-                temp += ", [ '" + valueToString(str.first) + "': '" + valueToString(str.second) + "']";
+                temp += ", [ '" + Utils::valueToString(str.first) + "': '" + Utils::valueToString(str.second) + "']";
             it++;
         }
         temp += " ]";
         std::cout << temp << "\033[0m";
     }
     void print(PrintableClass &yourClass, const PrintColors& color = DEFAULT_PRINT_COLOR);
+
+    template<typename T, typename ...Arguments>
+    void print(const PrintColors& color, const T& first, const Arguments&... args) {
+        auto a = first; // уберёшь - сломаешь
+        print(a, color); // заменишь 'a' на first - сломаешь
+        if (sizeof...(Arguments) > 0) print(color, args...);
+    }
 }
 
 #endif

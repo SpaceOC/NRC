@@ -4,6 +4,7 @@
 #include "Core/base/users/user_manager.h"
 
 void core::OOBE() {
+    #ifndef NRC_WEB
     std::string firstUsername;
     print("Enter username: ", PrintColors::aqua);
     while (!(std::cin >> std::ws)) {
@@ -11,5 +12,6 @@ void core::OOBE() {
         std::cin.ignore(10000, '\n');
     }
     std::getline(std::cin, firstUsername);
-    core::UserManager::systemAddUser(firstUsername);
+    core::userManager()->systemAddUser(firstUsername);
+    #endif
 }
