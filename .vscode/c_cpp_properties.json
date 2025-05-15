@@ -3,7 +3,7 @@
         {
             "name": "Win32",
             "includePath": [
-                "${workspaceFolder}/Bin/headers/**",
+                "${workspaceFolder}/headers/**",
                 "${default}"
             ],
             "defines": [
@@ -13,7 +13,7 @@
                 "PLATFORM_DESKTOP"
             ],
             "cStandard": "c17",
-            "cppStandard": "c++17",
+            "cppStandard": "c++20",
             "intelliSenseMode": "clang-x64"
         }
     ],
