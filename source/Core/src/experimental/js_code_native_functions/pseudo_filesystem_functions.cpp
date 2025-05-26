@@ -56,7 +56,6 @@ void core_experimental::addPseudoFileSystemFunctions(mjs::interpreter& i, core::
 		object_ptr fileObj(a);
 		fileObj->put(string(gc, "name"), getCString(file.name, gc), property_attribute::read_only);
 		fileObj->put(string(gc, "content"), getCString(file.content, gc), property_attribute::read_only);
-		fileObj->put(string(gc, "id"), value(static_cast<double>(file.id)), property_attribute::read_only);
 		fileObj->put(string(gc, "owner"), objectUserData(gc, file.owner), property_attribute::read_only);
 		fileObj->put(string(gc, "system"), value(file.system), property_attribute::read_only);
 		fileObj->put(string(gc, "hidden"), value(file.hidden), property_attribute::read_only);
@@ -81,7 +80,6 @@ void core_experimental::addPseudoFileSystemFunctions(mjs::interpreter& i, core::
 		gc_heap_ptr a = gc.allocate_and_construct<object>(sizeof(object), string(gc, "FolderData"), nullptr);
 		object_ptr folderData(a);
 		folderData->put(string(gc, "name"), getCString(folder.name, gc), property_attribute::read_only);
-		folderData->put(string(gc, "id"), value(static_cast<double>(folder.id)), property_attribute::read_only);
 		folderData->put(string(gc, "owner"), objectUserData(gc, folder.owner), property_attribute::read_only);
 		folderData->put(string(gc, "system"), value(folder.system), property_attribute::read_only);
 		folderData->put(string(gc, "hidden"), value(folder.hidden), property_attribute::read_only);

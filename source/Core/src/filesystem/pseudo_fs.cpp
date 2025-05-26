@@ -81,8 +81,7 @@ int core::PseudoFS::__createFolderHelper(std::vector<std::string> path, FolderDa
 		auto newFolder = !oneFolderData
 			? std::make_shared<core::FolderData>(
 			core::FolderData{
-				currentFolderName, 
-				tempID++,
+				currentFolderName,
 				std::chrono::system_clock::to_time_t(std::chrono::system_clock::now()),
 				std::chrono::system_clock::to_time_t(std::chrono::system_clock::now()),
 				{}, {}, false, false, nullptr, ""
@@ -90,7 +89,6 @@ int core::PseudoFS::__createFolderHelper(std::vector<std::string> path, FolderDa
 			)
 		: std::make_shared<core::FolderData>(
 			oneFolderData->name,
-			oneFolderData->id,
 			oneFolderData->timeCreate,
 			oneFolderData->timeEdit,
 			oneFolderData->files,
@@ -254,7 +252,6 @@ int core::PseudoFS::__createFileHelper(std::vector<std::string> path, FolderData
 			core::FileData{
 				path.at(0), 
 				"",
-				tempID++,
 				std::chrono::system_clock::to_time_t(std::chrono::system_clock::now()),
 				std::chrono::system_clock::to_time_t(std::chrono::system_clock::now()),
 				false,
@@ -266,7 +263,6 @@ int core::PseudoFS::__createFileHelper(std::vector<std::string> path, FolderData
 		: std::make_shared<core::FileData>(
 			oneFileData->name,
 			oneFileData->content,
-			oneFileData->id,
 			oneFileData->timeCreate,
 			oneFileData->timeEdit,
 			oneFileData->system,
@@ -291,7 +287,7 @@ int core::PseudoFS::__createFileHelper(std::vector<std::string> path, FolderData
 				}
 				else {
 					if (oneFileData.name.empty()) {
-						folderfiles.push_back({folder->name, "", tempID++, std::chrono::system_clock::to_time_t(std::chrono::system_clock::now()), std::chrono::system_clock::to_time_t(std::chrono::system_clock::now()), false, false, nullptr, ""});
+						folderfiles.push_back({folder->name, "", tempId++, std::chrono::system_clock::to_time_t(std::chrono::system_clock::now()), std::chrono::system_clock::to_time_t(std::chrono::system_clock::now()), false, false, nullptr, ""});
 					}
 					else
 						folder->files.push_back(new FileData(oneFileData));
@@ -371,7 +367,6 @@ int core::PseudoFS::__moveFileHelper(std::vector<std::string> path, size_t diskI
 					auto newFile = std::make_shared<core::FileData>(
 						oldFileData.name,
 						oldFileData.content,
-						oldFileData.id,
 						oldFileData.timeCreate,
 						oldFileData.timeEdit,
 						oldFileData.system,
@@ -475,7 +470,6 @@ int core::PseudoFS::createFolder(std::string path, size_t diskId, FolderData* on
 			? std::make_shared<core::FolderData>(
 				core::FolderData{
 					parsedPath.at(1),
-					tempID++,
 					std::chrono::system_clock::to_time_t(std::chrono::system_clock::now()),
 					std::chrono::system_clock::to_time_t(std::chrono::system_clock::now()),
 					{},
@@ -489,7 +483,6 @@ int core::PseudoFS::createFolder(std::string path, size_t diskId, FolderData* on
 			)
 		: std::make_shared<core::FolderData>(
 			oneFolderData->name,
-			oneFolderData->id,
 			oneFolderData->timeCreate,
 			oneFolderData->timeEdit,
 			oneFolderData->files,
@@ -636,7 +629,6 @@ int core::PseudoFS::moveFolder(std::string path, size_t diskId, const std::strin
 
 		auto newFolder = std::make_shared<core::FolderData>(
 			oldFolderData.name,
-			oldFolderData.id,
 			oldFolderData.timeCreate,
 			oldFolderData.timeEdit,
 			oldFolderData.files,
@@ -720,7 +712,6 @@ int core::PseudoFS::createFile(std::string path, size_t diskId, FileData* oneFil
 			? std::make_shared<core::FileData>(
 				parsedPath.at(1), 
 				"",
-				tempID++,
 				std::chrono::system_clock::to_time_t(std::chrono::system_clock::now()),
 				std::chrono::system_clock::to_time_t(std::chrono::system_clock::now()),
 				false,
@@ -731,7 +722,6 @@ int core::PseudoFS::createFile(std::string path, size_t diskId, FileData* oneFil
 			: std::make_shared<core::FileData>(
 				oneFileData->name,
 				oneFileData->content,
-				oneFileData->id,
 				oneFileData->timeCreate,
 				oneFileData->timeEdit,
 				oneFileData->system,
@@ -841,7 +831,6 @@ int core::PseudoFS::moveFile(std::string path, size_t diskId, const std::string&
 			auto newFile = std::make_shared<core::FileData>(
 				oldFileData.name,
 				oldFileData.content,
-				oldFileData.id,
 				oldFileData.timeCreate,
 				oldFileData.timeEdit,
 				oldFileData.system,
@@ -1353,12 +1342,12 @@ void core::PseudoFS::init() {
 	}
 }
 
-bool searchAndTransformDefaultObjectToLink(core::FolderData* curFolder, std::vector<std::string>* pathToFile, core::FileData* m) {
+void searchAndTransformDefaultObjectToLink(core::FolderData* curFolder, std::vector<std::string>* pathToFile, core::FileData* m) {
 	if (pathToFile->size() == 1) {
 		for (const auto& f : curFolder->files) {
 			if (f->name == pathToFile->at(0)) {
 				m->link = f.get();
-				return true;
+				break;
 			}
 		}
 	}
@@ -1367,15 +1356,14 @@ bool searchAndTransformDefaultObjectToLink(core::FolderData* curFolder, std::vec
 			pathToFile->erase(pathToFile->begin());
 
 			if (f->name == pathToFile->at(0)) {
-				return searchAndTransformDefaultObjectToLink(f.get(), pathToFile, m);
+				searchAndTransformDefaultObjectToLink(f.get(), pathToFile, m);
+				break;
 			}
 		}
 	}
-
-	return false;
 }
 
-bool searchAndTransformDefaultObjectToLink(core::FolderData* curFolder, std::vector<std::string>* pathToFile, core::FolderData* m) {
+void searchAndTransformDefaultObjectToLink(core::FolderData* curFolder, std::vector<std::string>* pathToFile, core::FolderData* m) {
 	bool folderExists = pathToFile->size() > 1 ? false : std::any_of(curFolder->folders.begin(), curFolder->folders.end(),
 		[&](std::shared_ptr<core::FolderData> f) {
 			if (f->name == pathToFile->at(0)) {
@@ -1390,12 +1378,11 @@ bool searchAndTransformDefaultObjectToLink(core::FolderData* curFolder, std::vec
 			pathToFile->erase(pathToFile->begin());
 
 			if (f->name == pathToFile->at(0)) {
-				return searchAndTransformDefaultObjectToLink(f.get(), pathToFile, m);
+				searchAndTransformDefaultObjectToLink(f.get(), pathToFile, m);
+				break;
 			}
 		}
 	}
-
-	return folderExists;
 }
 
 void core::PseudoFS::postInit() {

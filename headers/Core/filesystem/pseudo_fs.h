@@ -34,7 +34,6 @@ namespace core {
 	class PseudoFS {
 		private:
 			NRFS* nrfs;
-			int tempID = 0;
 			std::string currentPath = "./";
 			size_t curDisk = 0;
 
@@ -93,8 +92,6 @@ namespace core {
 
 			const std::string getCurrentPath();
 			size_t getCurDiskId() { return curDisk; }
-			int getLastPFSObjectID() { return tempID; }
-			void newLastPFSObjectID() { ++tempID; }
 
 			std::string getFileFromPath(const std::string& path);
 			std::string getFolderFromPath(const std::string& path);

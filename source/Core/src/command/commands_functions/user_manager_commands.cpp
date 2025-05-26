@@ -38,8 +38,8 @@ std::string core::commands::CORE_COMMAND_createUser(core::User*, core::CommandOb
 		return "Not supported\n";
 
 	std::string message;
-	if (!core::userManager()->userExist(thisObj->args.at(0))) {
-		return core::gprint("Error: The user doesn't exist!\n", core::PrintColors::red);
+	if (core::userManager()->userExist(thisObj->args.at(0))) {
+		return core::gprint("Error: This user already exists\n", core::PrintColors::red);
 	}
 	else if (thisObj->args.at(1).empty()) {
 		message += core::gprint("COMMAND WARNING: A user will be created with \"User\" permissions\n", core::PrintColors::yellow);

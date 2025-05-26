@@ -14,7 +14,6 @@ namespace core {
 	struct FileData {
 		std::string name; // File name
 		std::string content;
-		int id; // File id
 		time_t timeCreate;
 		time_t timeEdit;
 		bool system; // Whether the file is a system file.
@@ -25,8 +24,7 @@ namespace core {
 		std::string ownerUsername = "";
 
 		friend std::ostream& operator<<(std::ostream& os, FileData const& fd) {
-			return os << "{ Name: " << fd.name + ", Id: " << fd.id <<
-				", Content: \"" << fd.content << "\"" <<
+			return os << "{ Name: " << fd.name + ", Content: \"" << fd.content << "\"" <<
 				", Time Create: " << fd.timeCreate << ", Time Edit: " << fd.timeEdit <<
 				", System: " << std::boolalpha << fd.system << ", Hidden: " << fd.hidden <<
 				", Is link: " << (fd.link != NULL) << ", Link Path: " << fd.linkPath <<
@@ -39,7 +37,6 @@ namespace core {
 	// Contains all folder data
 	struct FolderData {
 		std::string name; // Folder name
-		int id;
 		time_t timeCreate;
 		time_t timeEdit;
 		std::vector<std::shared_ptr<FileData>> files; // Contains the files that are in this folder.
@@ -52,8 +49,8 @@ namespace core {
 		std::string ownerUsername = "";
 
 		friend std::ostream& operator<<(std::ostream& os, FolderData const& fd) {
-			return os << "{ Name: " << fd.name + ", Id: " << fd.id <<
-				", Time Create: " << fd.timeCreate << ", Time Edit: " << fd.timeEdit <<
+			return os << "{ Name: " << fd.name + ", Time Create: " << fd.timeCreate <<
+				", Time Edit: " << fd.timeEdit <<
 				", Files: " << (fd.files.size() == 0 ? 0 : (fd.files.size() == 1 ? 1 : fd.files.size() - 1)) <<
 				", Folders: " << (fd.folders.size() == 0 ? 0 : (fd.folders.size() == 1 ? 1 : fd.folders.size() - 1)) <<
 				", System: " << std::boolalpha << fd.system << ", Hidden: " << fd.hidden <<

@@ -69,7 +69,6 @@ std::string core::commands::CORE_COMMAND_createFile(core::User* who, core::Comma
 		FileData file{
 			"",
 			"",
-			0,
 			std::chrono::system_clock::to_time_t(std::chrono::system_clock::now()),
 			std::chrono::system_clock::to_time_t(std::chrono::system_clock::now()),
 			false,
@@ -111,7 +110,6 @@ std::string core::commands::CORE_COMMAND_createLinkFile(core::User* who, core::C
 	core::FileData* linkFile = new core::FileData{
 		core::Utils::split(where2, '/').back(),
 		"",
-		-1,
 		0,
 		0,
 		false,
@@ -286,7 +284,6 @@ std::string core::commands::CORE_COMMAND_showFileData(core::User* who, core::Com
 	std::string fileOwnerUsername = (targetFile.owner ? targetFile.owner->getUsername() : (targetFile.system ? "[ SYSTEM ]" : "[ NONE ]"));
 		
 	std::string result = core::gprint(core::PrintColors::aqua, "File name: " + targetFile.name + "\n",
-		"File ID: ", targetFile.id, "\n",
 		"File owner: " + fileOwnerUsername + "\n"
 	);
 
@@ -432,7 +429,6 @@ std::string core::commands::CORE_COMMAND_createFolder(core::User* who, core::Com
 	if (code == core::PseudoFSCodes::ALREADY_EXISTS) {
 		FolderData folder{
 			"",
-			0,
 			std::chrono::system_clock::to_time_t(std::chrono::system_clock::now()),
 			std::chrono::system_clock::to_time_t(std::chrono::system_clock::now()),
 			{},
@@ -467,7 +463,6 @@ std::string core::commands::CORE_COMMAND_createLinkFolder(core::User* who, core:
 
 	FolderData* linkFolder = new FolderData{
 		core::Utils::split(where2, '/').back(),
-		-1,
 		0,
 		0,
 		{},
@@ -583,7 +578,6 @@ std::string core::commands::CORE_COMMAND_showFolderData(core::User* who, core::C
 	std::string folderOwnerUsername = (targetFolder.owner ? targetFolder.owner->getUsername() : (targetFolder.system ? "[ SYSTEM ]" : "[ NONE ]"));
 		
 	std::string result = core::gprint(core::PrintColors::aqua, "Folder name: " + targetFolder.name + "\n",
-		"Folder ID: ", targetFolder.id, "\n",
 		"Folder owner: " + folderOwnerUsername + "\n"
 	);
 
@@ -624,27 +618,31 @@ std::string core::commands::CORE_COMMAND_dir(core::User*, core::CommandObject* t
 
 	for (const auto& folder : folders) {
 		if (folder.get() == nullptr) continue;
+		bool a = (fCount >= 5 && folders.size() > 4);
+
 		if (folder->hidden && showHidden) {
-			output += core::gprint(folder->name + "    " + (fCount >= 5 ? "\n" : ""), core::PrintColors::light_aqua);
-			if (fCount >= 5) fCount = 0;
+			output += core::gprint(folder->name + "    " + (a ? "\n" : ""), core::PrintColors::light_aqua);
+			if (a) fCount = 0;
 			else ++fCount;
 		}
 		else if (!folder->hidden) {
-			output += folder->name + "    " + (fCount >= 5 ? "\n" : "");
+			output += folder->name + "    " + (fCount >= 5 && folders.size() > 4 ? "\n" : "");
 			if (fCount >= 5) fCount = 0;
 			else ++fCount;
 		}
 	}
 	for (const auto& file : files) {
 		if (file.get() == nullptr) continue;
+		bool a = (fCount >= 5 && files.size() > 4);
+
 		if (file->hidden && showHidden) {
-			output += core::gprint(file->name + "    " + (fCount >= 5 ? "\n" : ""), core::PrintColors::light_aqua);
-			if (fCount >= 5) fCount = 0;
+			output += core::gprint(file->name + "    " + (a ? "\n" : ""), core::PrintColors::light_aqua);
+			if (a) fCount = 0;
 			else ++fCount;
 		}
 		else if (!file->hidden) {
-			output += file->name + "    " + (fCount >= 5 ? "\n" : "");
-			if (fCount >= 5) fCount = 0;
+			output += file->name + "    " + (a ? "\n" : "");
+			if (a) fCount = 0;
 			else ++fCount;
 		}
 	}

@@ -84,7 +84,6 @@ void core::fixCreateSamePFSObject(const std::string& path, size_t curDisk, const
 		targetPtr->name = newFileName;
 		code = core::pseudoFS()->createFile(path + newFileName, curDisk, targetPtr);
 	}
-	core::pseudoFS()->newLastPFSObjectID();
 }
 
 void core::fixCreateSamePFSObject(const std::string& path, size_t curDisk, const core::FolderData& target, int& code) {
