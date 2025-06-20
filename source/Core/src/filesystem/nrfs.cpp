@@ -9,14 +9,14 @@
 core::FileData* createFileFromJSON(const nlohmann::json& fileJson) {
 	core::FileData* result;
 
-	std::string fileName = fileJson["data"].at(0).get<std::string>();
-	std::string fileContent = fileJson["data"].at(1).get<std::string>();
-	time_t fileTimeCreate = fileJson["data"].at(2).get<time_t>();
-	time_t fileTimeEdit = fileJson["data"].at(3).get<time_t>();
-	bool isSystemFile = fileJson["data"].at(4).get<bool>();
-	bool isHiddenFile = fileJson["data"].at(5).get<bool>();
-	std::string fileLinkPath = fileJson["data"].at(6).get<std::string>();
-	std::string fileOwnerUsername = fileJson["data"].at(7).get<std::string>();
+	std::string fileName = fileJson.at(0).get<std::string>();
+	std::string fileContent = fileJson.at(1).get<std::string>();
+	time_t fileTimeCreate = fileJson.at(2).get<time_t>();
+	time_t fileTimeEdit = fileJson.at(3).get<time_t>();
+	bool isSystemFile = fileJson.at(4).get<bool>();
+	bool isHiddenFile = fileJson.at(5).get<bool>();
+	std::string fileLinkPath = fileJson.at(6).get<std::string>();
+	std::string fileOwnerUsername = fileJson.at(7).get<std::string>();
 
 	result = new core::FileData{
 		fileName,
@@ -37,13 +37,13 @@ core::FileData* createFileFromJSON(const nlohmann::json& fileJson) {
 core::FolderData* createFolderFromJSON(const nlohmann::json& folderJson) {
 	core::FolderData* result;
 
-	std::string folderName = folderJson["data"].at(0).get<std::string>();
-	time_t folderTimeCreate = folderJson["data"].at(1).get<time_t>();
-	time_t folderTimeEdit = folderJson["data"].at(2).get<time_t>();
-	bool isSystemFolder = folderJson["data"].at(3).get<bool>();
-	bool isHiddenFolder = folderJson["data"].at(4).get<bool>();
-	std::string folderLinkPath = folderJson["data"].at(5).get<std::string>();
-	std::string folderOwnerUsername = folderJson["data"].at(6).get<std::string>();
+	std::string folderName = folderJson.at(0).get<std::string>();
+	time_t folderTimeCreate = folderJson.at(1).get<time_t>();
+	time_t folderTimeEdit = folderJson.at(2).get<time_t>();
+	bool isSystemFolder = folderJson.at(3).get<bool>();
+	bool isHiddenFolder = folderJson.at(4).get<bool>();
+	std::string folderLinkPath = folderJson.at(5).get<std::string>();
+	std::string folderOwnerUsername = folderJson.at(6).get<std::string>();
 
 	std::vector<std::shared_ptr<core::FileData>> files;
 	std::vector<std::shared_ptr<core::FolderData>> folders;
@@ -51,14 +51,14 @@ core::FolderData* createFolderFromJSON(const nlohmann::json& folderJson) {
 		for (const auto& j : folderJson["objects"]) {
 			std::string jsonType = j["type"].get<std::string>();
 			if (jsonType == "file") {
-				core::FileData* f = createFileFromJSON(j);
+				core::FileData* f = createFileFromJSON(j["data"]);
 
 				std::shared_ptr<core::FileData> fileInSharedPtr(std::move(f));
 
 				files.push_back(std::move(fileInSharedPtr));
 			}
 			else if (jsonType == "folder") {
-				core::FolderData* f = createFolderFromJSON(j);
+				core::FolderData* f = createFolderFromJSON(j["data"]);
 
 				std::shared_ptr<core::FolderData> folderInSharedPtr(std::move(f));
 
@@ -160,7 +160,7 @@ void core::NRFSDisk::loadData(const nlohmann::json& j) {
 			std::string jsonType = fileJson["type"].get<std::string>();
 			if (jsonType != "file") continue;
 			
-			core::FileData* f = createFileFromJSON(fileJson);
+			core::FileData* f = createFileFromJSON(fileJson["data"]);
 
 			std::shared_ptr<core::FileData> fileInSharedPtr(std::move(f));
 
@@ -171,7 +171,7 @@ void core::NRFSDisk::loadData(const nlohmann::json& j) {
 			std::string jsonType = folderJson["type"].get<std::string>();
 			if (jsonType != "folder") continue;
 			
-			core::FolderData* f = createFolderFromJSON(folderJson);
+			core::FolderData* f = createFolderFromJSON(folderJson["data"]);
 
 			std::shared_ptr<core::FolderData> folderInSharedPtr(std::move(f));
 

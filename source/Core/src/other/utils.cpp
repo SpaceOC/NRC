@@ -4,8 +4,6 @@
 #include <filesystem>
 #include "Core/other/utils.h"
 
-core::Utils::Utils() {}
-
 bool core::Utils::stringIsNumbers(const std::string& content) {
 	for (const auto& letter : content) {
 

@@ -36,6 +36,7 @@ add_library(NRC STATIC
                 ${CORE_SOURCE_DIR}/other/variables.cpp
                 ${CORE_SOURCE_DIR}/other/utils.cpp
                 ${CORE_SOURCE_DIR}/other/fix.cpp
+                ${CORE_SOURCE_DIR}/modules/module_base.cpp
                 ${CORE_SOURCE_DIR}/main.cpp)
 
 target_link_libraries(NRC PUBLIC mjs_lib)

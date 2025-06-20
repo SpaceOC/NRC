@@ -17,7 +17,7 @@ namespace core {
 		private:
 			bool OOBEPassed;
 			bool userIsLogined; // Whether the user is logged in to their account
-			int maxUsers = 10; // Maximum number of users.
+			const int maxUsers = 10; // Maximum number of users.
 			std::string currentUser; // Current username
 			std::vector<User*> users;
 			const std::string mainDataFilePath = "Data/main.json";

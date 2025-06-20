@@ -96,7 +96,17 @@ namespace core {
 			std::string getFileFromPath(const std::string& path);
 			std::string getFolderFromPath(const std::string& path);
 
+			/**
+			 * First step of PFS initialization
+			 * - Initializes NRFS
+			 * - Creates the home folder and the hello.txt file (if they do not exist)
+			 */
 			void init();
+
+			/**
+			 * The second step of PFS initialization
+			 * - Finds objects that have a non-empty linkPath variable, finds and converts these objects into links
+			 */
 			void postInit();
 	};
 

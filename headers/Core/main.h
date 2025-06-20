@@ -2,7 +2,9 @@
 #define NRC_BASE_MAIN_H_
 
 #include <functional>
+#include <vector>
 #include "Core/command/command_sender.h"
+#include "Core/modules/module_base.h"
 
 namespace core {
 	class CommandSenderBasic;
@@ -14,9 +16,12 @@ namespace core {
 			void addCommands();
 			void addCRules();
 			void loop();
+			void searchModules();
+			void checkModule(const std::string& name);
 			std::function<void()> loopedFunc;
 			std::function<void()> startFunc;
 			CommandSenderBasic* commandSender;
+			std::vector<ModuleBase*> modules;
 		protected:
 			std::atomic<bool> work = true;
 		public:

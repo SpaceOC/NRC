@@ -1391,6 +1391,7 @@ void core::PseudoFS::postInit() {
 			if (file->linkPath.empty()) continue;
 
 			std::vector<std::string> parsedPath = core::Utils::split(file->linkPath, '/');
+			
 			for (const auto& folder : nrfs->disks[i]->folders) {
 				searchAndTransformDefaultObjectToLink(folder.get(), &parsedPath, file.get());
 			}
