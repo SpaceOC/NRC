@@ -5,6 +5,8 @@
 #include <vector>
 #include "Core/command/command_sender.h"
 #include "Core/modules/module_base.h"
+#include "CORE_info.h"
+#include "Core/other/versionc.h"
 
 namespace core {
 	class CommandSenderBasic;
@@ -25,6 +27,8 @@ namespace core {
 		protected:
 			std::atomic<bool> work = true;
 		public:
+			const VersionC version = VersionC(CORE_VERSION);
+
 			main();
 			main(std::function<void()> start, std::function<void()> loop);
 			main(std::function<void()> start);

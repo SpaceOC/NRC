@@ -39,7 +39,7 @@ add_library(NRC STATIC
                 ${CORE_SOURCE_DIR}/modules/module_base.cpp
                 ${CORE_SOURCE_DIR}/main.cpp)
 
-target_link_libraries(NRC PUBLIC mjs_lib)
+target_link_libraries(NRC PUBLIC cereal mjs_lib)
 
 target_compile_options(NRC
     PUBLIC

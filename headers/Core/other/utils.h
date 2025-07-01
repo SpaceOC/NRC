@@ -24,6 +24,8 @@ namespace core {
 
 		bool endsWith(const std::string& str, const std::string& str2);
 
+		int getIFromStrVersionId(const std::string& str);
+
 		template <typename T>
 		std::string valueToString(const T &value) {
 			std::ostringstream oss;

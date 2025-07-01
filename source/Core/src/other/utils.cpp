@@ -50,3 +50,30 @@ std::string core::Utils::getFileContent(const std::string& path) {
 bool core::Utils::endsWith(const std::string& str, const std::string& str2) {
 	return str.substr(str.length() - str2.length(), str.length()) == str2;
 }
+
+int core::Utils::getIFromStrVersionId(const std::string& str) {
+	int result = 0;
+
+/*
+	6 / 10 = 0.6
+	1 / 100 = 0.01
+	0.6 + 0.01 = 0.61
+
+	7 / 10 = 0.7
+
+	0.81 * 100 = 61
+	0.7 * 100 = 70
+*/
+
+	int rd = 0; // 0.6.1 != 0.7 !!!!
+	for (size_t i = 0; i < str.size(); i++) {
+		if (!isdigit(str[i])) continue;
+
+		const char* a = str.substr(i, i + 1).c_str();
+		int r = atoi(a);
+		if (r != 0) result += r / (rd);
+		rd += 10 * (!rd ? 1 : rd);
+	}
+
+	return result * rd;
+}
