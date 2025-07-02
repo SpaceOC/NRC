@@ -10,7 +10,7 @@
 #include "Core/print/print.h"
 #include "Core/command/handler_commands.h"
 #include "Core/experimental/run_js_code.h"
-#include "Core/other/utils.h"
+#include "Core/utils/string_util.h"
 #include "Core/other/variable_type_enum.h"
 #include "Core/users/user_permissions_enum.h"
 
@@ -59,7 +59,7 @@ namespace core {
 			std::vector<core::VariableData> getAllVars();
 
 			friend std::ostream& operator<<(std::ostream& os, VariablesManager& vm) {
-				return os << "[VariablesManager] { " << core::Utils::vectorToString(vm.getAllVars()) <<  " }";
+				return os << "[VariablesManager] { " << core::string_util::vectorToString(vm.getAllVars()) <<  " }";
 			}
 	};
 

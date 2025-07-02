@@ -10,6 +10,9 @@ project(NRC)
 set(CORE_SOURCE_DIR ${CMAKE_SOURCE_DIR}/source/Core/src)
 
 add_library(NRC STATIC
+                ${CORE_SOURCE_DIR}/utils/string_util.cpp
+                ${CORE_SOURCE_DIR}/utils/other_util.cpp
+                ${CORE_SOURCE_DIR}/utils/language_util.cpp
                 ${CORE_SOURCE_DIR}/other/print.cpp
                 ${CORE_SOURCE_DIR}/other/gprint.cpp
                 ${CORE_SOURCE_DIR}/users/permissions_enum_class.cpp 
@@ -34,12 +37,11 @@ add_library(NRC STATIC
                 ${CORE_SOURCE_DIR}/command/commands_functions/user_manager_commands.cpp
                 ${CORE_SOURCE_DIR}/command/commands_functions/other_commands.cpp
                 ${CORE_SOURCE_DIR}/other/variables.cpp
-                ${CORE_SOURCE_DIR}/other/utils.cpp
                 ${CORE_SOURCE_DIR}/other/fix.cpp
                 ${CORE_SOURCE_DIR}/modules/module_base.cpp
                 ${CORE_SOURCE_DIR}/main.cpp)
 
-target_link_libraries(NRC PUBLIC cereal mjs_lib)
+target_link_libraries(NRC PUBLIC mjs_lib)
 
 target_compile_options(NRC
     PUBLIC
@@ -48,4 +50,23 @@ target_compile_options(NRC
         -Wextra
         -Werror
         -Wpedantic
+)
+
+# Don't touch!!
+# Don't touch!!
+# Don't touch!!
+# Don't touch!!
+# Don't touch!!
+# Don't touch!!
+
+add_custom_command(
+    TARGET NRC POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/data
+    COMMENT "Creating data directory"
+)
+
+add_custom_command(
+    TARGET NRC POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -D "URL=https://cdn.simplelocalize.io/public/v1/locales" -D "OUTPUT=${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/data/locales.json" -P ${CMAKE_SOURCE_DIR}/cmake_files/download.cmake
+    COMMENT "Downloading local codes from SimpleLocalize" # Я надеюсь... всё будет ок..?
 )

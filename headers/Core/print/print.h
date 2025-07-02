@@ -8,7 +8,7 @@
 #include <type_traits>
 #include <any>
 #include "Core/print/print_tools.h"
-#include "Core/other/utils.h"
+#include "Core/utils/string_util.h"
 
 #define strace(...)             core::print(DEFAULT_PRINT_COLOR, FILENAME + "::", __LINE__, "::[" + std::string(__FUNCTION__) + "]: ", __VA_ARGS__); core::print()
 #define trace(color, ...)       core::print(color, FILENAME + "::", __LINE__, "::[" + std::string(__FUNCTION__) + "]: ", __VA_ARGS__); core::print()
@@ -28,9 +28,9 @@ namespace core {
 		auto it = yourVector.begin();
 		for (const T& str : yourVector) {
 			if (it == yourVector.begin())
-				temp += Utils::valueToString(str);
+				temp += string_util::valueToString(str);
 			else
-				temp += ", " + Utils::valueToString(str);
+				temp += ", " + string_util::valueToString(str);
 			it++;
 		}
 		temp += " ]";
@@ -43,9 +43,9 @@ namespace core {
 		auto it = yourMap.begin();
 		for (const auto& str : yourMap) {
 			if (it == yourMap.begin())
-				temp += "[ '" + Utils::valueToString(str.first) + "': '" + Utils::valueToString(str.second) + "']";
+				temp += "[ '" + string_util::valueToString(str.first) + "': '" + string_util::valueToString(str.second) + "']";
 			else
-				temp += ", [ '" + Utils::valueToString(str.first) + "': '" + Utils::valueToString(str.second) + "']";
+				temp += ", [ '" + string_util::valueToString(str.first) + "': '" + string_util::valueToString(str.second) + "']";
 			it++;
 		}
 		temp += " ]";

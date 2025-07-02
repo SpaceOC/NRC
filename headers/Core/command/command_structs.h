@@ -1,9 +1,12 @@
+#ifndef NRC_COMMAND_STRUCTS_H_
+#define NRC_COMMAND_STRUCTS_H_
+
 #include <iostream>
 #include <functional>
 #include <map>
 #include <vector>
 #include <string>
-#include "Core/other/utils.h"
+#include "Core/utils/string_util.h"
 
 namespace core {
 	class User;
@@ -40,7 +43,9 @@ namespace core {
 		std::string whereOutput = "";
 
 		friend std::ostream& operator<<(std::ostream& os, const CommandObject& obj) {
-			return os << "{ " + obj.name + ", " << core::Utils::vectorToString(obj.args) << " }";
+			return os << "{ " + obj.name + ", " << core::string_util::vectorToString(obj.args) << " }";
 		}
 	};
 }
+
+#endif // NRC_COMMAND_STRUCTS_H_

@@ -4,10 +4,14 @@
 #include <atomic>
 #include "Core/print/print.h"
 #include "Core/other/variables.h"
+#include "Core/command/command_structs.h"
+#include "Core/users/user_permissions_enum.h"
 
-class core::User;
+namespace core {
+class User;
+}
 
-extern std::string hello(core::User*, bool); // from commands.hpp
+extern std::string helloC(core::User*, core::CommandObject*); // from commands.hpp
 
 void addVariables() {
 	/*
@@ -21,7 +25,7 @@ void addVariables() {
    
 	core::systemVariablesManager()->addVar("test1",
 		core::VariableType::FUNC,
-		core::Permissions::root,
+		core::UserPermissions::ROOT,
 		[](core::VariableData) -> std::string {
 			std::cout << "Hello, World!" << std::endl;
 			return "";
@@ -31,9 +35,9 @@ void addVariables() {
 
 	core::systemVariablesManager()->addVar("test2",
 		core::VariableType::FUNC,
-		core::Permissions::root,
+		core::UserPermissions::ROOT,
 		[](core::VariableData) -> std::string {
-			hello(nullptr, false);
+			std::cout << helloC(nullptr, nullptr) << '\n';
 			return "";
 		},
 		""

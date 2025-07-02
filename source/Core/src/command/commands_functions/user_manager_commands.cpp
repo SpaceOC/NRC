@@ -9,6 +9,7 @@
 #include "Core/users/user.h"
 #include "Core/users/user_permissions_enum.h"
 #include "Core/command/command_structs.h"
+#include "Core/utils/other_util.h"
 
 std::string core::commands::CORE_COMMAND_setPassword(core::User* who, core::CommandObject* thisObj) {
 	if (thisObj->returnable)
@@ -52,7 +53,7 @@ std::string core::commands::CORE_COMMAND_createUser(core::User*, core::CommandOb
 			}
 			pos++;
 		}
-		if (!core::Utils::stringIsNumbers(thisObj->args.at(1))) {
+		if (!core::other_util::stringIsNumbers(thisObj->args.at(1))) {
 			return core::gprint("COMMAND ERROR\n", core::PrintColors::red);
 		}
 	}
@@ -124,7 +125,7 @@ std::string core::commands::CORE_COMMAND_setPermissionsUser(core::User*, core::C
 			}
 			pos++;
 		}
-		if (!core::Utils::stringIsNumbers(thisObj->args.at(1))) {
+		if (!core::other_util::stringIsNumbers(thisObj->args.at(1))) {
 			return core::gprint("COMMAND ERROR\n", core::PrintColors::red);
 		}
 	}

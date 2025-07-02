@@ -14,7 +14,6 @@
 #include <any>
 
 #include "Core/CORE_info.h"
-#include "Core/other/utils.h"
 #include "Core/print/print.h"
 #include "Core/command/handler_commands.h"
 #include "Core/users/user_manager.h"

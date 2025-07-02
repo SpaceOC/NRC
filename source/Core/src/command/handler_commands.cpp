@@ -7,6 +7,7 @@
 #include "Core/command/handler_commands.h"
 #include "Core/command/command_structs.h"
 #include "Core/other/variables.h"
+#include "Core/utils/string_util.h"
 #include "Core/print/print.h"
 #include "Core/users/user.h"
 #include "Core/users/user_manager.h"
@@ -105,10 +106,10 @@ void core::HandlerCommands::sendCommand(core::User* who, const core::CommandObje
 		auto itArgs = commandWithArgsMap.find(command.name);
 		if (itArgs != commandWithArgsMap.end()) {
 			if (static_cast<size_t>(itArgs->second.maxArgs) < command.args.size()) {
-				str = "Too many arguments! Maximum number of command arguments: " + core::Utils::valueToString(itArgs->second.maxArgs) + "\n";
+				str = "Too many arguments! Maximum number of command arguments: " + core::string_util::valueToString(itArgs->second.maxArgs) + "\n";
 			}
 			else if (static_cast<size_t>(itArgs->second.minArgs) > command.args.size()) {
-				str = "There are too few arguments! At least '" + core::Utils::valueToString(itArgs->second.minArgs) + "' is required\n";
+				str = "There are too few arguments! At least '" + core::string_util::valueToString(itArgs->second.minArgs) + "' is required\n";
 			}
 			else {
 				str = itArgs->second.function(who, thisObj);

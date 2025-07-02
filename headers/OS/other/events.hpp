@@ -1,5 +1,5 @@
 #include "Core/print/print.h"
-#include "Core/users/permissions_enum_class.h"
+#include "Core/users/user_permissions_enum.h"
 #include "Core/experimental/event_manager.h"
 
 core::structDataEvents::UserAddEvent newUserEvent(core::structDataEvents::UserAddEvent data) {
@@ -11,8 +11,8 @@ core::structDataEvents::UserAddEvent newUserEvent(core::structDataEvents::UserAd
 core::structDataEvents::UserChangeEvent changeUserEvent(core::structDataEvents::UserChangeEvent data) {
 	core::print("Old username - " + data.oldUsername + "\n");
 	core::print("New username - " + data.username + "\n");
-	core::print("Old permissions - " + core::permissionsS(data.oldPermissions) + "\n");
-	core::print("New permissions - " + core::permissionsS(data.permissions) + "\n");
+	core::print("Old permissions - " + core::userPermissionsS(data.oldPermissions) + "\n");
+	core::print("New permissions - " + core::userPermissionsS(data.permissions) + "\n");
 	return data;
 }
 
@@ -24,7 +24,7 @@ core::structDataEvents::UserDeleteEvent deleteUserEvent(core::structDataEvents::
 
 core::structDataEvents::NRCShutdownEvent goodbyeNRC(core::structDataEvents::NRCShutdownEvent data) {
 	core::print("Username - " + data.username + "\n");
-	core::print("Permissions - " + core::permissionsS(data.permissions) + "\n");
+	core::print("Permissions - " + core::userPermissionsS(data.permissions) + "\n");
 	core::print("Vector pos - " + std::to_string(data.id) + "\n");
 	return data;
 }

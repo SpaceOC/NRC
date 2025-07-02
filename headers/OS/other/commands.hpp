@@ -1,12 +1,17 @@
 #include <iostream>
 #include <vector>
 #include <map>
+#include <fstream>
 #include "Core/print/print.h"
 #include "Core/command/handler_commands.h"
 #include "Core/command/command_structs.h"
+#include "Core/main.h"
 
 extern core::main* nrc;
-class core::User;
+
+namespace core {
+class User;
+}
 
 // Да, я взял код counter.cpp прямиком из SpaceDOS и немного ... переписал... переделал.... 
 std::string counter(core::User*, core::CommandObject*) {
@@ -32,7 +37,7 @@ std::string counter(core::User*, core::CommandObject*) {
 	
 	if (a > b) {
 		core::print("The minimum number cannot be greater than the maximum number!!!\n", core::PrintColors::red);
-		return;
+		return "";
 	}
 
 	if (b >= 1000000 || b <= -1000000) {
@@ -40,7 +45,7 @@ std::string counter(core::User*, core::CommandObject*) {
 		core::print("Attention! This number is huge and it will take a long time to finish working with such a number. Do you want to continue? (Y/N) \t", core::PrintColors::yellow);
 		std::cin >> yourChoice;
 		if (yourChoice == "N") {
-			return;
+			return "";
 		}
 	}
 	std::cout << "----------------------------------------------------------" << std::endl;
@@ -58,7 +63,7 @@ std::string counter(core::User*, core::CommandObject*) {
 		file.close();
 	} else {
 		core::print("Error!\n", core::PrintColors::red);
-		return;
+		return "";
 	}
 
 	core::print("----------------------------------------------------------\n");
@@ -66,7 +71,7 @@ std::string counter(core::User*, core::CommandObject*) {
 	std::string yourChoice;
 	core::print("Exit? (Y/N) \t");
 	std::cin >> yourChoice;
-	if (yourChoice == "N") { return counter(nullptr, false); } 
+	if (yourChoice == "N") { return counter(nullptr, nullptr); } 
 	return "";
 }
 
@@ -75,7 +80,7 @@ std::string bye(core::User*, core::CommandObject*) {
 	return "";
 }
 
-std::string hello(core::User*, core::CommandObject*) {
+std::string helloC(core::User*, core::CommandObject*) {
 	srand(static_cast<unsigned int>(time(0)));
 	std::vector<std::string> messages = {"hi", "HII", "hello :D", "hiiiiii"};
 	return messages[rand() % (messages.size() - 1)];
@@ -83,6 +88,6 @@ std::string hello(core::User*, core::CommandObject*) {
 
 void addCommands() {
 	core::handlerCommands()->addCommand("counter", "No description", counter);
-	core::handlerCommands()->addCommand("hi", "hiii!", hello);
+	core::handlerCommands()->addCommand("hi", "hiii!", helloC);
 	core::handlerCommands()->addCommand("exit", "exit", bye);
 }

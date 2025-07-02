@@ -8,7 +8,7 @@
 #include <any>
 #include <filesystem>
 #include "Core/print/print_tools.h"
-#include "Core/other/utils.h"
+#include "Core/utils/string_util.h"
 
 #define sgtrace(...)             core::gprint(DEFAULT_PRINT_COLOR, FILENAME + "::" + std::to_string(__LINE__) + ": ", __VA_ARGS__)
 #define gtrace(color, ...)       core::gprint(color, FILENAME + "::" + std::to_string(__LINE__) + ": ", __VA_ARGS__)
@@ -20,7 +20,7 @@ namespace core {
 	template<typename T, typename = is_not_printable_class<T>>
 	std::string gprint(const T& message, const PrintColors& color = DEFAULT_PRINT_COLOR) {
 		std::string escapeSequence = core::getColorEscapeSequence(color);
-		return escapeSequence + Utils::valueToString(message) + "\033[0m";
+		return escapeSequence + string_util::valueToString(message) + "\033[0m";
 	}
 
 	template<typename T, typename = is_not_printable_class<T>>
@@ -30,9 +30,9 @@ namespace core {
 		auto it = yourVector.begin();
 		for (const T& str : yourVector) {
 			if (it == yourVector.begin())
-				temp += Utils::valueToString(str);
+				temp += string_util::valueToString(str);
 			else
-				temp += ", " + Utils::valueToString(str);
+				temp += ", " + string_util::valueToString(str);
 			it++;
 		}
 		temp += " ]";
@@ -46,9 +46,9 @@ namespace core {
 		auto it = yourMap.begin();
 		for (const auto& str : yourMap) {
 			if (it == yourMap.begin())
-				temp += "[ '" + Utils::valueToString(str.first) + "': '" + Utils::valueToString(str.second) + "']";
+				temp += "[ '" + string_util::valueToString(str.first) + "': '" + string_util::valueToString(str.second) + "']";
 			else
-				temp += ", [ '" + Utils::valueToString(str.first) + "': '" + Utils::valueToString(str.second) + "']";
+				temp += ", [ '" + string_util::valueToString(str.first) + "': '" + string_util::valueToString(str.second) + "']";
 			it++;
 		}
 		temp += " ]";

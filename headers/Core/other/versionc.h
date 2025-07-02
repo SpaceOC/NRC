@@ -72,7 +72,8 @@ class VersionC {
 				if (!isdigit(versionStr[i])) continue;
 
 				// э, а я не знаю как по другому
-				const char* a = versionStr.substr(i, i + 1).c_str();
+				std::string sub = versionStr.substr(i, i + 1);
+				const char* a = sub.c_str();
 
 				int r = atoi(a);
 				if (r != 0) result += r / (rd);

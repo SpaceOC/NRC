@@ -1,5 +1,5 @@
-#ifndef NRC_BASE_UTILS_H_
-#define NRC_BASE_UTILS_H_
+#ifndef NRC_BASE_STRING_UTILS_H_
+#define NRC_BASE_STRING_UTILS_H_
 
 #include <sstream>
 #include <string>
@@ -7,10 +7,7 @@
 #include <vector>
 
 namespace core {
-	namespace Utils {
-		// @return Returns true if the argument value has only numbers, and '-' (at the beginning of the argument).
-		bool stringIsNumbers(const std::string& content);
-
+	namespace string_util {
 		/* 
 		 * Splits the content value into parts.
 		 * @param content The text to be further divided and returned as a vector.
@@ -20,11 +17,7 @@ namespace core {
 
 		std::string replace(std::string& content, const std::string& a, const std::string& b);
 
-		std::string getFileContent(const std::string& path);
-
 		bool endsWith(const std::string& str, const std::string& str2);
-
-		int getIFromStrVersionId(const std::string& str);
 
 		template <typename T>
 		std::string valueToString(const T &value) {
@@ -39,9 +32,9 @@ namespace core {
 			auto it = value.begin();
 			for (const T& a : value) {
 				if (it == value.begin())
-					str += Utils::valueToString(a);
+					str += string_util::valueToString(a);
 				else
-					str += ", " + Utils::valueToString(a);
+					str += ", " + string_util::valueToString(a);
 				it++;
 			}
 			str += " ]";
@@ -54,9 +47,9 @@ namespace core {
 			auto it = value.begin();
 			for (const auto& a : value) {
 				if (it == value.begin())
-					str += "[ '" + Utils::valueToString(a.first) + "': '" + Utils::valueToString(a.second) + "']";
+					str += "[ '" + string_util::valueToString(a.first) + "': '" + string_util::valueToString(a.second) + "']";
 				else
-					str += ", [ '" + Utils::valueToString(a.first) + "': '" + Utils::valueToString(a.second) + "']";
+					str += ", [ '" + string_util::valueToString(a.first) + "': '" + string_util::valueToString(a.second) + "']";
 				it++;
 			}
 			str += " ]";

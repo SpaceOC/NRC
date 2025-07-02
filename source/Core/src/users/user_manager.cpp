@@ -7,6 +7,7 @@
 #include "Core/filesystem/pseudo_fs.h"
 #include "Core/filesystem/nrfs.h"
 #include "Core/experimental/event_manager.h"
+#include "Core/utils/other_util.h"
 
 #include "Core/users/user.h"
 #include "Core/other/variables.h"
@@ -166,7 +167,7 @@ std::map<std::string, core::UserPermissions> core::UserManager::getPermissionsMa
 
 void core::UserManager::checkOOBE() {
 	if (std::filesystem::exists(mainDataFilePath)) {
-		nlohmann::json data = nlohmann::json::parse(core::Utils::getFileContent(mainDataFilePath));
+		nlohmann::json data = nlohmann::json::parse(core::other_util::getFileContent(mainDataFilePath));
 		OOBEPassed = data.at("OOBE_Passed").get<bool>();
 	}
 }
@@ -194,7 +195,7 @@ void core::UserManager::systemAddUser(const std::string& username) {
 	core::pseudoFS()->getNRFS()->saveData();
 	saveUserData(username);
 
-	nlohmann::json data = nlohmann::json::parse(core::Utils::getFileContent(mainDataFilePath));
+	nlohmann::json data = nlohmann::json::parse(core::other_util::getFileContent(mainDataFilePath));
 	data["OOBE_Passed"] = true;
 	std::ofstream file(mainDataFilePath, std::ios::out);
 	file << data.dump(2);
@@ -283,7 +284,7 @@ void core::UserManager::changePermissionsUser(const std::string& username, const
 		core::UserPermissions past = users[userVectorPos(username)]->getPermissions();
 		users[userVectorPos(username)]->editPermissions(newPermissions);
 
-		nlohmann::json data = core::Utils::getFileContent(usersPath + username + ".json");
+		nlohmann::json data = core::other_util::getFileContent(usersPath + username + ".json");
 		data["Permissions"] = static_cast<int>(newPermissions);
 		std::ofstream file(usersPath + username + ".json", std::ios::out);
 		file << data.dump(2);
@@ -349,7 +350,7 @@ void core::UserManager::readUserData(const std::string& username) {
 	if (userPos == -1) return;
 	User* who = users.at(userPos);
 
-	std::string c = core::Utils::getFileContent(usersPath + username + ".json");
+	std::string c = core::other_util::getFileContent(usersPath + username + ".json");
 	if (c.empty()) return;
 	nlohmann::json data = nlohmann::json::parse(c);
 
@@ -393,7 +394,7 @@ void core::UserManager::readAllUsersData() {
 		std::string file = it.path().filename().generic_string();
 		std::string filename = file.substr(0, file.length() - 5);
 		if (!userExist(filename)) {
-			std::string c = core::Utils::getFileContent(it.path().generic_string());
+			std::string c = core::other_util::getFileContent(it.path().generic_string());
 			if (c.empty()) {
 				trace(PrintColors::red, "An error occurred while trying to create user '" + filename + "'\n");
 				continue;

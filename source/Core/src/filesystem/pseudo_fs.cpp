@@ -9,7 +9,7 @@
 
 #include "Core/filesystem/pseudo_fs.h"
 #include "Core/filesystem/nrfs.h"
-#include "Core/other/utils.h"
+#include "Core/utils/string_util.h"
 #include "Core/print/print.h"
 #include "Core/users/user_manager.h"
 #include "Core/users/user_permissions_enum.h"
@@ -458,7 +458,7 @@ core::FileData core::PseudoFS::__getFileData(std::vector<std::string> path, size
 }
 
 int core::PseudoFS::createFolder(std::string path, size_t diskId, FolderData* oneFolderData) {
-	std::vector<std::string> parsedPath = core::Utils::split(path, '/');
+	std::vector<std::string> parsedPath = core::string_util::split(path, '/');
 	if (parsedPath.size() == 2) {
 		bool folderExists = nrfs->disks[diskId]->folders.empty() ? false : std::any_of(nrfs->disks[diskId]->folders.begin(), nrfs->disks[diskId]->folders.end(),
 			[&](std::shared_ptr<FolderData> f) { return f->name == parsedPath.at(1);}
@@ -512,7 +512,7 @@ int core::PseudoFS::createFolder(std::string path, size_t diskId, FolderData* on
 }
 
 int core::PseudoFS::setFolderAtt(std::string path, size_t diskId, std::string what, std::any newAtt) {
-	std::vector<std::string> parsedPath = core::Utils::split(path, '/');
+	std::vector<std::string> parsedPath = core::string_util::split(path, '/');
 	if (parsedPath.size() == 2) {
 		bool folderExists = std::any_of(nrfs->disks[diskId]->folders.begin(), nrfs->disks[diskId]->folders.end(),
 			[&](std::shared_ptr<FolderData> f) { return f->name == parsedPath.at(1); }
@@ -545,7 +545,7 @@ int core::PseudoFS::setFolderAtt(std::string path, size_t diskId, std::string wh
 }
 
 int core::PseudoFS::renameFolder(std::string path, size_t diskId, std::string newName) {
-	std::vector<std::string> parsedPath = core::Utils::split(path, '/');
+	std::vector<std::string> parsedPath = core::string_util::split(path, '/');
 	if (parsedPath.size() == 2) {
 		bool folderExists = std::any_of(nrfs->disks[diskId]->folders.begin(), nrfs->disks[diskId]->folders.end(),
 			[&](std::shared_ptr<FolderData> f) { return f->name == parsedPath.at(1); }
@@ -583,7 +583,7 @@ int core::PseudoFS::renameFolder(std::string path, size_t diskId, std::string ne
 }
 
 int core::PseudoFS::deleteFolder(std::string path, size_t diskId) {
-	std::vector<std::string> parsedPath = core::Utils::split(path, '/');
+	std::vector<std::string> parsedPath = core::string_util::split(path, '/');
 	if (parsedPath.size() == 2) {
 		bool folderExists = std::any_of(nrfs->disks[diskId]->folders.begin(), nrfs->disks[diskId]->folders.end(), [&](std::shared_ptr<FolderData> f) { return f->name == parsedPath.at(1); });
 		if (!folderExists)
@@ -616,7 +616,7 @@ int core::PseudoFS::deleteFolder(std::string path, size_t diskId) {
 }
 
 int core::PseudoFS::moveFolder(std::string path, size_t diskId, const std::string& newPath, size_t anotherDiskId) {
-	std::vector<std::string> parsedPath = core::Utils::split(newPath, '/');
+	std::vector<std::string> parsedPath = core::string_util::split(newPath, '/');
 	int code = 0;
 	const FolderData oldFolderData = getFolderData(path, diskId, code);
 	//std::cout << oldFolderData << '\n';
@@ -663,7 +663,7 @@ int core::PseudoFS::moveFolder(std::string path, size_t diskId, const std::strin
 }
 
 core::FolderData core::PseudoFS::getFolderData(std::string path, size_t diskId, int& code) {
-	std::vector<std::string> parsedPath = core::Utils::split(path, '/');
+	std::vector<std::string> parsedPath = core::string_util::split(path, '/');
 	if (parsedPath.size() == 2) {
 		if (nrfs->disks[diskId]->folders.empty()) {
 			code = core::PseudoFSCodes::NOT_FOUND;
@@ -696,7 +696,7 @@ core::FolderData core::PseudoFS::getFolderData(std::string path, size_t diskId, 
 }
 
 int core::PseudoFS::createFile(std::string path, size_t diskId, FileData* oneFileData) {
-	std::vector<std::string> parsedPath = core::Utils::split(path, '/');
+	std::vector<std::string> parsedPath = core::string_util::split(path, '/');
 	strace(parsedPath);
 
 	if (parsedPath.size() == 2) {
@@ -747,7 +747,7 @@ int core::PseudoFS::createFile(std::string path, size_t diskId, FileData* oneFil
 }
 
 int core::PseudoFS::renameFile(std::string path, size_t diskId, std::string newName) {
-	std::vector<std::string> parsedPath = core::Utils::split(path, '/');
+	std::vector<std::string> parsedPath = core::string_util::split(path, '/');
 	if (parsedPath.size() == 2) {
 		bool fileExists = std::any_of(nrfs->disks[diskId]->files.begin(), nrfs->disks[diskId]->files.end(),
 			[&](std::shared_ptr<FileData> f) { return f->name == parsedPath.at(1); }
@@ -783,7 +783,7 @@ int core::PseudoFS::renameFile(std::string path, size_t diskId, std::string newN
 }
 
 int core::PseudoFS::deleteFile(std::string path, size_t diskId) {
-	std::vector<std::string> parsedPath = core::Utils::split(path, '/');
+	std::vector<std::string> parsedPath = core::string_util::split(path, '/');
 	if (parsedPath.size() == 2) {
 		bool fileExists = std::any_of(nrfs->disks[diskId]->files.begin(), nrfs->disks[diskId]->files.end(),
 			[&](std::shared_ptr<FileData> f) { return f->name == parsedPath.at(1); }
@@ -816,7 +816,7 @@ int core::PseudoFS::deleteFile(std::string path, size_t diskId) {
 
 int core::PseudoFS::moveFile(std::string path, size_t diskId, const std::string& newPath, size_t anotherDiskId) {
 	try {
-		std::vector<std::string> parsedPath = core::Utils::split(newPath, '/');
+		std::vector<std::string> parsedPath = core::string_util::split(newPath, '/');
 		int code = 0;
 		const FileData& oldFileData = getFileData(path, diskId, code);
 		if (code != 1)
@@ -876,7 +876,7 @@ int core::PseudoFS::moveFile(std::string path, size_t diskId, const std::string&
 
 int core::PseudoFS::setFileAtt(std::string path, size_t diskId, std::string what, std::any newAtt) {
 	assert(!(newAtt.type() != typeid(std::string) && newAtt.type() != typeid(const char*) && newAtt.type() != typeid(bool) && newAtt.type() != typeid(User)));
-	std::vector<std::string> parsedPath = core::Utils::split(path, '/');
+	std::vector<std::string> parsedPath = core::string_util::split(path, '/');
 	if (parsedPath.size() == 2) {
 		bool fileExists = std::any_of(nrfs->disks[diskId]->files.begin(), nrfs->disks[diskId]->files.end(),
 			[&](std::shared_ptr<FileData> f) { return f->name == parsedPath.at(1); }
@@ -912,7 +912,7 @@ int core::PseudoFS::setFileAtt(std::string path, size_t diskId, std::string what
 }
 
 core::FileData core::PseudoFS::getFileData(std::string path, size_t diskId, int& code) {
-	std::vector<std::string> parsedPath = core::Utils::split(path, '/');
+	std::vector<std::string> parsedPath = core::string_util::split(path, '/');
 	if (parsedPath.size() == 2) {
 		for (auto& file : nrfs->disks[diskId]->files) {
 			if (file->name == parsedPath.at(1)) {
@@ -1022,7 +1022,7 @@ void core::PseudoFS::printAllHelper(const std::vector<std::shared_ptr<FolderData
 }
 
 void core::PseudoFS::printAll(bool includeHidden, size_t diskId, std::string startPath) {
-	std::vector<std::string> parsedPath = core::Utils::split(startPath, '/');
+	std::vector<std::string> parsedPath = core::string_util::split(startPath, '/');
 	if (parsedPath.size() < 2) {
 		parsedPath = {};
 		for (auto& folder : nrfs->disks[diskId]->folders) {
@@ -1081,7 +1081,7 @@ void core::PseudoFS::printAll(bool includeHidden, size_t diskId, std::string sta
 
 void core::PseudoFS::printAll(bool includeHidden, size_t diskId, std::string startPath, std::string& str) {
 	std::string result;
-	std::vector<std::string> parsedPath = core::Utils::split(startPath, '/');
+	std::vector<std::string> parsedPath = core::string_util::split(startPath, '/');
 	if (parsedPath.size() < 2) {
 		parsedPath = {};
 		for (auto& folder : nrfs->disks[diskId]->folders) {
@@ -1232,7 +1232,7 @@ void core::PseudoFS::showTreeHelper(const FolderData &curFolder, bool includeHid
 }
 
 void core::PseudoFS::showTree(bool includeHidden, size_t diskId, bool showFiles, std::string startPath) {
-	std::vector<std::string> parsedPath = core::Utils::split(startPath, '/');
+	std::vector<std::string> parsedPath = core::string_util::split(startPath, '/');
 	if (parsedPath.size() < 2) {
 		parsedPath = {};
 		int level = 0;
@@ -1272,7 +1272,7 @@ void core::PseudoFS::showTree(bool includeHidden, size_t diskId, bool showFiles,
 
 void core::PseudoFS::showTree(bool includeHidden, size_t diskId, bool showFiles, std::string startPath, std::string& str) {
 	std::string result;
-	std::vector<std::string> parsedPath = core::Utils::split(startPath, '/');
+	std::vector<std::string> parsedPath = core::string_util::split(startPath, '/');
 	if (parsedPath.size() < 2) {
 		parsedPath = {};
 		int level = 0;
@@ -1390,7 +1390,7 @@ void core::PseudoFS::postInit() {
 		for (const auto& file : nrfs->disks[i]->files) {
 			if (file->linkPath.empty()) continue;
 
-			std::vector<std::string> parsedPath = core::Utils::split(file->linkPath, '/');
+			std::vector<std::string> parsedPath = core::string_util::split(file->linkPath, '/');
 			
 			for (const auto& folder : nrfs->disks[i]->folders) {
 				searchAndTransformDefaultObjectToLink(folder.get(), &parsedPath, file.get());
@@ -1400,7 +1400,7 @@ void core::PseudoFS::postInit() {
 		for (const auto& folder : nrfs->disks[i]->folders) {
 			if (folder->linkPath.empty()) continue;
 
-			std::vector<std::string> parsedPath = core::Utils::split(folder->linkPath, '/');
+			std::vector<std::string> parsedPath = core::string_util::split(folder->linkPath, '/');
 			searchAndTransformDefaultObjectToLink(folder.get(), &parsedPath, folder.get());
 		}
 	}
@@ -1415,7 +1415,7 @@ int core::PseudoFS::changePath(const std::string& newPath, size_t diskId) {
 }
 
 int core::PseudoFS::changeDirectory(const std::string& newDirectory, size_t diskId) {
-	std::vector<std::string> parsedPath = core::Utils::split(currentPath, '/');
+	std::vector<std::string> parsedPath = core::string_util::split(currentPath, '/');
 	if (newDirectory == ".." && parsedPath.size() > 1) {
 		std::string currentPathTemp;
 		for (const std::string& pathPart : parsedPath)
@@ -1465,7 +1465,7 @@ bool core::PseudoFS::__folderExistsHelper(std::vector<std::string> path, FolderD
 }
 
 bool core::PseudoFS::folderExists(const std::string& path, size_t diskId) {
-	std::vector<std::string> parsedPath = core::Utils::split(path, '/');
+	std::vector<std::string> parsedPath = core::string_util::split(path, '/');
 	try {
 		if (parsedPath.size() < 2)
 			return false;
@@ -1515,7 +1515,7 @@ bool core::PseudoFS::__fileExistsHelper(std::vector<std::string> path, FolderDat
 }
 
 bool core::PseudoFS::fileExists(const std::string& path, size_t diskId) {
-	std::vector<std::string> parsedPath = core::Utils::split(path, '/');
+	std::vector<std::string> parsedPath = core::string_util::split(path, '/');
 	try {
 		if (parsedPath.size() < 2)
 			return false;

@@ -406,7 +406,7 @@ void core::main::addCRules() {
 	handlerCommands()->addCustomRules([](const core::CommandObject& c, core::User* who, std::string& ret, std::string& err) -> bool {
 		if (!c.name._Starts_with("./"))
 			return false;
-		else if (!core::Utils::endsWith(c.name, ".clf")) {
+		else if (!core::string_util::endsWith(c.name, ".clf")) {
 			err = "Error: This is NOT .clf file";
 			return false;
 		}
@@ -422,7 +422,7 @@ void core::main::addCRules() {
 			err = "Error: " + core::pseudoFSCodesS(code);
 			return false;
 		}
-		std::vector<std::string> clfc = core::Utils::split(commandLinesFileCode, '\n');
+		std::vector<std::string> clfc = core::string_util::split(commandLinesFileCode, '\n');
 		#ifdef NRC_WEB
 		std::string output;
 		#endif

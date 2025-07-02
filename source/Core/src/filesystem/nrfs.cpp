@@ -4,7 +4,7 @@
 #include <filesystem>
 #include <fstream>
 #include <nlohmann/json.hpp>
-#include "Core/other/utils.h"
+#include "Core/utils/other_util.h"
 
 core::FileData* createFileFromJSON(const nlohmann::json& fileJson) {
 	core::FileData* result;
@@ -209,7 +209,7 @@ void core::NRFS::loadData() {
 		return;
 	}
 
-	std::string data = core::Utils::getFileContent("Data/PFS-Data.json");
+	std::string data = core::other_util::getFileContent("Data/PFS-Data.json");
 	nlohmann::json j = nlohmann::json::parse(data);
 	if (j.is_array()) {
 		for (const auto& diskJson : j) {

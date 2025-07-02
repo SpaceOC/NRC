@@ -12,7 +12,7 @@
 #include "Core/users/user.h"
 #include "Core/filesystem/pseudo_fs.h"
 #include "Core/filesystem/nrfs.h"
-#include "Core/other/utils.h"
+#include "Core/utils/string_util.h"
 
 std::string core::commands::CORE_COMMAND_cd(core::User*, core::CommandObject* thisObj) {
 	if (thisObj->args.at(0).empty()) {
@@ -108,7 +108,7 @@ std::string core::commands::CORE_COMMAND_createLinkFile(core::User* who, core::C
 	COMMAND_ERROR_OUTPUT(checkResult)
 
 	core::FileData* linkFile = new core::FileData{
-		core::Utils::split(where2, '/').back(),
+		core::string_util::split(where2, '/').back(),
 		"",
 		0,
 		0,
@@ -462,7 +462,7 @@ std::string core::commands::CORE_COMMAND_createLinkFolder(core::User* who, core:
 	COMMAND_ERROR_OUTPUT(checkResult)
 
 	FolderData* linkFolder = new FolderData{
-		core::Utils::split(where2, '/').back(),
+		core::string_util::split(where2, '/').back(),
 		0,
 		0,
 		{},
@@ -692,7 +692,7 @@ std::string core::commands::CORE_COMMAND_searchFile(core::User*, core::CommandOb
 	std::string result = "";
 	std::string path = (thisObj->args.size() > 1 ? thisObj->args.at(1) : core::pseudoFS()->getCurrentPath());
 	bool fullSearch = thisObj->args.size() < 2;
-	std::vector<std::string> parsedPath = core::Utils::split(path, '/');
+	std::vector<std::string> parsedPath = core::string_util::split(path, '/');
 	for (std::weak_ptr<FileData> file : core::pseudoFS()->getNRFS()->getRoot()->getFiles()) {
 		if (file.lock()->name.find(thisObj->args.at(0)) < LONG_LONG_MAX) {
 			result += "./" + file.lock()->name + "\n";
@@ -760,7 +760,7 @@ std::string core::commands::CORE_COMMAND_printDiskSize(core::User*, core::Comman
 }
 
 std::string core::commands::CORE_COMMAND_whereIm(core::User*, core::CommandObject*) {
-	std::vector<std::string> parsedPath = core::Utils::split(core::pseudoFS()->getCurrentPath(), '/');
+	std::vector<std::string> parsedPath = core::string_util::split(core::pseudoFS()->getCurrentPath(), '/');
 
 	std::string result = gprint(core::PrintColors::aqua, "You're in the folder: " + parsedPath.back() + "\n",
 		"Full path: " + core::pseudoFS()->getCurrentPath() + "\n",

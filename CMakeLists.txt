@@ -12,6 +12,10 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIRECTORY}/bin)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# https://stackoverflow.com/questions/38700198/how-to-partially-disabling-cmake-c-c-custom-compiler-checking
+set(CMAKE_C_COMPILER_FORCED TRUE)
+set(CMAKE_CXX_COMPILER_FORCED TRUE)
+
 include(FetchContent)
 
 # Я не знаю, как отключить тесты (при попытке скомпилировать их выходит ошибка).

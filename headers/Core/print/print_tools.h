@@ -3,7 +3,6 @@
 #include <string>
 #include <filesystem>
 #include "Core/print/printable.h"
-#include "Core/other/utils.h"
 
 #define FILENAME                    (std::filesystem::path(__FILE__).filename().string())
 #define DEFAULT_PRINT_COLOR         core::PrintColors::white
