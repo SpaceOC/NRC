@@ -15,6 +15,8 @@
 #include "Core/other/variables.h"
 #include "Core/command/command_sender.h"
 #include "Core/experimental/process.h"
+#include "Core/modules/module_metadata.h"
+#include "Core/utils/other_util.h"
 
 #include "Core/experimental/run_js_code.h"
 
@@ -391,7 +393,7 @@ void core::main::addCommands() {
 
 void core::main::addCRules() {
 	// Adding a check that the command name is a call to an environment variable
-	handlerCommands()->addCustomRules([](const core::CommandObject& c, core::User* who, std::string& ret, std::string&) -> bool {
+	handlerCommands()->addCustomRules("variable", [](const core::CommandObject& c, core::User* who, std::string& ret, std::string&) -> bool {
 		if (!handlerCommands()->thisVariable(c.name))
 			return false;
 		std::string varName = c.name.substr(1, c.name.length() - 2);
@@ -403,7 +405,7 @@ void core::main::addCRules() {
 	});
 
 	// Adding a check that this is a call to a .clf file
-	handlerCommands()->addCustomRules([](const core::CommandObject& c, core::User* who, std::string& ret, std::string& err) -> bool {
+	handlerCommands()->addCustomRules(".clf", [](const core::CommandObject& c, core::User* who, std::string& ret, std::string& err) -> bool {
 		if (!c.name._Starts_with("./"))
 			return false;
 		else if (!core::string_util::endsWith(c.name, ".clf")) {
@@ -446,6 +448,46 @@ void core::main::addCRules() {
 		#endif
 		return true;
 	});
+}
+
+// TODO: Добавить конфигурационный файл modules.json, его загрузку и сохранение
+void core::main::searchModules() {
+	for (auto& it : std::filesystem::recursive_directory_iterator("./Modules")) {
+		if (it.is_directory()) {
+			std::string name = it.path().filename().generic_string();
+			checkModule(name);
+		}
+	}
+}
+
+void core::main::checkModule(const std::string& name) {
+	std::string modulePath = "./Modules/" + name + "/";
+	if (!std::filesystem::exists(modulePath + "lib.json")) {
+		std::cout << "lib.json not found!\n";
+		return;
+	}
+	else if (!std::filesystem::exists(modulePath + "translations.json")) {
+		std::cout << "translations.json not found!\n";
+		return;
+	}
+	else if (!std::filesystem::exists(modulePath + "bin")) {
+		std::cout << "bin not found!\n";
+		return;
+	}
+	else if (!std::filesystem::exists(modulePath + "langs")) {
+		std::cout << "langs not found!\n";
+		return;
+	}
+
+	ModuleMetadata moduleMetadata;
+	nlohmann::json j = nlohmann::json::parse(other_util::getFileContent(modulePath + "lib.json"));
+	moduleMetadata.makeMetadataFromJSON(j);
+
+	if (moduleMetadata.requiredVersionInRange && (*(moduleMetadata.uses[0]) > version && *(moduleMetadata.uses[1]) < version)) {
+		std::cout << name << " not loaded\n";
+	}
+
+	// ...
 }
 
 void core::main::loop() {
@@ -497,10 +539,6 @@ void core::main::init() {
 	fixNOW();
 	addCommands();
 	addCRules();
-	core::EventManager::enableEvents = true;
-	core::pseudoFS()->init();
-	core::userManager()->readAllUsersData();
-	core::pseudoFS()->postInit();
 
 	if (!std::filesystem::exists("Data"))
 		std::filesystem::create_directory("Data");
@@ -511,6 +549,8 @@ void core::main::init() {
 	else if (!std::filesystem::exists("Temp"))
 		std::filesystem::create_directory("Temp");
 
+	searchModules();
+
 	if (!std::filesystem::exists("Data/main.json")) {
 		std::ofstream data("Data/main.json", std::ios::out);
 		nlohmann::json j;
@@ -518,6 +558,11 @@ void core::main::init() {
 		data << j.dump(2);
 		data.close();
 	}
+
+	core::EventManager::enableEvents = true;
+	core::pseudoFS()->init();
+	core::userManager()->readAllUsersData();
+	core::pseudoFS()->postInit();
 }
 
 void core::main::start() {

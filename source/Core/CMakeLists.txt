@@ -38,6 +38,7 @@ add_library(NRC STATIC
                 ${CORE_SOURCE_DIR}/command/commands_functions/other_commands.cpp
                 ${CORE_SOURCE_DIR}/other/variables.cpp
                 ${CORE_SOURCE_DIR}/other/fix.cpp
+                ${CORE_SOURCE_DIR}/modules/module_metadata.cpp
                 ${CORE_SOURCE_DIR}/modules/module_base.cpp
                 ${CORE_SOURCE_DIR}/main.cpp)
 
@@ -65,8 +66,8 @@ add_custom_command(
     COMMENT "Creating data directory"
 )
 
-add_custom_command(
-    TARGET NRC POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -D "URL=https://cdn.simplelocalize.io/public/v1/locales" -D "OUTPUT=${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/data/locales.json" -P ${CMAKE_SOURCE_DIR}/cmake_files/download.cmake
-    COMMENT "Downloading local codes from SimpleLocalize" # Я надеюсь... всё будет ок..?
-)
+#add_custom_command(
+#    TARGET NRC POST_BUILD
+#    COMMAND ${CMAKE_COMMAND} -D "URL=https://cdn.simplelocalize.io/public/v1/locales" -D "OUTPUT=${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/data/locales.json" -P ${CMAKE_SOURCE_DIR}/cmake_files/download.cmake
+#    COMMENT "Downloading local codes from SimpleLocalize" # Я надеюсь... всё будет ок..?
+#)

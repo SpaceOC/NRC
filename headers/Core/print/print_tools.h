@@ -9,6 +9,10 @@
 
 template<typename T>
 using is_not_printable_class = std::enable_if_t<!std::is_base_of_v<core::PrintableClass, T>, bool>;
+template<typename T>
+using is_not_memory_pointer = std::enable_if_t<!std::is_pointer<T>::value, bool>;
+template<typename T>
+using is_memory_pointer = std::enable_if_t<!std::is_pointer<T>::value, bool>;
 
 namespace core {
 	// colors for the print class

@@ -7,22 +7,18 @@
 #include "Core/settings.h"
 #include "Core/command/command_parser.h"
 #include "Core/users/user_permissions_enum.h"
+#include "Core/command/command_structs.h"
 
 namespace core {
 	class User;
 	class VariablesManager;
-	struct CommandRules;
-	struct CommandInfo;
-	struct CommandWithArgsInfo;
-	struct CommandDescription;
-	struct CommandObject;
 
 	class HandlerCommands {
 		friend core::VariablesManager;
 		private:
-			std::map<std::string, CommandInfo> commandMap;
-			std::map<std::string, CommandWithArgsInfo> commandWithArgsMap;
-			std::vector<std::function<bool(const core::CommandObject& c, core::User* who, std::string& ret, std::string& err)>> customRules;
+			std::map<std::string, CommandVariant> commandMap;
+			std::map<std::string, CommandDescription> commandInfo;
+			std::map<std::string, std::function<bool(const core::CommandObject& c, core::User* who, std::string& ret, std::string& err)>> customRules;
 			std::string commandSeparator = "&/"; // Command separator.
 			CommandParser* parser;
 		protected:
@@ -54,7 +50,8 @@ namespace core {
 			void addCommand(const std::string& name, const std::string& description, const std::function<std::string(core::User*, core::CommandObject*)>& function);
 			void addCommand(const std::string& name, const CommandDescription& data, const std::function<std::string(core::User*, core::CommandObject*)>& function, int minArgs, int maxArgs, const CommandRules& rules);
 
-			void addCustomRules(const std::function<bool(const core::CommandObject& c, core::User* who, std::string& ret, std::string& err)>& f);
+			void addCustomRules(const std::string& id, const std::function<bool(const core::CommandObject& c, core::User* who, std::string& ret, std::string& err)>& f);
+			void deleteCustomRules(const std::string& id);
 
 			void deleteCommand(const std::string& name);
 

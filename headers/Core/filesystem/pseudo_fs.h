@@ -82,6 +82,7 @@ namespace core {
 			void showTree(bool includeHidden, size_t diskId, bool showFiles, std::string startPath = "./");
 			void showTree(bool includeHidden, size_t diskId, bool showFiles, std::string startPath, std::string& str);
 
+			// @return NRFS* nrfs
 			NRFS* getNRFS();
 
 			int changePath(const std::string& newPath, size_t diskId);
@@ -90,7 +91,9 @@ namespace core {
 			bool folderExists(const std::string& path, size_t diskId);
 			bool fileExists(const std::string& path, size_t diskId);
 
+			// @return std::string currentPath
 			const std::string getCurrentPath();
+			// @return size_t curDisk
 			size_t getCurDiskId() { return curDisk; }
 
 			std::string getFileFromPath(const std::string& path);

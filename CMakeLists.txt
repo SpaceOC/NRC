@@ -57,15 +57,12 @@ enable_testing()
 
 add_executable(
   tests
+  ${TESTS_SOURCE_DIR}/pseudo_fs_operations.cc
   ${TESTS_SOURCE_DIR}/disk.cc
   ${TESTS_SOURCE_DIR}/command_parser.cc
 )
 
-target_link_libraries(
-  tests
-  GTest::gtest_main
-  NRC
-  mjs_lib
+target_link_libraries(tests PUBLIC GTest::gtest_main PRIVATE NRC
 )
 
 include(GoogleTest)

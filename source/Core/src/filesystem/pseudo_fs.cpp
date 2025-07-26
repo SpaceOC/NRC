@@ -168,6 +168,7 @@ int core::PseudoFS::__deleteFolderHelper(std::vector<std::string> path, FolderDa
 		for (auto it = currentFolder->folders.begin(); it != currentFolder->folders.end(); ) {
 			if ((*it)->name == path.at(0)) {
 				(*it).reset();
+				(*it) = nullptr;
 				it = currentFolder->folders.erase(it);
 				return core::PseudoFSCodes::OK;
 			}
@@ -187,23 +188,16 @@ int core::PseudoFS::__deleteFolderHelper(std::vector<std::string> path, FolderDa
 }
 
 int core::PseudoFS::__moveFolderHelper(std::vector<std::string> path, size_t diskId, FolderData* currentFolder, const core::FolderData& oldFolderData, const std::string& oldPath) {
-	if (path.empty())
-		return core::PseudoFSCodes::PATH_IS_EMPTY;
-	else if (path.size() == 1) {
-		for (auto& folder : currentFolder->folders) {
-			if (folder->name == path.at(0)) {
-				bool exists = std::any_of(folder->folders.begin(), folder->folders.end(), [&](std::shared_ptr<FolderData> f) { return f->name == oldFolderData.name; });
-				if (!exists) {
-					auto newFolder = std::make_shared<core::FolderData>(oldFolderData);
-					folder->folders.push_back(std::move(newFolder));
-					nrfs->disks[diskId]->update();
-					return core::PseudoFSCodes::OK;
-				}
-				else {
-					return core::PseudoFSCodes::ALREADY_EXISTS;
-				}
-			}
+	if (path.empty()) {
+		bool exists = std::any_of(currentFolder->folders.begin(), currentFolder->folders.end(), [&](std::shared_ptr<FolderData> f) { return f->name == oldFolderData.name; });
+		if (exists) {
+			return core::PseudoFSCodes::ALREADY_EXISTS;
 		}
+
+		auto newFolder = std::make_shared<core::FolderData>(oldFolderData);
+		currentFolder->folders.push_back(std::move(newFolder));
+		nrfs->disks[diskId]->update();
+		return core::PseudoFSCodes::OK;
 	}
 	else {
 		for (auto& folder : currentFolder->folders) {
@@ -337,8 +331,7 @@ int core::PseudoFS::__deleteFileHelper(std::vector<std::string> path, FolderData
 		auto it = currentFolder->files.begin();
 		for (auto& file : currentFolder->files) {
 			if (file->name == path.at(0)) {
-				file.reset();
-				currentFolder->files.erase(it);
+				it = currentFolder->files.erase(it);
 				return core::PseudoFSCodes::OK;
 			}
 			it++;
@@ -357,36 +350,18 @@ int core::PseudoFS::__deleteFileHelper(std::vector<std::string> path, FolderData
 }
 
 int core::PseudoFS::__moveFileHelper(std::vector<std::string> path, size_t diskId, FolderData* currentFolder, const core::FileData& oldFileData, const std::string& oldPath) {
-	if (path.empty())
-		return core::PseudoFSCodes::PATH_IS_EMPTY;
-	else if (path.size() == 1) {
-		for (auto& folder : currentFolder->folders) {
-			if (folder->name == path.at(0)) {
-				bool exists = std::any_of(currentFolder->files.begin(), currentFolder->files.end(), [&](std::shared_ptr<FileData> f) { return f->name == oldFileData.name; });
-				if (!exists) {
-					auto newFile = std::make_shared<core::FileData>(
-						oldFileData.name,
-						oldFileData.content,
-						oldFileData.timeCreate,
-						oldFileData.timeEdit,
-						oldFileData.system,
-						oldFileData.hidden,
-						oldFileData.link,
-						oldFileData.linkPath,
-						oldFileData.owner
-					);
+	if (path.empty()) {
+		bool exists = std::any_of(currentFolder->files.begin(), currentFolder->files.end(), [&](std::shared_ptr<FileData> f) { return f->name == oldFileData.name; });
 
-					folder->files.push_back(std::move(newFile));
+		if (exists)
+			return core::PseudoFSCodes::ALREADY_EXISTS;
+			
+		auto newFile = std::make_shared<core::FileData>(oldFileData);
 
-					deleteFile(oldPath, diskId);
-					//nrfs->disks[curDisk]->update();
-					return core::PseudoFSCodes::OK;
-				}
-				else {
-					return core::PseudoFSCodes::ALREADY_EXISTS;
-				}
-			}
-		}
+		currentFolder->files.push_back(std::move(newFile));
+		deleteFile(oldPath, diskId);
+		nrfs->disks[curDisk]->update();
+		return core::PseudoFSCodes::OK;
 	}
 	else {
 		for (auto& folder : currentFolder->folders) {
@@ -619,7 +594,6 @@ int core::PseudoFS::moveFolder(std::string path, size_t diskId, const std::strin
 	std::vector<std::string> parsedPath = core::string_util::split(newPath, '/');
 	int code = 0;
 	const FolderData oldFolderData = getFolderData(path, diskId, code);
-	//std::cout << oldFolderData << '\n';
 	if (code != 1)
 		return code;
 	if (parsedPath.size() == 1) {
@@ -627,18 +601,7 @@ int core::PseudoFS::moveFolder(std::string path, size_t diskId, const std::strin
 		if (newFolderExists)
 			return core::PseudoFSCodes::ALREADY_EXISTS;
 
-		auto newFolder = std::make_shared<core::FolderData>(
-			oldFolderData.name,
-			oldFolderData.timeCreate,
-			oldFolderData.timeEdit,
-			oldFolderData.files,
-			oldFolderData.folders,
-			oldFolderData.system,
-			oldFolderData.hidden,
-			oldFolderData.link,
-			oldFolderData.linkPath,
-			oldFolderData.owner
-		);
+		auto newFolder = std::make_shared<core::FolderData>(oldFolderData);
 
 		nrfs->disks[anotherDiskId]->folders.push_back(std::move(newFolder));
 		deleteFolder(path, diskId);
@@ -648,7 +611,7 @@ int core::PseudoFS::moveFolder(std::string path, size_t diskId, const std::strin
 		parsedPath.erase(parsedPath.begin());
 		for (auto& folder : nrfs->disks[anotherDiskId]->folders) {
 			if (parsedPath.at(0) == folder->name) {
-				if (parsedPath.size() > 2) parsedPath.erase(parsedPath.begin());
+				parsedPath.erase(parsedPath.begin());
 				int code = __moveFolderHelper(parsedPath, anotherDiskId, folder.get(), oldFolderData, path);
 				if (code) {
 					deleteFolder(path, diskId);
@@ -697,7 +660,6 @@ core::FolderData core::PseudoFS::getFolderData(std::string path, size_t diskId, 
 
 int core::PseudoFS::createFile(std::string path, size_t diskId, FileData* oneFileData) {
 	std::vector<std::string> parsedPath = core::string_util::split(path, '/');
-	strace(parsedPath);
 
 	if (parsedPath.size() == 2) {
 		bool fileExists = nrfs->disks[diskId]->files.empty() ? false : std::any_of(nrfs->disks[diskId]->files.begin(), nrfs->disks[diskId]->files.end(),
@@ -705,8 +667,6 @@ int core::PseudoFS::createFile(std::string path, size_t diskId, FileData* oneFil
 		);
 		if (fileExists)
 			return core::PseudoFSCodes::ALREADY_EXISTS;
-
-		strace("newFile create");
 
 		auto newFile = !oneFileData
 			? std::make_shared<core::FileData>(
@@ -794,8 +754,8 @@ int core::PseudoFS::deleteFile(std::string path, size_t diskId) {
 		auto it = nrfs->disks[diskId]->files.begin();
 		for (auto& file : nrfs->disks[diskId]->files) {
 			if (file->name == parsedPath.at(1)) {
-				file.reset();
-				nrfs->disks[diskId]->files.erase(it);
+				it = nrfs->disks[diskId]->files.erase(it);
+				break;
 			}
 			it++;
 		}
@@ -849,7 +809,7 @@ int core::PseudoFS::moveFile(std::string path, size_t diskId, const std::string&
 
 			for (auto& folder : nrfs->disks[diskId]->folders) {
 				if (parsedPath.at(0) == folder->name) {
-					if (parsedPath.size() > 2) parsedPath.erase(parsedPath.begin());
+					parsedPath.erase(parsedPath.begin());
 					return __moveFileHelper(parsedPath, diskId, folder.get(), oldFileData, path);
 				}
 			}

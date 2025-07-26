@@ -26,30 +26,30 @@ class VersionC {
 			return (this->versionStr != ver.versionStr);
 		}
 
-		constexpr bool operator<(VersionC& ver) {
-			double thisV = convVersionStrToDouble();
-			double v = ver.convVersionStrToDouble();
+		constexpr bool operator<(const VersionC& ver) {
+			double thisV = convVersionStrToDouble(versionStr);
+			double v = convVersionStrToDouble(ver.versionStr);
 
 			return (thisV < v);
 		}
 
-		constexpr bool operator>(VersionC& ver) {
-			double thisV = convVersionStrToDouble();
-			double v = ver.convVersionStrToDouble();
+		constexpr bool operator>(const VersionC& ver) {
+			double thisV = convVersionStrToDouble(versionStr);
+			double v = convVersionStrToDouble(ver.versionStr);
 
 			return (thisV > v);
 		}
 
-		constexpr bool operator<=(VersionC& ver) {
-			double thisV = convVersionStrToDouble();
-			double v = ver.convVersionStrToDouble();
+		constexpr bool operator<=(const VersionC& ver) {
+			double thisV = convVersionStrToDouble(versionStr);
+			double v = convVersionStrToDouble(ver.versionStr);
 
 			return (thisV <= v);
 		}
 
-		constexpr bool operator>=(VersionC& ver) {
-			double thisV = convVersionStrToDouble();
-			double v = ver.convVersionStrToDouble();
+		constexpr bool operator>=(const VersionC& ver) {
+			double thisV = convVersionStrToDouble(versionStr);
+			double v = convVersionStrToDouble(ver.versionStr);
 
 			return (thisV >= v);
 		}
@@ -62,7 +62,7 @@ class VersionC {
 		/**
 		 * Преобразует std::string версии в double для последующих операции != == <= >=
 		 */
-		double convVersionStrToDouble() {
+		double convVersionStrToDouble(const std::string& versionStr) {
 			if (versionStr.empty()) return 0.0;
 			double result = 0.f;
 

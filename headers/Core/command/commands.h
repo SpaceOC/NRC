@@ -88,6 +88,7 @@ namespace core {
 		std::string CORE_COMMAND_allLocalVars(core::User*, core::CommandObject*);
 	}
 
+	bool checkPath(const std::string& path);
 	std::string checkUserPermissionsForCommand(core::User* who);
 	std::string checkUserPermissionsForPFSCommand(core::User* who, const core::FileData& target);
 	std::string checkUserPermissionsForPFSCommand(core::User* who, const core::FolderData& target);

@@ -66,25 +66,26 @@ void core::HandlerCommands::sendCommand(core::User* who, const core::CommandObje
 		core::print(err, core::PrintColors::red);
 		core::print();
 	}
-	else if (it != commandMap.end() && command.args.empty()) {
-		std::cout << it->second.function(who, thisObj);
-	}
-	else {
-		auto itArgs = commandWithArgsMap.find(command.name);
-		if (itArgs != commandWithArgsMap.end()) {
-			if (static_cast<size_t>(itArgs->second.maxArgs) < command.args.size()) {
-				std::cout << "Too many arguments! Maximum number of command arguments: " << itArgs->second.maxArgs << '\n';
-			}
-			else if (static_cast<size_t>(itArgs->second.minArgs) > command.args.size()) {
-				std::cout << "There are too few arguments! At least '" << itArgs->second.minArgs << "' is required" << '\n';
-			}
-			else {
-				std::cout << itArgs->second.function(who, thisObj);
-			}
+	else if (it != commandMap.end()) {
+		if (std::holds_alternative<SimpleCommand>(it->second)) {
+			SimpleCommand simpleCommand = std::get<SimpleCommand>(it->second);
+			std::cout << simpleCommand(who, thisObj);
 		}
 		else {
-			std::cout << "Command not found" << '\n';
+			ExtentedCommand extentedCommand = std::get<ExtentedCommand>(it->second);
+			if (static_cast<size_t>(extentedCommand.maxArgs) < command.args.size()) {
+				std::cout << "Too many arguments! Maximum number of command arguments: " << extentedCommand.maxArgs << '\n';
+			}
+			else if (static_cast<size_t>(extentedCommand.minArgs) > command.args.size()) {
+				std::cout << "There are too few arguments! At least '" << extentedCommand.minArgs << "' is required" << '\n';
+			}
+			else {
+				std::cout << extentedCommand.function(who, thisObj);
+			}
 		}
+	}
+	else {
+			std::cout << "Command not found" << '\n';
 	}
 }
 
@@ -99,25 +100,26 @@ void core::HandlerCommands::sendCommand(core::User* who, const core::CommandObje
 		str = ret;
 	else if (!err.empty())
 		str = err;
-	else if (it != commandMap.end() && command.args.empty()) {
-		str = it->second.function(who, thisObj);
-	}
-	else {
-		auto itArgs = commandWithArgsMap.find(command.name);
-		if (itArgs != commandWithArgsMap.end()) {
-			if (static_cast<size_t>(itArgs->second.maxArgs) < command.args.size()) {
-				str = "Too many arguments! Maximum number of command arguments: " + core::string_util::valueToString(itArgs->second.maxArgs) + "\n";
-			}
-			else if (static_cast<size_t>(itArgs->second.minArgs) > command.args.size()) {
-				str = "There are too few arguments! At least '" + core::string_util::valueToString(itArgs->second.minArgs) + "' is required\n";
-			}
-			else {
-				str = itArgs->second.function(who, thisObj);
-			}
+	else if (it != commandMap.end()) {
+		if (std::holds_alternative<SimpleCommand>(it->second)) {
+			SimpleCommand simpleCommand = std::get<SimpleCommand>(it->second);
+			str = simpleCommand(who, thisObj);
 		}
 		else {
-			str = "Command not found";
+			ExtentedCommand extentedCommand = std::get<ExtentedCommand>(it->second);
+			if (static_cast<size_t>(extentedCommand.maxArgs) < command.args.size()) {
+				str = "Too many arguments! Maximum number of command arguments: " + core::string_util::valueToString(extentedCommand.maxArgs) + "\n";
+			}
+			else if (static_cast<size_t>(extentedCommand.minArgs) > command.args.size()) {
+				str = "There are too few arguments! At least '" + core::string_util::valueToString(extentedCommand.minArgs) + "' is required\n";
+			}
+			else {
+				str = extentedCommand.function(who, thisObj);
+			}
 		}
+	}
+	else {
+		str = "Command not found";
 	}
 }
 
@@ -126,8 +128,9 @@ void core::HandlerCommands::addCommand(const std::string& name, const std::strin
 	int spacesToAdd = std::max(10, 46 - static_cast<int>(name.length()));
 	temp += std::string(spacesToAdd, ' ');
 	temp += std::string(STRING_TAB) + "  " + description;
-	commandMap[name].function = function;
-	commandMap[name].description = temp;
+	SimpleCommand com = function;
+	commandMap[name] = com;
+	commandInfo[name].description = temp;
 }
 
 void core::HandlerCommands::addCommand(const std::string& name, const core::CommandDescription& data, const std::function<std::string(core::User*, core::CommandObject*)>& function, int minArgs, int maxArgs, const CommandRules& rules) {
@@ -135,42 +138,38 @@ void core::HandlerCommands::addCommand(const std::string& name, const core::Comm
 	int spacesToAdd = std::max(10, 46 - static_cast<int>(name.length() + data.argsNames.data()->length() + (7 * data.argsNames.size())));
 	temp += std::string(spacesToAdd, ' ');
 	temp += std::string(STRING_TAB) + "  " + data.description;
-	commandWithArgsMap[name].minArgs = minArgs;
-	commandWithArgsMap[name].maxArgs = maxArgs;
-	commandWithArgsMap[name].argsNames = data.argsNames;
-	commandWithArgsMap[name].function = function;
-	commandWithArgsMap[name].description = temp;
-	commandWithArgsMap[name].rules = new CommandRules(rules);
+	ExtentedCommand com = {minArgs, maxArgs, function, new CommandRules(rules)};
+	commandMap[name] = com;
+	commandInfo[name].description = temp;
+	commandInfo[name].argsNames = data.argsNames;
 }
 
-void core::HandlerCommands::addCustomRules(const std::function<bool(const core::CommandObject& c, core::User* who, std::string& ret, std::string& err)>& f) {
-	customRules.push_back(f);
+void core::HandlerCommands::addCustomRules(const std::string& id, const CustomRulesFunc& f) {
+	customRules[id] = f;
+}
+
+void core::HandlerCommands::deleteCustomRules(const std::string& id) {
+	if (customRules.count(id)) {
+		customRules.erase(id);
+	}
 }
 
 void core::HandlerCommands::deleteCommand(const std::string& name) {
-	if (!commandMap.count(name) && !commandWithArgsMap.count(name)) return;
-	if (commandMap.count(name)) commandMap.erase(name);
-	else commandWithArgsMap.erase(name);
+	if (commandMap.count(name)) {
+		commandMap.erase(name);
+	}
+	
+	if (commandInfo.count(name)) {
+		commandInfo.erase(name);
+	}
 }
 
 std::map<std::string, core::CommandDescription> core::HandlerCommands::getCommand(const std::string& name) {
 	if (commandMap.count(name))
-		return {{name, {commandMap[name].description, {}}}};
-	else if (commandWithArgsMap.count(name))
-		return {{name, {commandWithArgsMap[name].description, commandWithArgsMap[name].argsNames}}};
+		return {{name, commandInfo[name]}};
 	return {};
 }
 
 std::map<std::string, core::CommandDescription> core::HandlerCommands::getAllCommands() {
-	if (commandMap.empty()) return {};
-	std::map<std::string, core::CommandDescription> temp;
-	for (auto commandData : commandMap) { 
-		temp[commandData.first].description = commandData.second.description;
-		temp[commandData.first].argsNames = {};
-	}
-	for (auto commandData : commandWithArgsMap) { 
-		temp[commandData.first].description = commandData.second.description;
-		temp[commandData.first].argsNames = commandData.second.argsNames;
-	}
-	return temp;
+	return commandInfo;
 }

@@ -20,7 +20,7 @@ namespace core {
 		[[nodiscard]] virtual std::string __getStringInQ(const std::string& original, size_t startIndex, size_t& end);
 		[[nodiscard]] virtual bool __setReturnableOnSingleCommand(CommandObject* target, const std::string& raw, size_t startIndex);
 
-		bool __isCommandSeparator(const std::string& original, size_t startIndex);
+		[[nodiscard]] bool __isCommandSeparator(const std::string& original, size_t startIndex);
 	};
 }
 
