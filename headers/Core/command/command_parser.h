@@ -4,6 +4,7 @@
 #include <utility>
 #include <vector>
 #include <string>
+#include <map>
 
 namespace core {
 	struct CommandObject;
@@ -14,9 +15,9 @@ namespace core {
 		CommandParser();
 		virtual ~CommandParser();
 		[[nodiscard]] virtual std::vector<CommandObject> parse(const std::string& raw, bool parseVars = false, core::User* who = nullptr);
+		[[nodiscard]] static std::map<std::string, std::string> getMapArgsFromVector(const std::vector<std::string>& args, std::string def = "--");
 	private:
 		[[nodiscard]] virtual CommandObject* __parseSingleCommand(const std::string& raw, size_t startIndex, bool parseVars, core::User* who);
-		virtual std::pair<std::string, std::string> __getMapArgs(const std::string& targetText);
 		[[nodiscard]] virtual std::string __getStringInQ(const std::string& original, size_t startIndex, size_t& end);
 		[[nodiscard]] virtual bool __setReturnableOnSingleCommand(CommandObject* target, const std::string& raw, size_t startIndex);
 

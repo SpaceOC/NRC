@@ -21,7 +21,7 @@ add_library(NRC STATIC
                 ${CORE_SOURCE_DIR}/users/OOBE.cpp
                 ${CORE_SOURCE_DIR}/filesystem/nrfs.cpp 
                 ${CORE_SOURCE_DIR}/filesystem/pseudo_fs.cpp
-                ${CORE_SOURCE_DIR}/experimental/process.cpp
+                ${CORE_SOURCE_DIR}/experimental/thread_manager.cpp
                 ${CORE_SOURCE_DIR}/experimental/run_js_code_utils.cpp
                 ${CORE_SOURCE_DIR}/experimental/js_code_native_functions/pseudo_filesystem_functions.cpp
                 ${CORE_SOURCE_DIR}/experimental/js_code_native_functions/simple_filesystem_functions.cpp

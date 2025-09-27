@@ -36,9 +36,9 @@ class ModuleBase {
 
 		/**	Запрашивание доступного указателя с необходимым классом.
 		 * @param request Название запрашиваемого класса
-		 * @note Изменяйте эту функцию, только если надо использовать PFS для работы модуля
+		 * @return Возвращает указатель...?
 		 */
-		virtual void requestPtrClass(const std::string& request) = 0;
+		virtual size_t* requestPtrClass(const std::string& request);
 	private:
 		std::string path;
 		std::map<std::string, std::string> currentLanguage;

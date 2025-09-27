@@ -14,7 +14,7 @@
 #include "Core/print/print.h"
 #include "Core/other/variables.h"
 #include "Core/command/command_sender.h"
-#include "Core/experimental/process.h"
+#include "Core/experimental/thread_manager.h"
 #include "Core/modules/module_metadata.h"
 #include "Core/utils/other_util.h"
 
@@ -482,12 +482,25 @@ void core::main::checkModule(const std::string& name) {
 	ModuleMetadata moduleMetadata;
 	nlohmann::json j = nlohmann::json::parse(other_util::getFileContent(modulePath + "lib.json"));
 	moduleMetadata.makeMetadataFromJSON(j);
-
 	if (moduleMetadata.requiredVersionInRange && (*(moduleMetadata.uses[0]) > version && *(moduleMetadata.uses[1]) < version)) {
 		std::cout << name << " not loaded\n";
 	}
 
-	// ...
+/*
+	try {
+	  	std::string binName = moduleMetadata->layout[OS_NAME];
+	  	dylib moduleRaw(modulePath + "bin/" + (binName.empty() ? OS_NAME : binName));
+	  	auto createModuleFunction = moduleRaw.get_function<ModuleBase *(ModuleMetadata *)>("createModule");
+	  	auto module = createModuleFunc(moduleMetadata);
+	  	if (module) {
+			std::unique_ptr<Module> moduleInUniquePtr(std::move(module));
+			modules.push_back(std::move(moduleInUniquePtr));
+	  	}
+	}
+	catch (std::exception &e) {
+	  	std::cout << e.what() << '\n';
+	}
+*/
 }
 
 void core::main::loop() {

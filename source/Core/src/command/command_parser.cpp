@@ -146,8 +146,29 @@ std::string core::CommandParser::__getStringInQ(const std::string& original, siz
 	return str;
 }
 
+/*
 std::pair<std::string, std::string> core::CommandParser::__getMapArgs(const std::string&) {
 	return {};
+}
+*/
+
+std::map<std::string, std::string> core::CommandParser::getMapArgsFromVector(const std::vector<std::string>& args, std::string def) {
+	std::map<std::string, std::string> result;
+
+	size_t size = args.size();
+	for (size_t i = 0; i < size; i++) {
+		if (!args.at(i)._Starts_with(def)) {
+			continue;
+		}
+
+		if ((i + 1) < size && !args.at(i + 1)._Starts_with(def)) {
+			result[args.at(i)] = args.at(i + 1);
+		}
+		else if ((i + 1) >= size || ((i + 1) < size && args.at(i + 1)._Starts_with(def))) {
+			result[args.at(i)] = "";
+		}
+	}
+	return result;
 }
 
 bool core::CommandParser::__isCommandSeparator(const std::string& original, size_t startIndex) {
