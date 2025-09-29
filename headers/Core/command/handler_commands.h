@@ -18,7 +18,7 @@ namespace core {
 		private:
 			std::map<std::string, CommandVariant> commandMap;
 			std::map<std::string, CommandDescription> commandInfo;
-			std::map<std::string, std::function<bool(const core::CommandObject& c, core::User* who, std::string& ret, std::string& err)>> customRules;
+			std::map<std::string, CustomRulesFunc> customRules;
 			std::string commandSeparator = "&/"; // Command separator.
 			CommandParser* parser;
 		protected:
@@ -50,7 +50,7 @@ namespace core {
 			void addCommand(const std::string& name, const std::string& description, const std::function<std::string(core::User*, core::CommandObject*)>& function);
 			void addCommand(const std::string& name, const CommandDescription& data, const std::function<std::string(core::User*, core::CommandObject*)>& function, int minArgs, int maxArgs, const CommandRules& rules);
 
-			void addCustomRules(const std::string& id, const std::function<bool(const core::CommandObject& c, core::User* who, std::string& ret, std::string& err)>& f);
+			void addCustomRules(const std::string& id, const CustomRulesFunc& f);
 			void deleteCustomRules(const std::string& id);
 
 			void deleteCommand(const std::string& name);

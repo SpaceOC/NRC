@@ -1,5 +1,6 @@
 #include <string>
 #include <fstream>
+#include "dylib.hpp"
 #include "Core/main.h"
 #include "Core/users/OOBE.h"
 #include "Core/filesystem/pseudo_fs.h"
@@ -14,6 +15,7 @@
 #include "Core/print/print.h"
 #include "Core/other/variables.h"
 #include "Core/command/command_sender.h"
+#include "Core/modules/module_base.h"
 #include "Core/experimental/thread_manager.h"
 #include "Core/modules/module_metadata.h"
 #include "Core/utils/other_util.h"
@@ -483,24 +485,59 @@ void core::main::checkModule(const std::string& name) {
 	nlohmann::json j = nlohmann::json::parse(other_util::getFileContent(modulePath + "lib.json"));
 	moduleMetadata.makeMetadataFromJSON(j);
 	if (moduleMetadata.requiredVersionInRange && (*(moduleMetadata.uses[0]) > version && *(moduleMetadata.uses[1]) < version)) {
-		std::cout << name << " not loaded\n";
+		std::string requiresVersionMessage = 
+			(
+				moduleMetadata.uses[0]->getVersionStr() != moduleMetadata.uses[1]->getVersionStr() ?
+				moduleMetadata.uses[0]->getVersionStr() + "-" + moduleMetadata.uses[1]->getVersionStr() :
+				moduleMetadata.uses[0]->getVersionStr()
+			);
+		
+		core::print(core::PrintColors::red, "'", name, "' can't be loaded!\n",
+			"This module requires NRC version " + requiresVersionMessage
+		);
 	}
 
-/*
 	try {
-	  	std::string binName = moduleMetadata->layout[OS_NAME];
-	  	dylib moduleRaw(modulePath + "bin/" + (binName.empty() ? OS_NAME : binName));
-	  	auto createModuleFunction = moduleRaw.get_function<ModuleBase *(ModuleMetadata *)>("createModule");
-	  	auto module = createModuleFunc(moduleMetadata);
-	  	if (module) {
-			std::unique_ptr<Module> moduleInUniquePtr(std::move(module));
-			modules.push_back(std::move(moduleInUniquePtr));
+	  	std::string binName = moduleMetadata.layout[OS_NAME_STR];
+	  	dylib::library moduleRaw(modulePath + "bin/" + (binName.empty() ? OS_NAME_STR : binName));
+	  	auto createModuleFunction = moduleRaw.get_function<ModuleBase *(ModuleMetadata *, main *)>("createModule");
+	  	auto moduleb = createModuleFunction(&moduleMetadata, this);
+	  	if (moduleb) {
+			//std::unique_ptr<ModuleBase> moduleInUniquePtr(std::move(moduleb));
+			modules.push_back(std::move(moduleb));
 	  	}
 	}
 	catch (std::exception &e) {
 	  	std::cout << e.what() << '\n';
 	}
-*/
+}
+
+void nothing() {}
+
+void* core::main::getRequiredClassPtr(const std::string& request, ModuleBase*) {
+	/*
+	if (modules.empty())
+		return 0;
+	
+	bool moduleFound = std::any_of(modules.begin(), modules.end(), [&module](ModuleBase* f) { return f == module; });
+
+	if (!moduleFound)
+		return 0;
+		*/
+	
+	if (request == "PseudoFS") {
+		return (void*)pseudoFS();
+	}
+	else if (request == "UserManager") {
+		return (void*)userManager();
+	}
+	else if (request == "HandlerCommands") {
+		return (void*)handlerCommands();
+	}
+	else if (request == "SystemVariablesManager") {
+		return (void*)systemVariablesManager();
+	}
+	return (void*)(&nothing);
 }
 
 void core::main::loop() {

@@ -55,10 +55,13 @@ void core::HandlerCommands::sendCommand(const core::UserPermissions permissions,
 void core::HandlerCommands::sendCommand(core::User* who, const core::CommandObject& command) {
 	auto it = commandMap.find(command.name);
 	std::string str, err;
+	bool findCustomRule = false;
 	core::CommandObject* thisObj = new CommandObject(command);
-	bool findCustomRule = std::any_of(customRules.begin(), customRules.end(), [&](std::function<bool(const core::CommandObject& c, core::User* who, std::string& ret, std::string& err)> func) -> bool {
-		return func(command, who, str, err);
-	});
+	for (auto pair : customRules) {
+		if ((findCustomRule = pair.second(command, who, str, err))) {
+			break;
+		}
+	}
 	if (findCustomRule) {
 		std::cout << str << '\n';
 	}
@@ -92,10 +95,13 @@ void core::HandlerCommands::sendCommand(core::User* who, const core::CommandObje
 void core::HandlerCommands::sendCommand(core::User* who, const core::CommandObject& command, std::string& str) {
 	auto it = commandMap.find(command.name);
 	std::string ret, err;
+	bool findCustomRule = false;
 	core::CommandObject* thisObj = new CommandObject(command);
-	bool findCustomRule = std::any_of(customRules.begin(), customRules.end(), [&](std::function<bool(const core::CommandObject& c, core::User* who, std::string& ret, std::string& err)> func) -> bool {
-		return func(command, who, ret, err);
-	});
+	for (auto pair : customRules) {
+		if ((findCustomRule = pair.second(command, who, ret, err))) {
+			break;
+		}
+	}
 	if (findCustomRule)
 		str = ret;
 	else if (!err.empty())

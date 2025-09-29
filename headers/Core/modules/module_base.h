@@ -6,12 +6,14 @@
 #include <map>
 
 namespace core {
+	class main;
 	struct ModuleMetadata;
 
 class ModuleBase {
 	public:
-		explicit ModuleBase(ModuleMetadata* meta);
-		virtual ~ModuleBase() = 0;
+		explicit ModuleBase(ModuleMetadata* meta, main* core);
+		//explicit ModuleBase() {} // временно используется для тестов
+		virtual ~ModuleBase() {};
 		ModuleBase(const ModuleBase &) = delete;
 		ModuleBase(ModuleBase &&) = delete;
 		ModuleBase &operator=(const ModuleBase &) = delete;
@@ -20,29 +22,32 @@ class ModuleBase {
 		/**	Принимает и выполняет определённый запрос от системы
 		 * @param request Запрос
 		 */
-		virtual bool runRequest(const std::string &request) = 0;
+		virtual bool runRequest(const std::string&) { return false; }
 
 		/**	Обработка загрузки модуля из ядра
 		 */
-		virtual void onLoad() = 0;
+		virtual void onLoad() {}
 
 		/**	Обработка выгрузки модуля из ядра
 		 */
-		virtual void onUnload() = 0;
+		virtual void onUnload() {};
 
 		/**	Обработка неправильного запроса к ядру
 		 */
-		virtual void onWrongRequest() = 0;
+		virtual void onWrongRequest(int) {};
 
 		/**	Запрашивание доступного указателя с необходимым классом.
 		 * @param request Название запрашиваемого класса
 		 * @return Возвращает указатель...?
 		 */
-		virtual size_t* requestPtrClass(const std::string& request);
+		void* requestPtrClass(const std::string& request);
+
+		ModuleMetadata getMetadata();
 	private:
 		std::string path;
 		std::map<std::string, std::string> currentLanguage;
-		std::unique_ptr<ModuleMetadata> metadata;
+		ModuleMetadata* metadata;
+		main* core;
 };
 
 }; // namespace core

@@ -12,17 +12,16 @@
 #include "Core/filesystem/pseudo_fs.h"
 #include "Core/filesystem/nrfs.h"
 
-bool checkPath(const std::string& path) {
+bool core::checkPath(const std::string& path) {
 	if (!path._Starts_with("./"))
 		return false;
 	
-	char past;
 	for (size_t i = 0; i < path.size(); i++) {
-		if (past == path[i] == '/') {
+		if (((i > 0 && path[i - 1] == path[i]) || (path[i + 1] == path[i])) && path[i] == '/') {
 			return false;
 		}
-		past = path[i];
 	}
+	return true;
 }
 
 std::string core::checkUserPermissionsForCommand(core::User* who) {

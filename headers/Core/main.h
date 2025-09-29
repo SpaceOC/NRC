@@ -3,13 +3,20 @@
 
 #include <functional>
 #include <vector>
-#include "Core/command/command_sender.h"
-#include "Core/modules/module_base.h"
 #include "CORE_info.h"
 #include "Core/other/versionc.h"
 
+#if defined(_WIN32)
+#define OS_NAME_STR "WINDOWS"
+#elif defined(__APPLE__)
+#define OS_NAME_STR "MAC"
+#else
+#define OS_NAME_STR "LINUX"
+#endif
+
 namespace core {
 	class CommandSenderBasic;
+	class ModuleBase;
 	class main {
 		private:
 			void fixNOW();
@@ -38,6 +45,7 @@ namespace core {
 			void start();
 			void stopWork();
 			void setCommandSender(CommandSenderBasic* newCommandSender);
+			void* getRequiredClassPtr(const std::string& request, ModuleBase* module);
 	};
 }
 
