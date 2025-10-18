@@ -9,7 +9,7 @@
 #include <functional>
 #include <memory>
 
-namespace core {
+namespace core::experimental {
 	struct ThreadInfo {
 		std::shared_ptr<std::thread> thread;
 		bool work = true;

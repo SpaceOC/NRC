@@ -15,7 +15,7 @@
 
 #include "Core/CORE_info.h"
 #include "Core/print/print.h"
-#include "Core/command/handler_commands.h"
+#include "Core/command/commands_handler.h"
 #include "Core/users/user_manager.h"
 #include "Core/users/user.h"
 #include "Core/users/user_permissions_enum.h"
@@ -69,15 +69,15 @@ value load_file(interpreter& i, const std::wstring_view path) {
 	return i.eval(*bs);
 }
 
-void core_experimental::runCode(const std::string& code, core::User* user) {
+void core::experimental::runCode(const std::string& code, core::User* user) {
 	try {
 		gc_heap heap{deafult_heap_size};
 		interpreter i{heap, version::latest};
 		std::string str;
-		core_experimental::addUserManagerFunctions(i, heap);
-		core_experimental::addPseudoFileSystemFunctions(i, user, heap);
-		//core_experimental::addSimpleFileSystemFunctions(i, user, heap);
-		core_experimental::addOtherFunctions(i, user, heap, str);
+		core::experimental::addUserManagerFunctions(i, heap);
+		core::experimental::addPseudoFileSystemFunctions(i, user, heap);
+		//core::experimental::addSimpleFileSystemFunctions(i, user, heap);
+		core::experimental::addOtherFunctions(i, user, heap, str);
 		try {
 			const value res = i.eval(*parse(make_source(std::wstring(code.begin(), code.end()), version::latest)));
 		}
@@ -90,14 +90,14 @@ void core_experimental::runCode(const std::string& code, core::User* user) {
 	}
 }
 
-void core_experimental::runCode(const std::string& code, core::User* user, std::string& str) {
+void core::experimental::runCode(const std::string& code, core::User* user, std::string& str) {
 	try {
 		gc_heap heap{deafult_heap_size};
 		interpreter i{heap, version::latest};
-		core_experimental::addUserManagerFunctions(i, heap);
-		core_experimental::addPseudoFileSystemFunctions(i, user, heap);
-		//core_experimental::addSimpleFileSystemFunctions(i, user, heap);
-		core_experimental::addOtherFunctions(i, user, heap, str);
+		core::experimental::addUserManagerFunctions(i, heap);
+		core::experimental::addPseudoFileSystemFunctions(i, user, heap);
+		//core::experimental::addSimpleFileSystemFunctions(i, user, heap);
+		core::experimental::addOtherFunctions(i, user, heap, str);
 		try {
 			const value res = i.eval(*parse(make_source(std::wstring(code.begin(), code.end()), version::latest)));
 		}
@@ -110,12 +110,12 @@ void core_experimental::runCode(const std::string& code, core::User* user, std::
 	}
 }
 
-void core_experimental::runCode(const std::string& code, const core::UserPermissions& permissions) {
+void core::experimental::runCode(const std::string& code, const core::UserPermissions& permissions) {
 	core::User tempUser = core::User("UNKNOWN_TEMP_USER_FOR_RUNNING_COMMANDS_OR_JS_CODE", permissions);
-	core_experimental::runCode(code, &tempUser);
+	core::experimental::runCode(code, &tempUser);
 }
 
-void core_experimental::runCode(const std::string& code, const core::UserPermissions& permissions, std::string& str) {
+void core::experimental::runCode(const std::string& code, const core::UserPermissions& permissions, std::string& str) {
 	core::User tempUser = core::User("UNKNOWN_TEMP_USER_FOR_RUNNING_COMMANDS_OR_JS_CODE", permissions);
-	core_experimental::runCode(code, &tempUser, str);
+	core::experimental::runCode(code, &tempUser, str);
 }

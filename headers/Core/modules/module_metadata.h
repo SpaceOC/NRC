@@ -25,7 +25,7 @@ struct ModuleMetadata {
 	 * 1 - Максимальная версия ядра для работы модуля
 	 */
 	VersionC* uses[2];
-	bool requiredVersionInRange; // Если стоит true, то требует чтобы версия ядра была не выше и не ниже требуемых модулю. В противном случае модуль не загрузится.
+	bool requiredVersionInRange = false; // Если стоит true, то требует чтобы версия ядра была не выше и не ниже требуемых модулю. В противном случае модуль не загрузится.
 
 	std::map<std::string, std::string> layout;
 	std::vector<std::string> translations;

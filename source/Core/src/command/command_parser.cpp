@@ -1,5 +1,5 @@
 #include "Core/command/command_parser.h"
-#include "Core/command/handler_commands.h"
+#include "Core/command/commands_handler.h"
 #include "Core/command/command_structs.h"
 #include "Core/users/user.h"
 #include "Core/other/variables.h"
@@ -22,7 +22,7 @@ std::vector<core::CommandObject> core::CommandParser::parse(const std::string& r
 			result.push_back(std::move(*obj));
 			obj = nullptr;
 			if (i != (raw.size() - 1)) {
-				i += handlerCommands()->getCommandSeparator().size() - 1;
+				i += commandsHandler()->getCommandSeparator().size() - 1;
 			}
 		}
 	}
@@ -56,7 +56,7 @@ core::CommandObject* core::CommandParser::__parseSingleCommand(const std::string
 			str = "";
 		}
 		else if ((raw[i] == ' ' || (i + 1) >= raw.size()) && !result->name.empty()) {
-			if (parseVars && who && handlerCommands()->thisVariable(str)) {
+			if (parseVars && who && commandsHandler()->thisVariable(str)) {
 				std::string varName = str.substr(1, str.length() - 2);
 
 				if (systemVariablesManager()->exists(varName) && systemVariablesManager()->getVariable(varName).type == VariableType::NAME) {
@@ -174,7 +174,7 @@ std::map<std::string, std::string> core::CommandParser::getMapArgsFromVector(con
 bool core::CommandParser::__isCommandSeparator(const std::string& original, size_t startIndex) {
 	if (original.empty() || (original.size() <= startIndex)) return false;
 
-	std::string separator = handlerCommands()->getCommandSeparator();
+	std::string separator = commandsHandler()->getCommandSeparator();
 	size_t originalIndex = startIndex;
 	size_t end = startIndex + separator.size();
 

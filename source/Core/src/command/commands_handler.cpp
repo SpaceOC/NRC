@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 #include <sstream>
-#include "Core/command/handler_commands.h"
+#include "Core/command/commands_handler.h"
 #include "Core/command/command_structs.h"
 #include "Core/other/variables.h"
 #include "Core/utils/string_util.h"
@@ -19,40 +19,40 @@
 #define STRING_TAB		"    "
 #endif
 
-core::HandlerCommands HC;
-core::HandlerCommands* core::handlerCommands() {
+core::CommandsHandler HC;
+core::CommandsHandler* core::commandsHandler() {
 	return &HC;
 }
 
-core::HandlerCommands::HandlerCommands() {
+core::CommandsHandler::CommandsHandler() {
 	parser = new CommandParser();
 }
 
-bool core::HandlerCommands::thisVariable(const std::string& command) {
+bool core::CommandsHandler::thisVariable(const std::string& command) {
 	return (command.substr(0, 1) == "%" && command.substr(command.length() - 1, command.length()) == "%");
 }
 
-void core::HandlerCommands::sendCommand(const core::CommandObject& command) {
+void core::CommandsHandler::sendCommand(const core::CommandObject& command) {
 	sendCommand(&core::userManager()->currentUserData(), command);
 }
 
-void core::HandlerCommands::sendCommand(const core::CommandObject& command, std::string& str) {
+void core::CommandsHandler::sendCommand(const core::CommandObject& command, std::string& str) {
 	sendCommand(&core::userManager()->currentUserData(), command, str);
 }
 
-void core::HandlerCommands::sendCommand(const core::UserPermissions permissions, const core::CommandObject& command) {
+void core::CommandsHandler::sendCommand(const core::UserPermissions permissions, const core::CommandObject& command) {
 	core::User* user = new User("UNKNOWN_TEMP_USER_FOR_RUNNING_COMMANDS_OR_JS_CODE", permissions);
 	sendCommand(user, command);
 	delete user;
 }
 
-void core::HandlerCommands::sendCommand(const core::UserPermissions permissions, const core::CommandObject& command, std::string& str) {
+void core::CommandsHandler::sendCommand(const core::UserPermissions permissions, const core::CommandObject& command, std::string& str) {
 	core::User* user = new User("UNKNOWN_TEMP_USER_FOR_RUNNING_COMMANDS_OR_JS_CODE", permissions);
 	sendCommand(user, command, str);
 	delete user;
 }
 
-void core::HandlerCommands::sendCommand(core::User* who, const core::CommandObject& command) {
+void core::CommandsHandler::sendCommand(core::User* who, const core::CommandObject& command) {
 	auto it = commandMap.find(command.name);
 	std::string str, err;
 	bool findCustomRule = false;
@@ -92,7 +92,7 @@ void core::HandlerCommands::sendCommand(core::User* who, const core::CommandObje
 	}
 }
 
-void core::HandlerCommands::sendCommand(core::User* who, const core::CommandObject& command, std::string& str) {
+void core::CommandsHandler::sendCommand(core::User* who, const core::CommandObject& command, std::string& str) {
 	auto it = commandMap.find(command.name);
 	std::string ret, err;
 	bool findCustomRule = false;
@@ -129,17 +129,16 @@ void core::HandlerCommands::sendCommand(core::User* who, const core::CommandObje
 	}
 }
 
-void core::HandlerCommands::addCommand(const std::string& name, const std::string& description, const std::function<std::string(core::User* who, core::CommandObject*)>& function) {
+void core::CommandsHandler::addCommand(const std::string& name, const std::string& description, core::SimpleCommand function) {
 	std::string temp;
 	int spacesToAdd = std::max(10, 46 - static_cast<int>(name.length()));
 	temp += std::string(spacesToAdd, ' ');
 	temp += std::string(STRING_TAB) + "  " + description;
-	SimpleCommand com = function;
-	commandMap[name] = com;
+	commandMap[name] = function;
 	commandInfo[name].description = temp;
 }
 
-void core::HandlerCommands::addCommand(const std::string& name, const core::CommandDescription& data, const std::function<std::string(core::User*, core::CommandObject*)>& function, int minArgs, int maxArgs, const CommandRules& rules) {
+void core::CommandsHandler::addCommand(const std::string& name, const core::CommandDescription& data, core::SimpleCommand function, int minArgs, int maxArgs, const CommandRules& rules) {
 	std::string temp;
 	int spacesToAdd = std::max(10, 46 - static_cast<int>(name.length() + data.argsNames.data()->length() + (7 * data.argsNames.size())));
 	temp += std::string(spacesToAdd, ' ');
@@ -150,17 +149,17 @@ void core::HandlerCommands::addCommand(const std::string& name, const core::Comm
 	commandInfo[name].argsNames = data.argsNames;
 }
 
-void core::HandlerCommands::addCustomRules(const std::string& id, const CustomRulesFunc& f) {
+void core::CommandsHandler::addCustomRules(const std::string& id, const CustomRulesFunc& f) {
 	customRules[id] = f;
 }
 
-void core::HandlerCommands::deleteCustomRules(const std::string& id) {
+void core::CommandsHandler::deleteCustomRules(const std::string& id) {
 	if (customRules.count(id)) {
 		customRules.erase(id);
 	}
 }
 
-void core::HandlerCommands::deleteCommand(const std::string& name) {
+void core::CommandsHandler::deleteCommand(const std::string& name) {
 	if (commandMap.count(name)) {
 		commandMap.erase(name);
 	}
@@ -170,12 +169,12 @@ void core::HandlerCommands::deleteCommand(const std::string& name) {
 	}
 }
 
-std::map<std::string, core::CommandDescription> core::HandlerCommands::getCommand(const std::string& name) {
+std::map<std::string, core::CommandDescription> core::CommandsHandler::getCommand(const std::string& name) {
 	if (commandMap.count(name))
 		return {{name, commandInfo[name]}};
 	return {};
 }
 
-std::map<std::string, core::CommandDescription> core::HandlerCommands::getAllCommands() {
+std::map<std::string, core::CommandDescription> core::CommandsHandler::getAllCommands() {
 	return commandInfo;
 }

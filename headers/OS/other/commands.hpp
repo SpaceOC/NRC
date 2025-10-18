@@ -3,7 +3,7 @@
 #include <map>
 #include <fstream>
 #include "Core/print/print.h"
-#include "Core/command/handler_commands.h"
+#include "Core/command/commands_handler.h"
 #include "Core/command/command_structs.h"
 #include "Core/main.h"
 
@@ -13,7 +13,6 @@ namespace core {
 class User;
 }
 
-// Да, я взял код counter.cpp прямиком из SpaceDOS и немного ... переписал... переделал.... 
 std::string counter(core::User*, core::CommandObject*) {
 	int a = 0;
 	int b = 0;
@@ -87,7 +86,7 @@ std::string helloC(core::User*, core::CommandObject*) {
 }
 
 void addCommands() {
-	core::handlerCommands()->addCommand("counter", "No description", counter);
-	core::handlerCommands()->addCommand("hi", "hiii!", helloC);
-	core::handlerCommands()->addCommand("exit", "exit", bye);
+	core::commandsHandler()->addCommand("counter", "No description", &counter);
+	core::commandsHandler()->addCommand("hi", "hiii!", &helloC);
+	core::commandsHandler()->addCommand("exit", "exit", &bye);
 }

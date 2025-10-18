@@ -99,7 +99,7 @@ namespace core {
 		protected:
 			NRFSDisk* root; // Main disk
 			std::vector<std::shared_ptr<NRFSDisk>> disks; // All disks (including main disk)
-			bool isLoadedFromFile;
+			bool isLoadedFromFile = false;
 		public:
 			NRFS();
 			NRFSDisk* getRoot();

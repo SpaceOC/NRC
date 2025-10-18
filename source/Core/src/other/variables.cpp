@@ -25,7 +25,7 @@ void core::VariablesManager::addVar(const std::string& name, const VariableType&
 		v.permissionsRun = (!isSystem ? permissionsRun : core::UserPermissions::ROOT);
 		if (type == VariableType::COMMAND) {
 			auto func = [](VariableData a) -> std::string {
-				std::vector<core::CommandObject> tc = core::handlerCommands()->getParser()->parse(a.str);
+				std::vector<core::CommandObject> tc = core::commandsHandler()->getParser()->parse(a.str);
 				std::string output;
 				core::User* who = (
 					!a.username.empty() && core::userManager()->userExist(a.username) ? 
@@ -36,9 +36,9 @@ void core::VariablesManager::addVar(const std::string& name, const VariableType&
 				for (const CommandObject& command : tc) {
 					std::string temp;
 					if (!who)
-						core::handlerCommands()->sendCommand(a.permissionsRun, command, temp);
+						core::commandsHandler()->sendCommand(a.permissionsRun, command, temp);
 					else
-						core::handlerCommands()->sendCommand(who, command, temp);
+						core::commandsHandler()->sendCommand(who, command, temp);
 					output += "\n" + temp;
 				}
 				if (a.outputReturn)
@@ -47,6 +47,7 @@ void core::VariablesManager::addVar(const std::string& name, const VariableType&
 			};
 			v.function = func;
 		}
+		#ifndef NRC_DISABLE_EXPERIMENTAL_FEATURES
 		else if (type == VariableType::JS_CODE) {
 			auto func = [](VariableData a) -> std::string {
 				core::User* who = (
@@ -57,22 +58,29 @@ void core::VariablesManager::addVar(const std::string& name, const VariableType&
 				
 				std::string str;
 				if (!who)
-					core_experimental::runCode(a.str, a.permissionsRun, str);
+					core::experimental::runCode(a.str, a.permissionsRun, str);
 				else
-					core_experimental::runCode(a.str, who, str);
+					core::experimental::runCode(a.str, who, str);
 				if (a.outputReturn)
 					return str;
 				return "";
 			};
 			v.function = func;
 		}
+		#endif
 		else if (type == VariableType::NAME) {
 			auto func = [](VariableData a) -> std::string {
 				return a.str;
 			};
 			v.function = func;
 		}
+		#ifndef NRC_DISABLE_EXPERIMENTAL_FEATURES
 		this->data.push_back(v);
+		#else
+		if (type != VariableType::JS_CODE) {
+			this->data.push_back(v);
+		}
+		#endif
 	}
 	catch (const std::exception& e) {
 		core::print(e.what(), core::PrintColors::red);

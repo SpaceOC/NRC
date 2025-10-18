@@ -15,7 +15,7 @@
 
 #include "Core/CORE_info.h"
 #include "Core/print/print.h"
-#include "Core/command/handler_commands.h"
+#include "Core/command/commands_handler.h"
 #include "Core/users/user_manager.h"
 #include "Core/filesystem/pseudo_fs.h"
 #include "Core/filesystem/nrfs.h"
@@ -31,11 +31,11 @@
 #include "ThirdParty/mjs/function_object.h"
 #include "ThirdParty/mjs/array_object.h"
 
-mjs::value core_experimental::getCString(std::string str, mjs::gc_heap& gc) {
+mjs::value core::experimental::getCString(std::string str, mjs::gc_heap& gc) {
 	return mjs::value(mjs::string(gc, str));
 }
 
-mjs::value core_experimental::objectUserData(mjs::gc_heap& gc, core::User* targetUser) {
+mjs::value core::experimental::objectUserData(mjs::gc_heap& gc, core::User* targetUser) {
 	if (!targetUser)
 		return mjs::value::null;
 	mjs::gc_heap_ptr a = gc.allocate_and_construct<mjs::object>(sizeof(mjs::object), mjs::string(gc, "User"), nullptr);

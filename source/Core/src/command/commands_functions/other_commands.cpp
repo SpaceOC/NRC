@@ -6,7 +6,7 @@
 #include <chrono>
 #include "Core/print/gprint.h"
 #include "Core/command/commands.h"
-#include "Core/command/handler_commands.h"
+#include "Core/command/commands_handler.h"
 #include "Core/command/command_structs.h"
 #include "Core/CORE_info.h"
 #include "Core/users/user_manager.h"
@@ -18,7 +18,7 @@
 std::string core::commands::CORE_COMMAND_help(core::User*, core::CommandObject* thisObj) {
 	std::string result;
 	if (thisObj->args.empty()) {
-		for (const auto& command : core::handlerCommands()->getAllCommands()) {
+		for (const auto& command : core::commandsHandler()->getAllCommands()) {
 			std::string argsNames = "";
 			if (!command.second.argsNames.empty()) {
 				for (auto arg : command.second.argsNames) {
@@ -29,11 +29,11 @@ std::string core::commands::CORE_COMMAND_help(core::User*, core::CommandObject* 
 		}
 	}
 	else {
-		if (core::handlerCommands()->getCommand(thisObj->args.at(0)).empty()) {
+		if (core::commandsHandler()->getCommand(thisObj->args.at(0)).empty()) {
 			return gprint("Command not found\n", PrintColors::red);
 		}
 		else {
-			std::map<std::string, core::CommandDescription> temp = core::handlerCommands()->getCommand(thisObj->args.at(0));
+			std::map<std::string, core::CommandDescription> temp = core::commandsHandler()->getCommand(thisObj->args.at(0));
 			std::string argsNames = "";
 			if (!temp[thisObj->args.at(0)].argsNames.empty()) {
 				for (auto arg : temp[thisObj->args.at(0)].argsNames) {
@@ -72,17 +72,17 @@ std::string core::commands::CORE_COMMAND_time(core::User* who, core::CommandObje
 
 	for (const std::string& anotherTemp : thisObj->args) {
 		if (anotherTemp != thisObj->args.at(0))
-			temp += (anotherTemp == core::handlerCommands()->getCommandSeparator() ? "" : "\"") + anotherTemp + (anotherTemp != thisObj->args.back() ? (anotherTemp == core::handlerCommands()->getCommandSeparator() ? "" : "\" ") : (anotherTemp == core::handlerCommands()->getCommandSeparator() ? "" : "\""));
+			temp += (anotherTemp == core::commandsHandler()->getCommandSeparator() ? "" : "\"") + anotherTemp + (anotherTemp != thisObj->args.back() ? (anotherTemp == core::commandsHandler()->getCommandSeparator() ? "" : "\" ") : (anotherTemp == core::commandsHandler()->getCommandSeparator() ? "" : "\""));
 		else
 			temp += anotherTemp + " ";
 	}
-	core::CommandObject command = core::handlerCommands()->getParser()->parse(temp).at(0);
+	core::CommandObject command = core::commandsHandler()->getParser()->parse(temp).at(0);
 	std::string result;
 
 	if (!thisObj->returnable)
-		core::handlerCommands()->sendCommand(who, command);
+		core::commandsHandler()->sendCommand(who, command);
 	else
-		core::handlerCommands()->sendCommand(who, command, result);
+		core::commandsHandler()->sendCommand(who, command, result);
 
 	auto end = std::chrono::steady_clock::now();
 	long long duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();

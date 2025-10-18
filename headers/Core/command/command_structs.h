@@ -16,12 +16,13 @@ namespace core {
 		size_t offParser = 1000; // is used to define after how many arguments to switch off the parser and save all other data in one argument
 	};
 
-	using SimpleCommand = std::function<std::string(core::User*, core::CommandObject*)>;
+	using SimpleCommand = std::string(*)(core::User*, core::CommandObject*);
 
 	// Stores the function, and the minimum and maximum number of arguments
 	struct ExtentedCommand {
 		int minArgs, maxArgs;
-		std::function<std::string(core::User*, core::CommandObject*)> function;
+		//std::function<std::string(core::User*, core::CommandObject*)> function;
+		SimpleCommand function;
 		core::CommandRules* rules = nullptr;
 	};
 

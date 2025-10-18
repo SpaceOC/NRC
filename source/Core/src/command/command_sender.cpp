@@ -4,7 +4,7 @@
 #include "Core/command/command_sender.h"
 
 #include "Core/print/print.h"
-#include "Core/command/handler_commands.h"
+#include "Core/command/commands_handler.h"
 #include "Core/command/command_structs.h"
 #include "Core/filesystem/pseudo_fs.h"
 #include "Core/filesystem/nrfs.h"
@@ -20,11 +20,11 @@ void core::CommandSenderBasic::zone() const {
 	}
 	std::getline(std::cin, userInputResult);
 	core::User* who = &core::userManager()->currentUserData();
-	std::vector<core::CommandObject> parsedCommands = core::handlerCommands()->getParser()->parse(userInputResult, true, who);
+	std::vector<core::CommandObject> parsedCommands = core::commandsHandler()->getParser()->parse(userInputResult, true, who);
 	for (const core::CommandObject& command : parsedCommands) {
 		if (command.returnable) {
 			std::string fileOutput;
-			core::handlerCommands()->sendCommand(command, fileOutput);
+			core::commandsHandler()->sendCommand(command, fileOutput);
 
 			if (!command.whereOutput.empty() && core::pseudoFS()->isFile(command.whereOutput)) {
 				std::string path = (command.whereOutput._Starts_with("./")
@@ -48,6 +48,6 @@ void core::CommandSenderBasic::zone() const {
 			}
 		}
 		else
-			core::handlerCommands()->sendCommand(command);
+			core::commandsHandler()->sendCommand(command);
 	}
 }

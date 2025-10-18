@@ -8,7 +8,7 @@
 #include <type_traits>
 #include <cassert>
 #include "Core/print/print.h"
-#include "Core/command/handler_commands.h"
+#include "Core/command/commands_handler.h"
 #include "Core/experimental/run_js_code.h"
 #include "Core/utils/string_util.h"
 #include "Core/other/variable_type_enum.h"
@@ -19,7 +19,7 @@ namespace core {
 	struct VariableData {
 		std::string name;
 		VariableType type;
-		bool outputReturn;
+		bool outputReturn = false;
 		core::UserPermissions permissionsRun;
 		std::string username;
 		std::string str; // Command, Code or Name

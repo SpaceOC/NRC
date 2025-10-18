@@ -1,5 +1,5 @@
-#ifndef NRC_BASE_COMMAND_HANDLER_COMMANDS_H_
-#define NRC_BASE_COMMAND_HANDLER_COMMANDS_H_
+#ifndef NRC_BASE_COMMAND_COMMANDS_HANDLER_H_
+#define NRC_BASE_COMMAND_COMMANDS_HANDLER_H_
 
 #include <string>
 #include <functional>
@@ -13,7 +13,7 @@ namespace core {
 	class User;
 	class VariablesManager;
 
-	class HandlerCommands {
+	class CommandsHandler {
 		friend core::VariablesManager;
 		private:
 			std::map<std::string, CommandVariant> commandMap;
@@ -27,7 +27,7 @@ namespace core {
 			// Executes a command (if it exists and meets the required execution conditions). If the command is a variable call, it starts the variable.
 			void sendCommand(const core::UserPermissions permissions, const core::CommandObject& command, std::string& str);
 		public:
-			HandlerCommands();
+			CommandsHandler();
 
 			// Checks if the argument is a variable call.
 			bool thisVariable(const std::string& command);
@@ -47,8 +47,8 @@ namespace core {
 			void setCommandParser(CommandParser* newParser) { parser = newParser; }
 			CommandParser* getParser() { return parser; }
 
-			void addCommand(const std::string& name, const std::string& description, const std::function<std::string(core::User*, core::CommandObject*)>& function);
-			void addCommand(const std::string& name, const CommandDescription& data, const std::function<std::string(core::User*, core::CommandObject*)>& function, int minArgs, int maxArgs, const CommandRules& rules);
+			void addCommand(const std::string& name, const std::string& description, core::SimpleCommand function);
+			void addCommand(const std::string& name, const CommandDescription& data, core::SimpleCommand function, int minArgs, int maxArgs, const CommandRules& rules);
 
 			void addCustomRules(const std::string& id, const CustomRulesFunc& f);
 			void deleteCustomRules(const std::string& id);
@@ -59,7 +59,7 @@ namespace core {
 			std::map<std::string, CommandDescription> getAllCommands();
 	};
 
-	extern HandlerCommands* handlerCommands();
+	extern CommandsHandler* commandsHandler();
 }
 
-#endif
+#endif // NRC_BASE_COMMAND_COMMANDS_HANDLER_H_

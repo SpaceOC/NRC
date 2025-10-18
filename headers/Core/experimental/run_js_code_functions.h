@@ -13,7 +13,7 @@ namespace core {
 	class User;
 };
 
-namespace core_experimental {
+namespace core::experimental {
 	void addUserManagerFunctions(mjs::interpreter& i, mjs::gc_heap& gc);
 	void addPseudoFileSystemFunctions(mjs::interpreter& i, core::User* user, mjs::gc_heap& gc);
 	//void addSimpleFileSystemFunctions(mjs::interpreter& i, core::User* user, mjs::gc_heap& gc);

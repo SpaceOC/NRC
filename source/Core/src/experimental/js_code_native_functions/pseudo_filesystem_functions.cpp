@@ -15,7 +15,7 @@
 
 #include "Core/CORE_info.h"
 #include "Core/print/print.h"
-#include "Core/command/handler_commands.h"
+#include "Core/command/commands_handler.h"
 #include "Core/users/user_manager.h"
 #include "Core/filesystem/pseudo_fs.h"
 #include "Core/filesystem/nrfs.h"
@@ -34,7 +34,7 @@
 
 using namespace mjs;
 
-void core_experimental::addPseudoFileSystemFunctions(mjs::interpreter& i, core::User* user, mjs::gc_heap& gc) {
+void core::experimental::addPseudoFileSystemFunctions(mjs::interpreter& i, core::User* user, mjs::gc_heap& gc) {
 	auto global = i.global();
 
 	put_native_function(global, global, "nrc_getFileData", [&i, &gc](const value&, const std::vector<value>& args) {

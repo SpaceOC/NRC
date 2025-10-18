@@ -1,27 +1,27 @@
 #include "Core/experimental/thread_manager.h"
 
-core::ThreadManager::ThreadManager() {}
-core::ThreadManager::ThreadManager(std::string firstThreadName, std::function<void()> func, bool wrapInWhileTrue) {
+core::experimental::ThreadManager::ThreadManager() {}
+core::experimental::ThreadManager::ThreadManager(std::string firstThreadName, std::function<void()> func, bool wrapInWhileTrue) {
 	if (wrapInWhileTrue) {
 		auto wrappedFunc = [this, func, firstThreadName]() -> void {
 			while(this->threads[firstThreadName].work) {
 				func();
 			}
 		};
-		core::ThreadInfo ti;
+		core::experimental::ThreadInfo ti;
 		ti.thread = std::make_shared<std::thread>(wrappedFunc);
 		ti.work = true;
 		threads.emplace(firstThreadName, ti);
 	}
 	else {
-		core::ThreadInfo ti;
+		core::experimental::ThreadInfo ti;
 		ti.thread = std::make_shared<std::thread>(func);
 		ti.work = true;
 		threads.emplace(firstThreadName, ti);
 	}
 }
 
-void core::ThreadManager::createThread(std::string threadName, std::function<void()> func, bool wrapInWhileTrue) {
+void core::experimental::ThreadManager::createThread(std::string threadName, std::function<void()> func, bool wrapInWhileTrue) {
 	if ((threads.size() - 1) < static_cast<size_t>(maxThreads)) {
 		if (wrapInWhileTrue) {
 			auto wrappedFunc = [this, func, threadName]() -> void {
@@ -29,13 +29,13 @@ void core::ThreadManager::createThread(std::string threadName, std::function<voi
 					func();
 				}
 			};
-			core::ThreadInfo ti;
+			core::experimental::ThreadInfo ti;
 			ti.thread = std::make_shared<std::thread>(wrappedFunc);
 			ti.work = true;
 			threads[threadName] = ti;
 		}
 		else {
-			core::ThreadInfo ti;
+			core::experimental::ThreadInfo ti;
 			ti.thread = std::make_shared<std::thread>(func);
 			ti.work = true;
 			threads[threadName] = ti;
@@ -43,22 +43,22 @@ void core::ThreadManager::createThread(std::string threadName, std::function<voi
 	}
 }
 
-void core::ThreadManager::startThread(std::string threadName) {
+void core::experimental::ThreadManager::startThread(std::string threadName) {
 	if (threads.find(threadName) != threads.end() && threads[threadName].thread->joinable()) {
 		threads[threadName].thread->detach();
 	}
 }
 
-void core::ThreadManager::stopThread(std::string threadName) {
+void core::experimental::ThreadManager::stopThread(std::string threadName) {
 	if (threads.find(threadName) != threads.end()) {
 		threads[threadName].work = false;
 	}
 }
 
-std::shared_ptr<std::thread> &core::ThreadManager::getThread(std::string threadName) {
+std::shared_ptr<std::thread> &core::experimental::ThreadManager::getThread(std::string threadName) {
 	return threads[threadName].thread;
 }
 
-std::map<std::string, core::ThreadInfo> &core::ThreadManager::getAllThreads() {
+std::map<std::string, core::experimental::ThreadInfo> &core::experimental::ThreadManager::getAllThreads() {
 	return threads;
 }

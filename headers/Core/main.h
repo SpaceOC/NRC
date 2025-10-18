@@ -16,7 +16,9 @@
 
 namespace core {
 	class CommandSenderBasic;
+	#ifndef NRC_DISABLE_EXPERIMENTAL_FEATURES
 	class ModuleBase;
+	#endif
 	class main {
 		private:
 			void fixNOW();
@@ -25,12 +27,17 @@ namespace core {
 			void addCommands();
 			void addCRules();
 			void loop();
+			#ifndef NRC_DISABLE_EXPERIMENTAL_FEATURES
 			void searchModules();
 			void checkModule(const std::string& name);
+			#endif
 			std::function<void()> loopedFunc;
 			std::function<void()> startFunc;
 			CommandSenderBasic* commandSender;
+			#ifndef NRC_DISABLE_EXPERIMENTAL_FEATURES
 			std::vector<ModuleBase*> modules;
+			#endif
+			bool commandSenderReplaced = false;
 		protected:
 			std::atomic<bool> work = true;
 		public:
@@ -41,11 +48,21 @@ namespace core {
 			main(std::function<void()> start);
 			~main();
 
+			/**
+			 * Инициализация NRC.
+			 * @note Обязательно вызывайте этот метод перед start()
+			 */
 			void init();
+			/**
+			 * Запуск NRC
+			 * @note Обязательно вызывайте этот метод после init()
+			 */
 			void start();
 			void stopWork();
 			void setCommandSender(CommandSenderBasic* newCommandSender);
+			#ifndef NRC_DISABLE_EXPERIMENTAL_FEATURES
 			void* getRequiredClassPtr(const std::string& request, ModuleBase* module);
+			#endif
 	};
 }
 

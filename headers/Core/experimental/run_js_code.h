@@ -9,7 +9,7 @@ namespace core {
 	class User;
 }
 
-namespace core_experimental {
+namespace core::experimental {
 	void runCode(const std::string& code, core::User* user);
 	void runCode(const std::string& code, const core::UserPermissions& permissions);
 	void runCode(const std::string& code, core::User* user, std::string& str);

@@ -15,8 +15,8 @@ namespace core {
 	// User Management in the NRC.
 	class UserManager {
 		private:
-			bool OOBEPassed;
-			bool userIsLogined; // Whether the user is logged in to their account
+			bool OOBEPassed = false;
+			bool userIsLogined = false; // Whether the user is logged in to their account
 			const int maxUsers = 10; // Maximum number of users.
 			std::string currentUser; // Current username
 			std::vector<User*> users;

@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "Core/command/handler_commands.h"
+#include "Core/command/commands_handler.h"
 #include "Core/command/command_parser.h"
 #include "Core/command/command_structs.h"
 #include "Core/users/user.h"

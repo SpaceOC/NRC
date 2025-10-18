@@ -15,7 +15,7 @@
 #include <any>
 #include "Core/users/user_permissions_enum.h"
 
-namespace core {
+namespace core::experimental {
 	namespace structDataEvents {
 		// Stores data (username, display name, permissions, position in users vector) of a newly created user.
 		struct UserAddEvent {
@@ -66,26 +66,33 @@ namespace core {
 	};
 
 	class EventManager {
+		using SDUserAddEvent = core::experimental::structDataEvents::UserAddEvent;
+		using SDUserDeleteEvent = core::experimental::structDataEvents::UserDeleteEvent;
+		using SDUserChangeEvent = core::experimental::structDataEvents::UserChangeEvent;
+		using SDNRCShutdownEvent = core::experimental::structDataEvents::NRCShutdownEvent;
+		using SDPFSInit = core::experimental::structDataEvents::PFSInit;
+		using SDPFSPostInit = core::experimental::structDataEvents::PFSPostInit;
+
 		private:
-			static inline std::vector<std::function<core::structDataEvents::UserAddEvent(core::structDataEvents::UserAddEvent)>> userAddEvents;
-			static inline std::vector<std::function<core::structDataEvents::UserDeleteEvent(core::structDataEvents::UserDeleteEvent)>> userDeleteEvents;
-			static inline std::vector<std::function<core::structDataEvents::UserChangeEvent(core::structDataEvents::UserChangeEvent)>> userChangeEvents;
-			static inline std::vector<std::function<core::structDataEvents::NRCShutdownEvent(core::structDataEvents::NRCShutdownEvent)>> NRCShutdownEvents;
-			static inline std::vector<std::function<core::structDataEvents::PFSInit(core::structDataEvents::PFSInit)>> pseudoFSInitEvents;
-			static inline std::vector<std::function<core::structDataEvents::PFSPostInit(core::structDataEvents::PFSPostInit)>> pseudoFSPostInitEvents;
+			static inline std::vector<std::function<SDUserAddEvent(SDUserAddEvent)>> userAddEvents;
+			static inline std::vector<std::function<SDUserDeleteEvent(SDUserDeleteEvent)>> userDeleteEvents;
+			static inline std::vector<std::function<SDUserChangeEvent(SDUserChangeEvent)>> userChangeEvents;
+			static inline std::vector<std::function<SDNRCShutdownEvent(SDNRCShutdownEvent)>> NRCShutdownEvents;
+			static inline std::vector<std::function<SDPFSInit(SDPFSInit)>> pseudoFSInitEvents;
+			static inline std::vector<std::function<SDPFSPostInit(SDPFSPostInit)>> pseudoFSPostInitEvents;
 		public:
-			static inline bool enableEvents;
+			static inline bool enableEvents = false;
 
 			// Starts all functions of a certain event.
 			static void eventsStart(int eventId, std::any event);
 			//auto eventStart(std::string name, std::any event, size_t id);
 
-			static void addEvent(std::function<core::structDataEvents::UserAddEvent(core::structDataEvents::UserAddEvent)> func);
-			static void addEvent(std::function<core::structDataEvents::UserChangeEvent(core::structDataEvents::UserChangeEvent)> func);
-			static void addEvent(std::function<core::structDataEvents::UserDeleteEvent(core::structDataEvents::UserDeleteEvent)> func);
-			static void addEvent(std::function<core::structDataEvents::NRCShutdownEvent(core::structDataEvents::NRCShutdownEvent)> func);
-			static void addEvent(std::function<core::structDataEvents::PFSInit(core::structDataEvents::PFSInit)> func);
-			static void addEvent(std::function<core::structDataEvents::PFSPostInit(core::structDataEvents::PFSPostInit)> func);
+			static void addEvent(std::function<SDUserAddEvent(SDUserAddEvent)> func);
+			static void addEvent(std::function<SDUserDeleteEvent(SDUserDeleteEvent)> func);
+			static void addEvent(std::function<SDUserChangeEvent(SDUserChangeEvent)> func);
+			static void addEvent(std::function<SDNRCShutdownEvent(SDNRCShutdownEvent)> func);
+			static void addEvent(std::function<SDPFSInit(SDPFSInit)> func);
+			static void addEvent(std::function<SDPFSPostInit(SDPFSPostInit)> func);
 	};
 
 };

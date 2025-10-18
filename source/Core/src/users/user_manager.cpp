@@ -17,7 +17,6 @@ core::UserManager* core::userManager() {
 	return &UM;
 }
 
-
 void core::UserManager::userLogic() {
 	#ifndef NRC_WEB
 	std::string usernameTemp; std::vector<std::string> temp;
@@ -83,14 +82,17 @@ void core::UserManager::addUserFromData(const std::string& username, const std::
 	users.push_back(new User(username, permissions, language, password));
 	users[userVectorPos(username)]->editDisplayName(displayName);
 
-	core::structDataEvents::UserAddEvent eventData = {
+	#ifndef NRC_DISABLE_EXPERIMENTAL_FEATURES
+	core::experimental::structDataEvents::UserAddEvent eventData = {
 		username,
 		users[userVectorPos(username)]->displayName,
 		users[userVectorPos(username)]->permissions,
 		static_cast<size_t>(userVectorPos(username))
 	};
 
-	core::EventManager::eventsStart(USER_ADD_EVENT, eventData);
+	core::experimental::EventManager::eventsStart(USER_ADD_EVENT, eventData);
+	#endif
+
 	int code;
 	core::pseudoFS()->getFolderData("./home/" + username, 0, code);
 	if (code == core::PseudoFSCodes::NOT_FOUND) {
@@ -177,14 +179,16 @@ void core::UserManager::systemAddUser(const std::string& username) {
 	currentUser = username;
 	userIsLogined = true;
 
-	core::structDataEvents::UserAddEvent eventData = {
+	#ifndef NRC_DISABLE_EXPERIMENTAL_FEATURES
+	core::experimental::structDataEvents::UserAddEvent eventData = {
 		username,
 		users[userVectorPos(username)]->getDisplayName(),
 		users[userVectorPos(username)]->getPermissions(),
 		static_cast<size_t>(userVectorPos(username))
 	};
 
-	core::EventManager::eventsStart(USER_ADD_EVENT, eventData);
+	core::experimental::EventManager::eventsStart(USER_ADD_EVENT, eventData);
+	#endif
 
 	int code;
 	core::pseudoFS()->getFolderData("./home/" + username, 0, code);
@@ -210,14 +214,17 @@ void core::UserManager::addUser(const std::string& username, const core::UserPer
 	{
 		users.push_back(new User(username, permissions));
 
-		core::structDataEvents::UserAddEvent eventData = {
+		#ifndef NRC_DISABLE_EXPERIMENTAL_FEATURES
+		core::experimental::structDataEvents::UserAddEvent eventData = {
 			username,
 			users[userVectorPos(username)]->getDisplayName(),
 			users[userVectorPos(username)]->getPermissions(),
 			static_cast<size_t>(userVectorPos(username))
 		};
 
-		core::EventManager::eventsStart(USER_ADD_EVENT, eventData);
+		core::experimental::EventManager::eventsStart(USER_ADD_EVENT, eventData);
+		#endif
+
 		int code;
 		core::pseudoFS()->getFolderData("./home/" + username, 0, code);
 		if (code == core::PseudoFSCodes::NOT_FOUND) {
@@ -237,13 +244,15 @@ void core::UserManager::deleteUser(const std::string& username) {
 		auto iter = users.begin();
 		for (User* user : users) {
 			if (user->getUsername() == username) {
-				core::structDataEvents::UserDeleteEvent eventData = {
+				#ifndef NRC_DISABLE_EXPERIMENTAL_FEATURES
+				core::experimental::structDataEvents::UserDeleteEvent eventData = {
 					username,
 					users[userVectorPos(username)]->getDisplayName(),
 					users[userVectorPos(username)]->getPermissions()
 				};
 
-				core::EventManager::eventsStart(USER_DELETE_EVENT, eventData);
+				core::experimental::EventManager::eventsStart(USER_DELETE_EVENT, eventData);
+				#endif
 
 				users.erase(iter);
 				int code;
@@ -267,14 +276,16 @@ void core::UserManager::renameUser(const std::string& username, const std::strin
 		users[userVectorPos(username)]->editUsername(newUsername);
 		std::filesystem::rename(usersPath + username + ".json", usersPath + newUsername + ".json");
 
-		core::structDataEvents::UserChangeEvent eventData = {
+		#ifndef NRC_DISABLE_EXPERIMENTAL_FEATURES
+		core::experimental::structDataEvents::UserChangeEvent eventData = {
 			username, newUsername,
 			users[userVectorPos(username)]->getDisplayName(), users[userVectorPos(username)]->getDisplayName(),
 			users[userVectorPos(username)]->getPermissions(), users[userVectorPos(username)]->getPermissions(),
 			static_cast<size_t>(userVectorPos(username))
 		};
 
-		core::EventManager::eventsStart(USER_CHANGE_EVENT, eventData);
+		core::experimental::EventManager::eventsStart(USER_CHANGE_EVENT, eventData);
+		#endif
 	}
 	else print("This user could not be renamed\n", PrintColors::red);
 }
@@ -290,14 +301,16 @@ void core::UserManager::changePermissionsUser(const std::string& username, const
 		file << data.dump(2);
 		file.close();
 
-		core::structDataEvents::UserChangeEvent eventData = {
+		#ifndef NRC_DISABLE_EXPERIMENTAL_FEATURES
+		core::experimental::structDataEvents::UserChangeEvent eventData = {
 			username, username,
 			users[userVectorPos(username)]->getDisplayName(), users[userVectorPos(username)]->getDisplayName(),
 			past, users[userVectorPos(username)]->getPermissions(),
 			static_cast<size_t>(userVectorPos(username))
 		};
 
-		core::EventManager::eventsStart(USER_CHANGE_EVENT, eventData);	
+		core::experimental::EventManager::eventsStart(USER_CHANGE_EVENT, eventData);
+		#endif
 	}
 	else print("This user failed to change permissions\n", PrintColors::red);
 }

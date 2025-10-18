@@ -26,7 +26,7 @@ add_library(NRC STATIC
                 ${CORE_SOURCE_DIR}/experimental/event_manager.cpp
                 ${CORE_SOURCE_DIR}/command/command_parser.cpp
                 ${CORE_SOURCE_DIR}/command/command_sender.cpp
-                ${CORE_SOURCE_DIR}/command/handler_commands.cpp
+                ${CORE_SOURCE_DIR}/command/commands_handler.cpp
                 ${CORE_SOURCE_DIR}/command/commands_functions/commands_utils.cpp
                 ${CORE_SOURCE_DIR}/command/commands_functions/filesystem_commands.cpp
                 ${CORE_SOURCE_DIR}/command/commands_functions/user_manager_commands.cpp

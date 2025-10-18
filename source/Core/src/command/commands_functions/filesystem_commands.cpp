@@ -6,7 +6,6 @@
 #include "Core/print/print.h"
 #include "Core/print/gprint.h"
 #include "Core/command/commands.h"
-#include "Core/command/handler_commands.h"
 #include "Core/command/command_structs.h"
 #include "Core/users/user_manager.h"
 #include "Core/users/user.h"

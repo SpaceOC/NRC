@@ -15,7 +15,7 @@
 
 #include "Core/CORE_info.h"
 #include "Core/print/print.h"
-#include "Core/command/handler_commands.h"
+#include "Core/command/commands_handler.h"
 #include "Core/command/command_structs.h"
 #include "Core/command/command_parser.h"
 #include "Core/users/user_manager.h"
@@ -36,7 +36,7 @@
 
 using namespace mjs;
 
-void core_experimental::addOtherFunctions(mjs::interpreter& i, core::User* user, mjs::gc_heap& gc, std::string& str) {
+void core::experimental::addOtherFunctions(mjs::interpreter& i, core::User* user, mjs::gc_heap& gc, std::string& str) {
 	auto global = i.global();
 
 	/*
@@ -75,9 +75,9 @@ void core_experimental::addOtherFunctions(mjs::interpreter& i, core::User* user,
 		}
 
 		std::string rawCommand(args.at(0).string_value().view().begin(), args.at(0).string_value().view().end());
-		auto commands = core::handlerCommands()->getParser()->parse(rawCommand);
+		auto commands = core::commandsHandler()->getParser()->parse(rawCommand);
 		for (auto command : commands) {
-			core::handlerCommands()->sendCommand(user, command);
+			core::commandsHandler()->sendCommand(user, command);
 		}
 		return value::undefined;
 	}, 1);
@@ -88,11 +88,11 @@ void core_experimental::addOtherFunctions(mjs::interpreter& i, core::User* user,
 		}
 
 		std::string rawCommand(args.at(0).string_value().view().begin(), args.at(0).string_value().view().end());
-		auto commands = core::handlerCommands()->getParser()->parse(rawCommand);
+		auto commands = core::commandsHandler()->getParser()->parse(rawCommand);
 		std::string output;
 		for (auto command : commands) {
 			std::string str;
-			core::handlerCommands()->sendCommand(user, command, str);
+			core::commandsHandler()->sendCommand(user, command, str);
 			output += str + "\n";
 		}
 		return getCString(output, gc);

@@ -13,7 +13,7 @@ namespace core {
 	class User;
 };
 
-namespace core_experimental {
+namespace core::experimental {
 	mjs::value getCString(std::string str, mjs::gc_heap& gc);
 	mjs::value objectUserData(mjs::gc_heap& gc, core::User* targetUser);
 };
