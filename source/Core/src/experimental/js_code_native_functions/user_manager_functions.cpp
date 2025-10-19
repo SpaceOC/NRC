@@ -1,3 +1,4 @@
+#ifndef NRC_DISABLE_EXPERIMENTAL_FEATURES
 #include <sstream>
 #include <iostream>
 #include <string>
@@ -59,3 +60,4 @@ void core::experimental::addUserManagerFunctions(mjs::interpreter& i, mjs::gc_he
 		return value(objectUserData(gc, &core::userManager()->getUser(username)));
 	}, 1);
 }
+#endif

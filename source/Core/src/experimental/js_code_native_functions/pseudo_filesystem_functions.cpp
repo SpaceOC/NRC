@@ -1,3 +1,4 @@
+#ifndef NRC_DISABLE_EXPERIMENTAL_FEATURES
 #include <sstream>
 #include <iostream>
 #include <string>
@@ -261,3 +262,4 @@ void core::experimental::addPseudoFileSystemFunctions(mjs::interpreter& i, core:
 		return value::undefined;
 	}, 3);
 }
+#endif

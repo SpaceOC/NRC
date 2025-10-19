@@ -1,3 +1,4 @@
+#ifndef NRC_DISABLE_EXPERIMENTAL_FEATURES
 #include <sstream>
 #include <iostream>
 #include <string>
@@ -119,3 +120,4 @@ void core::experimental::runCode(const std::string& code, const core::UserPermis
 	core::User tempUser = core::User("UNKNOWN_TEMP_USER_FOR_RUNNING_COMMANDS_OR_JS_CODE", permissions);
 	core::experimental::runCode(code, &tempUser, str);
 }
+#endif

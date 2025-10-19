@@ -81,10 +81,10 @@ namespace core {
 			int getDiskSize() { this->update(); return (foldersSize + filesSize); }
 			int getFoldersSize() { this->update(); return foldersSize; }
 			int getFilesSize() { this->update(); return filesSize; }
-			std::string getName() { return name; }
+			const std::string& getName() { return name; }
 			char getLetter() { return letter; }
-			const std::vector<std::shared_ptr<FolderData>> getFolders() { return folders; }
-			const std::vector<std::shared_ptr<FileData>> getFiles() { return files; }
+			const std::vector<std::shared_ptr<FolderData>>& getFolders() { return folders; }
+			const std::vector<std::shared_ptr<FileData>>& getFiles() { return files; }
 
 			int updateHelper(const std::vector<std::shared_ptr<FolderData>>& folders);
 			void update();
@@ -103,7 +103,7 @@ namespace core {
 		public:
 			NRFS();
 			NRFSDisk* getRoot();
-			const std::vector<std::shared_ptr<NRFSDisk>> getDisks() { return disks; }
+			const std::vector<std::shared_ptr<NRFSDisk>>& getDisks() { return disks; }
 			void createDisk(char c);
 			void renameDisk(char c, const std::string& name);
 			void deleteDisk(char c);

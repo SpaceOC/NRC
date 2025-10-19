@@ -1,4 +1,5 @@
 /*
+#ifndef NRC_DISABLE_EXPERIMENTAL_FEATURES
 #include <sstream>
 #include <iostream>
 #include <string>
@@ -39,4 +40,5 @@ void core::experimental::addSimpleFileSystemFunctions(mjs::interpreter& i, core:
 	auto global = i.global();
 
 }
+#endif
 */

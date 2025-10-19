@@ -33,7 +33,7 @@ namespace core {
 
 	class PseudoFS {
 		private:
-			NRFS* nrfs;
+			NRFS* nrfs = nullptr;
 			std::string currentPath = "./";
 			size_t curDisk = 0;
 
@@ -57,30 +57,31 @@ namespace core {
 			PseudoFS() = default;
 			PseudoFS(PseudoFS&) = delete;
 			PseudoFS(const PseudoFS&&) = delete;
-			bool isFile(std::string path);
+			~PseudoFS();
+			bool isFile(const std::string& path);
 
-			int createFolder(std::string path, size_t diskId, FolderData* oneFolderData = nullptr);
-			int setFolderAtt(std::string path, size_t diskId, std::string what, std::any newAtt);
-			int renameFolder(std::string path, size_t diskId, std::string newName);
-			int deleteFolder(std::string path, size_t diskId);
-			int moveFolder(std::string path, size_t diskId, const std::string& newPath, size_t anotherDiskId);
-			FolderData getFolderData(std::string path, size_t diskId, int& code);
+			int createFolder(const std::string& path, size_t diskId, FolderData* oneFolderData = nullptr);
+			int setFolderAtt(const std::string& path, size_t diskId, const std::string& what, std::any newAtt);
+			int renameFolder(const std::string& path, size_t diskId, std::string newName);
+			int deleteFolder(const std::string& path, size_t diskId);
+			int moveFolder(const std::string& path, size_t diskId, const std::string& newPath, size_t anotherDiskId);
+			FolderData getFolderData(const std::string& path, size_t diskId, int& code);
 
-			int createFile(std::string path, size_t diskId, FileData* oneFileData = nullptr);
-			int setFileAtt(std::string path, size_t diskId, std::string what, std::any newAtt);
-			int renameFile(std::string path, size_t diskId, std::string newName);
-			int deleteFile(std::string path, size_t diskId);
-			int moveFile(std::string path, size_t diskId, const std::string& newPath, size_t anotherDiskId);
-			FileData getFileData(std::string path, size_t diskId, int& code);
+			int createFile(const std::string& path, size_t diskId, FileData* oneFileData = nullptr);
+			int setFileAtt(const std::string& path, size_t diskId, const std::string& what, std::any newAtt);
+			int renameFile(const std::string& path, size_t diskId, std::string newName);
+			int deleteFile(const std::string& path, size_t diskId);
+			int moveFile(const std::string& path, size_t diskId, const std::string& newPath, size_t anotherDiskId);
+			FileData getFileData(const std::string& path, size_t diskId, int& code);
 
 			void printAllHelper(const std::vector<std::shared_ptr<FolderData>>& folders, const std::string &path, bool includeHidden);
 			void printAllHelper(const std::vector<std::shared_ptr<FolderData>>& folders, const std::string &path, bool includeHidden, std::string& str);
-			void printAll(bool includeHidden, size_t diskId, std::string startPath = "./");
-			void printAll(bool includeHidden, size_t diskId, std::string startPath, std::string& str);
+			void printAll(bool includeHidden, size_t diskId, const std::string& startPath = "./");
+			void printAll(bool includeHidden, size_t diskId, const std::string& startPath, std::string& str);
 			void showTreeHelper(const FolderData &curFolder, bool includeHidden, bool showFiles, int level);
 			void showTreeHelper(const FolderData &curFolder, bool includeHidden, bool showFiles, int level, std::string& str);
-			void showTree(bool includeHidden, size_t diskId, bool showFiles, std::string startPath = "./");
-			void showTree(bool includeHidden, size_t diskId, bool showFiles, std::string startPath, std::string& str);
+			void showTree(bool includeHidden, size_t diskId, bool showFiles, const std::string& startPath = "./");
+			void showTree(bool includeHidden, size_t diskId, bool showFiles, const std::string& startPath, std::string& str);
 
 			// @return NRFS* nrfs
 			NRFS* getNRFS();
@@ -92,7 +93,7 @@ namespace core {
 			bool fileExists(const std::string& path, size_t diskId);
 
 			// @return std::string currentPath
-			const std::string getCurrentPath();
+			const std::string& getCurrentPath();
 			// @return size_t curDisk
 			size_t getCurDiskId() { return curDisk; }
 
@@ -111,6 +112,8 @@ namespace core {
 			 * - Finds objects that have a non-empty linkPath variable, finds and converts these objects into links
 			 */
 			void postInit();
+
+			PseudoFS operator=(const PseudoFS& right) = delete;
 	};
 
 	extern PseudoFS* pseudoFS();

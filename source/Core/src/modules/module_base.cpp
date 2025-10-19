@@ -7,9 +7,7 @@
 #include "Core/utils/other_util.h"
 #include "Core/main.h"
 
-core::ModuleBase::ModuleBase(ModuleMetadata* meta, main* core) : metadata(meta), core(core) {
-	path = "modules/" + meta->name;
-
+core::ModuleBase::ModuleBase(ModuleMetadata* meta, main* core) : path("modules/" + meta->name), metadata(meta), core(core){
 	std::string lc = language_util::getLC(userManager()->currentUserData().getLanguage());
 	std::string rawTranslateData = core::other_util::getFileContent(path + "/langs/" + lc + ".json");
 	nlohmann::json td = nlohmann::json::parse(rawTranslateData);

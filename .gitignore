@@ -3,3 +3,5 @@ build
 .vscode
 headers/ThirdParty
 source/ThirdParty
+cppcheck-cppcheck-build-dir
+cppcheck.cppcheck

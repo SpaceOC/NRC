@@ -2,13 +2,13 @@
 #include "Core/users/user_permissions_enum.h"
 #include "Core/experimental/event_manager.h"
 
-core::experimental::structDataEvents::UserAddEvent newUserEvent(core::experimental::structDataEvents::UserAddEvent data) {
+core::experimental::structDataEvents::UserAddEvent newUserEvent(const core::experimental::structDataEvents::UserAddEvent& data) {
 	core::print("New user!\n");
 	core::print("Username - " + data.username + "\n");
 	return data;
 }
 
-core::experimental::structDataEvents::UserChangeEvent changeUserEvent(core::experimental::structDataEvents::UserChangeEvent data) {
+core::experimental::structDataEvents::UserChangeEvent changeUserEvent(const core::experimental::structDataEvents::UserChangeEvent& data) {
 	core::print("Old username - " + data.oldUsername + "\n");
 	core::print("New username - " + data.username + "\n");
 	core::print("Old permissions - " + core::userPermissionsS(data.oldPermissions) + "\n");
@@ -16,13 +16,13 @@ core::experimental::structDataEvents::UserChangeEvent changeUserEvent(core::expe
 	return data;
 }
 
-core::experimental::structDataEvents::UserDeleteEvent deleteUserEvent(core::experimental::structDataEvents::UserDeleteEvent data) {
+core::experimental::structDataEvents::UserDeleteEvent deleteUserEvent(const core::experimental::structDataEvents::UserDeleteEvent& data) {
 	core::print("Bye...\n");
 	core::print("Username - " + data.username + "\n");
 	return data;
 }
 
-core::experimental::structDataEvents::NRCShutdownEvent goodbyeNRC(core::experimental::structDataEvents::NRCShutdownEvent data) {
+core::experimental::structDataEvents::NRCShutdownEvent goodbyeNRC(const core::experimental::structDataEvents::NRCShutdownEvent& data) {
 	core::print("Username - " + data.username + "\n");
 	core::print("Permissions - " + core::userPermissionsS(data.permissions) + "\n");
 	core::print("Vector pos - " + std::to_string(data.id) + "\n");

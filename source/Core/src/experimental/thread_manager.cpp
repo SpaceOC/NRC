@@ -1,7 +1,8 @@
+#ifndef NRC_DISABLE_EXPERIMENTAL_FEATURES
 #include "Core/experimental/thread_manager.h"
 
 core::experimental::ThreadManager::ThreadManager() {}
-core::experimental::ThreadManager::ThreadManager(std::string firstThreadName, std::function<void()> func, bool wrapInWhileTrue) {
+core::experimental::ThreadManager::ThreadManager(const std::string& firstThreadName, std::function<void()> func, bool wrapInWhileTrue) {
 	if (wrapInWhileTrue) {
 		auto wrappedFunc = [this, func, firstThreadName]() -> void {
 			while(this->threads[firstThreadName].work) {
@@ -21,7 +22,7 @@ core::experimental::ThreadManager::ThreadManager(std::string firstThreadName, st
 	}
 }
 
-void core::experimental::ThreadManager::createThread(std::string threadName, std::function<void()> func, bool wrapInWhileTrue) {
+void core::experimental::ThreadManager::createThread(const std::string& threadName, std::function<void()> func, bool wrapInWhileTrue) {
 	if ((threads.size() - 1) < static_cast<size_t>(maxThreads)) {
 		if (wrapInWhileTrue) {
 			auto wrappedFunc = [this, func, threadName]() -> void {
@@ -43,22 +44,23 @@ void core::experimental::ThreadManager::createThread(std::string threadName, std
 	}
 }
 
-void core::experimental::ThreadManager::startThread(std::string threadName) {
+void core::experimental::ThreadManager::startThread(const std::string& threadName) {
 	if (threads.find(threadName) != threads.end() && threads[threadName].thread->joinable()) {
 		threads[threadName].thread->detach();
 	}
 }
 
-void core::experimental::ThreadManager::stopThread(std::string threadName) {
+void core::experimental::ThreadManager::stopThread(const std::string& threadName) {
 	if (threads.find(threadName) != threads.end()) {
 		threads[threadName].work = false;
 	}
 }
 
-std::shared_ptr<std::thread> &core::experimental::ThreadManager::getThread(std::string threadName) {
+std::shared_ptr<std::thread> &core::experimental::ThreadManager::getThread(const std::string& threadName) {
 	return threads[threadName].thread;
 }
 
 std::map<std::string, core::experimental::ThreadInfo> &core::experimental::ThreadManager::getAllThreads() {
 	return threads;
 }
+#endif

@@ -21,13 +21,10 @@ core::User::User(core::User& user) {
 		this->displayName = user.username;
 
 	this->password = user.password;
-	this->vm = user.vm;
-	if (!this->vm)
-		this->vm = new core::VariablesManager(false);
-
+	this->vm = new core::VariablesManager(*user.vm);
 	this->permissions = user.permissions;
 	this->language = user.language;
-	this->userCreated = user.userCreated = true;
+	this->userCreated = true;
 	this->havePasswordV = havePassword();
 }
 
@@ -86,4 +83,19 @@ std::vector<core::VariableData> core::User::getAllVars() {
 core::VariableData core::User::getVar(std::string_view name) {
 	if (!vm) return {};
 	return vm->getVariable(name);
+}
+
+core::User core::User::operator=(const User& user) {
+	this->username = user.username;
+	this->displayName = user.displayName;
+	if (this->displayName.empty())
+		this->displayName = user.username;
+
+	this->password = user.password;
+	this->vm = new core::VariablesManager(*user.vm);
+	this->permissions = user.permissions;
+	this->language = user.language;
+	this->userCreated = true;
+	this->havePasswordV = havePassword();
+	return *this;
 }

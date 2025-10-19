@@ -220,7 +220,7 @@ void core::NRFS::loadData() {
 				this->root = std::move(disk);
 			}
 			
-			std::shared_ptr<core::NRFSDisk> diskInSharedPtr((disk->letter == 'C' ? disk : std::move(disk)));
+			std::shared_ptr<core::NRFSDisk> diskInSharedPtr((disk->letter == 'C' ? this->root : std::move(disk)));
 			this->disks.push_back(std::move(diskInSharedPtr));
 		}
 	}

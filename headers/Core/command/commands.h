@@ -58,7 +58,7 @@ namespace core {
 		std::string CORE_COMMAND_showAll(core::User*, core::CommandObject*);
 
 		std::string CORE_COMMAND_searchFile(core::User*, core::CommandObject*);
-		std::string CORE_COMMAND_searchFileHelper(const core::FolderData& curFolder, const std::string& what, std::vector<std::string> path, std::string stringPath);
+		std::string CORE_COMMAND_searchFileHelper(const core::FolderData& curFolder, const std::string& what, std::vector<std::string> path, const std::string& stringPath);
 
 		std::string CORE_COMMAND_printDiskSize(core::User*, core::CommandObject*);
 

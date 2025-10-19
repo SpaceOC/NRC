@@ -552,32 +552,29 @@ void core::main::setCommandSender(CommandSenderBasic* newCommandSender) {
 }
 
 core::main::main() {
-	auto func = [this]() -> void {
+	loopedFunc = [this]() -> void {
 		#ifndef NRC_WEB
 		commandSender->zone();
 		#endif
 	};
-	loopedFunc = func;
 
-	auto start = []() -> void {
+	startFunc = []() -> void {
 		core::print("Welcome to NRC!\n");
 	};
-	startFunc = start;
 }
 
 core::main::main(std::function<void()> start, std::function<void()> loop) {
-	startFunc = start;
-	loopedFunc = loop;
+	startFunc = std::move(start);
+	loopedFunc = std::move(loop);
 }
 
 core::main::main(std::function<void()> start) {
-	startFunc = start;
-	auto func = [this]() -> void {
+	startFunc = std::move(start);
+	loopedFunc = [this]() -> void {
 		#ifndef NRC_WEB
 		commandSender->zone();
 		#endif
 	};
-	loopedFunc = func;
 }
 
 void core::main::init() {

@@ -169,12 +169,14 @@ void core::CommandsHandler::deleteCommand(const std::string& name) {
 	}
 }
 
-std::map<std::string, core::CommandDescription> core::CommandsHandler::getCommand(const std::string& name) {
-	if (commandMap.count(name))
-		return {{name, commandInfo[name]}};
-	return {};
+bool core::CommandsHandler::commandExists(const std::string& name) {
+	return commandInfo.count(name) && commandMap.count(name);
 }
 
-std::map<std::string, core::CommandDescription> core::CommandsHandler::getAllCommands() {
+const core::CommandDescription& core::CommandsHandler::getCommand(const std::string& name) {
+	return commandInfo[name];
+}
+
+const std::map<std::string, core::CommandDescription>& core::CommandsHandler::getAllCommands() {
 	return commandInfo;
 }

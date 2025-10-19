@@ -1,4 +1,5 @@
 // is not finished!
+#ifndef NRC_DISABLE_EXPERIMENTAL_FEATURES
 #ifndef NRC_EXPERIMENTAL_RUN_JS_CODE_FUNCTIONS_H_
 #define NRC_EXPERIMENTAL_RUN_JS_CODE_FUNCTIONS_H_
 
@@ -20,4 +21,5 @@ namespace core::experimental {
 	void addOtherFunctions(mjs::interpreter& i, core::User* user, mjs::gc_heap& gc, std::string& str);
 }
 
-#endif
+#endif // NRC_EXPERIMENTAL_RUN_JS_CODE_FUNCTIONS_H_
+#endif // NRC_DISABLE_EXPERIMENTAL_FEATURES

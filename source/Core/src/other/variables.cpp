@@ -14,6 +14,13 @@ core::VariablesManager* core::systemVariablesManager() {
 	return &svm;
 }
 
+core::VariablesManager::VariablesManager() {}
+
+core::VariablesManager::VariablesManager(core::VariablesManager& r) {
+	this->data = r.data;
+	this->isSystem = false;
+}
+
 void core::VariablesManager::addVar(const std::string& name, const VariableType& type, const core::UserPermissions& permissionsRun, const std::string& f, const std::string& username, bool outputReturn) {
 	try {
 		VariableData v;
@@ -105,7 +112,7 @@ void core::VariablesManager::addVar(const std::string& name, const VariableType&
 }
 
 core::VariableData core::VariablesManager::getVariable(std::string_view name) {
-	for (auto a : data) {
+	for (const auto& a : data) {
 		if (a.name == name) {
 			return a;
 		}
@@ -114,7 +121,7 @@ core::VariableData core::VariablesManager::getVariable(std::string_view name) {
 }
 
 bool core::VariablesManager::exists(std::string_view name) {
-	for (auto a : data) {
+	for (const auto& a : data) {
 		if (a.name == name) {
 			return true;
 		}
@@ -123,7 +130,7 @@ bool core::VariablesManager::exists(std::string_view name) {
 }
 
 void core::VariablesManager::start(std::string_view variableName) {
-	for (auto a : data) {
+	for (const auto& a : data) {
 		if (a.name == variableName) {
 			a.function(a);
 			break;
@@ -132,7 +139,7 @@ void core::VariablesManager::start(std::string_view variableName) {
 }
 
 void core::VariablesManager::start(std::string_view variableName, std::string& str) {
-	for (auto a : data) {
+	for (const auto& a : data) {
 		if (a.name == variableName) {
 			str = a.function(a);
 			break;
@@ -141,7 +148,7 @@ void core::VariablesManager::start(std::string_view variableName, std::string& s
 }
 
 void core::VariablesManager::rename(const std::string& oldName, const std::string& newName) {
-	for (auto a : data) {
+	for (auto& a : data) {
 		if (a.name == oldName) {
 			a.name = newName;
 			break;
@@ -152,6 +159,6 @@ void core::VariablesManager::rename(const std::string& oldName, const std::strin
 std::vector<core::VariableData> core::VariablesManager::getAllVars() {
 	if (data.empty()) return {};
 	std::vector<core::VariableData> temp;
-	for (auto a : data) temp.push_back(a);
+	for (const auto& a : data) temp.push_back(a);
 	return temp;
 }

@@ -32,14 +32,13 @@ namespace core {
 
 	class VariablesManager {
 		private:
-			std::vector<VariableData> data;
+			std::vector<VariableData> data = {};
 		protected:
-			bool isSystem;
+			bool isSystem = false;
 		public:
-			VariablesManager() = default;
+			VariablesManager();
 			VariablesManager(bool a) : isSystem(a) {};
-			VariablesManager(VariablesManager&) = delete;
-			VariablesManager(const VariablesManager&&) = delete;
+			VariablesManager(VariablesManager&);
 
 			// Returns the data of the variable.
 			VariableData getVariable(std::string_view name);

@@ -29,18 +29,18 @@ std::string core::commands::CORE_COMMAND_help(core::User*, core::CommandObject* 
 		}
 	}
 	else {
-		if (core::commandsHandler()->getCommand(thisObj->args.at(0)).empty()) {
+		if (!core::commandsHandler()->commandExists(thisObj->args.at(0))) {
 			return gprint("Command not found\n", PrintColors::red);
 		}
 		else {
-			std::map<std::string, core::CommandDescription> temp = core::commandsHandler()->getCommand(thisObj->args.at(0));
+			const core::CommandDescription temp = core::commandsHandler()->getCommand(thisObj->args.at(0));
 			std::string argsNames = "";
-			if (!temp[thisObj->args.at(0)].argsNames.empty()) {
-				for (auto arg : temp[thisObj->args.at(0)].argsNames) {
+			if (!temp.argsNames.empty()) {
+				for (const auto& arg : temp.argsNames) {
 					argsNames += " <" + arg + ">";
 				}
 			}
-			result = gprint(thisObj->args.at(0) + argsNames + temp[thisObj->args.at(0)].description + '\n', PrintColors::light_green);
+			result = gprint(thisObj->args.at(0) + argsNames + temp.description + '\n', PrintColors::light_green);
 		}
 	}
 

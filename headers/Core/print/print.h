@@ -23,7 +23,7 @@ namespace core {
 	}
 
 	template<typename T, typename = is_not_printable_class<T>>
-	void print(const std::vector<T> yourVector, const PrintColors& color = DEFAULT_PRINT_COLOR) {
+	void print(const std::vector<T>& yourVector, const PrintColors& color = DEFAULT_PRINT_COLOR) {
 		std::string escapeSequence = core::getColorEscapeSequence(color);
 		std::string temp = escapeSequence + "[ ";
 		auto it = yourVector.begin();
@@ -39,7 +39,7 @@ namespace core {
 	}
 
 	template<typename T, typename A, typename = is_not_printable_class<A>, typename = is_not_printable_class<T>>
-	void print(const std::map<T, A> yourMap, const PrintColors& color = DEFAULT_PRINT_COLOR) {
+	void print(const std::map<T, A>& yourMap, const PrintColors& color = DEFAULT_PRINT_COLOR) {
 		std::string escapeSequence = core::getColorEscapeSequence(color);
 		std::string temp = escapeSequence + "[ ";
 		auto it = yourMap.begin();

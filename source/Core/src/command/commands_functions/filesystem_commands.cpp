@@ -786,7 +786,7 @@ std::string core::commands::CORE_COMMAND_searchFile(core::User*, core::CommandOb
 	return result;
 }
 
-std::string core::commands::CORE_COMMAND_searchFileHelper(const core::FolderData& curFolder, const std::string& what, std::vector<std::string> path, std::string stringPath) {
+std::string core::commands::CORE_COMMAND_searchFileHelper(const core::FolderData& curFolder, const std::string& what, std::vector<std::string> path, const std::string& stringPath) {
 	bool fullSearch = path.empty();
 	if (curFolder.files.empty() && curFolder.folders.empty()) {
 		return core::gprint("Error: ", core::PrintColors::red);

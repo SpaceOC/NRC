@@ -1,3 +1,4 @@
+#ifndef NRC_DISABLE_EXPERIMENTAL_FEATURES
 #include <sstream>
 #include <iostream>
 #include <string>
@@ -45,3 +46,4 @@ mjs::value core::experimental::objectUserData(mjs::gc_heap& gc, core::User* targ
 	userObj->put(mjs::string(gc, "permissions"), mjs::value(static_cast<double>(targetUser->getPermissions())), mjs::property_attribute::read_only);
 	return mjs::value(userObj);
 }
+#endif

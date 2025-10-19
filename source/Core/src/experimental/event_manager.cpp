@@ -1,3 +1,4 @@
+#ifndef NRC_DISABLE_EXPERIMENTAL_FEATURES
 #include "Core/experimental/event_manager.h"
 #include "Core/print/print.h"
 
@@ -65,3 +66,4 @@ void core::experimental::EventManager::addEvent(std::function<core::experimental
 void core::experimental::EventManager::addEvent(std::function<core::experimental::structDataEvents::PFSPostInit(core::experimental::structDataEvents::PFSPostInit)> func) {
 	pseudoFSPostInitEvents.push_back(func);
 }
+#endif

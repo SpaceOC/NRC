@@ -39,11 +39,7 @@ void core::UserManager::userLogic() {
 
 #ifndef NRC_WEB
 void core::UserManager::userLogin(const std::string& username) {
-#else
-void core::UserManager::userLogin(const std::string& username, const std::string& password) {
-#endif
 	if (havePassword(username)) {
-		#ifndef NRC_WEB
 		bool passwordNotPassed = true;
 		while (passwordNotPassed) {
 			std::string password;
@@ -62,7 +58,15 @@ void core::UserManager::userLogin(const std::string& username, const std::string
 				userIsLogined = true;
 			}
 		}
-		#else
+	}
+	else {
+		currentUser = username;
+		userIsLogined = true;
+	}
+}
+#else
+void core::UserManager::userLogin(const std::string& username, const std::string& password) {
+	if (havePassword(username)) {
 		if (!users[userVectorPos(username)]->truePassword(password)) {
 			print("Wrong password!\n", PrintColors::red);
 		}
@@ -70,13 +74,13 @@ void core::UserManager::userLogin(const std::string& username, const std::string
 			currentUser = username;
 			userIsLogined = true;
 		}
-		#endif
 	}
 	else {
 		currentUser = username;
 		userIsLogined = true;
 	}
 }
+#endif
 
 void core::UserManager::addUserFromData(const std::string& username, const std::string& displayName, const core::UserPermissions& permissions, const std::string& language, const std::string& password) {
 	users.push_back(new User(username, permissions, language, password));
@@ -135,7 +139,7 @@ core::User &core::UserManager::currentUserData() {
 core::User &core::UserManager::getUser(const std::string& username) {
 	return *users[userVectorPos(username)];
 }
-const std::string core::UserManager::yourUsername() { return currentUser; }
+const std::string& core::UserManager::yourUsername() { return currentUser; }
 
 std::map<std::string, std::string> core::UserManager::getUserMap() {
 	std::map<std::string, std::string> temp;

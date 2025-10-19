@@ -1,4 +1,5 @@
 // is not finished!
+#ifndef NRC_DISABLE_EXPERIMENTAL_FEATURES
 #ifndef NRC_EXPERIMENTAL_THREAD_MANAGER_H_
 #define NRC_EXPERIMENTAL_THREAD_MANAGER_H_
 #include <map>
@@ -21,14 +22,15 @@ namespace core::experimental {
 			std::map<std::string, ThreadInfo> threads = {};
 		public:
 			ThreadManager();
-			ThreadManager(std::string firstThreadName, std::function<void()> func = []{}, bool wrapInWhileTrue = true);
-			void createThread(std::string threadName, std::function<void()> func = []{}, bool wrapInWhileTrue = true);
-			void startThread(std::string threadName);
-			void stopThread(std::string threadName);
+			ThreadManager(const std::string& firstThreadName, std::function<void()> func = []{}, bool wrapInWhileTrue = true);
+			void createThread(const std::string& threadName, std::function<void()> func = []{}, bool wrapInWhileTrue = true);
+			void startThread(const std::string& threadName);
+			void stopThread(const std::string& threadName);
 
-			std::shared_ptr<std::thread> &getThread(std::string threadName);
+			std::shared_ptr<std::thread> &getThread(const std::string& threadName);
 			std::map<std::string, ThreadInfo> &getAllThreads();
 	};
 }
 
-#endif
+#endif // NRC_EXPERIMENTAL_THREAD_MANAGER_H_
+#endif // NRC_DISABLE_EXPERIMENTAL_FEATURES

@@ -1,3 +1,4 @@
+#ifndef NRC_DISABLE_EXPERIMENTAL_FEATURES
 #include <sstream>
 #include <iostream>
 #include <string>
@@ -76,7 +77,7 @@ void core::experimental::addOtherFunctions(mjs::interpreter& i, core::User* user
 
 		std::string rawCommand(args.at(0).string_value().view().begin(), args.at(0).string_value().view().end());
 		auto commands = core::commandsHandler()->getParser()->parse(rawCommand);
-		for (auto command : commands) {
+		for (const auto& command : commands) {
 			core::commandsHandler()->sendCommand(user, command);
 		}
 		return value::undefined;
@@ -90,7 +91,7 @@ void core::experimental::addOtherFunctions(mjs::interpreter& i, core::User* user
 		std::string rawCommand(args.at(0).string_value().view().begin(), args.at(0).string_value().view().end());
 		auto commands = core::commandsHandler()->getParser()->parse(rawCommand);
 		std::string output;
-		for (auto command : commands) {
+		for (const auto& command : commands) {
 			std::string str;
 			core::commandsHandler()->sendCommand(user, command, str);
 			output += str + "\n";
@@ -108,3 +109,4 @@ void core::experimental::addOtherFunctions(mjs::interpreter& i, core::User* user
 		return value::undefined;
 	}, 1);
 }
+#endif

@@ -109,6 +109,7 @@ namespace core {
 				return (this->permissions > user.permissions);
 			}
 			
+			User operator=(const User& user);
 	};
 }
 

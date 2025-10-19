@@ -57,7 +57,7 @@ namespace core {
 			int userVectorPos(const std::string& username);
 			User &currentUserData();
 			User &getUser(const std::string& username);
-			const std::string yourUsername();
+			const std::string& yourUsername();
 			std::map<std::string, std::string> getUserMap();
 			std::vector<core::VariableData> getLocalVarsMap(const std::string& username);
 			std::map<std::string, std::string> getLanguageMap();
