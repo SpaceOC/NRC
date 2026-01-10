@@ -1,5 +1,6 @@
 #include <string>
 #include <fstream>
+#include <nlohmann/json.hpp>
 #include "dylib.hpp"
 #include "Core/main.h"
 #include "Core/users/OOBE.h"
@@ -445,32 +446,66 @@ void core::main::addCRules() {
 #ifndef NRC_DISABLE_EXPERIMENTAL_FEATURES
 
 // TODO: Добавить конфигурационный файл modules.json, его загрузку и сохранение
+// TODO 2: Привести код в порядок
 void core::main::searchModules() {
+	bool fileExists = false;
+	nlohmann::json j;
+	if (std::filesystem::exists("Data/modules.json")) {
+		fileExists = true;
+	}
+	else {
+		std::ofstream modulesFile("Data/modules.json");
+		modulesFile.close();
+	}
+
+	if (fileExists) {
+		std::string data = core::other_util::getFileContent("Data/modules.json");
+		j = nlohmann::json::parse(data);
+	}
+
 	for (auto& it : std::filesystem::recursive_directory_iterator("./Modules")) {
 		if (it.is_directory()) {
 			std::string name = it.path().filename().generic_string();
-			checkModule(name);
+			if (fileExists && j.contains(name)) {
+				if (!checkModule(name)) {
+					std::cout << "Failed to load module!\n";
+				}
+			}
+			else if (!fileExists) {
+				if (!checkModule(name)) {
+					std::cout << "Failed to load module!\n";
+				}
+				else {
+					j.push_back(name);
+				}
+			}
 		}
+	}
+
+	if (!fileExists) {
+		std::ofstream modulesFile("Data/modules.json");
+		modulesFile << j;
+		modulesFile.close();
 	}
 }
 
-void core::main::checkModule(const std::string& name) {
+bool core::main::checkModule(const std::string& name) {
 	std::string modulePath = "./Modules/" + name + "/";
 	if (!std::filesystem::exists(modulePath + "lib.json")) {
 		std::cout << "lib.json not found!\n";
-		return;
+		return false;
 	}
 	else if (!std::filesystem::exists(modulePath + "translations.json")) {
 		std::cout << "translations.json not found!\n";
-		return;
+		return false;
 	}
 	else if (!std::filesystem::exists(modulePath + "bin")) {
 		std::cout << "bin not found!\n";
-		return;
+		return false;
 	}
 	else if (!std::filesystem::exists(modulePath + "langs")) {
 		std::cout << "langs not found!\n";
-		return;
+		return false;
 	}
 
 	ModuleMetadata moduleMetadata;
@@ -487,6 +522,7 @@ void core::main::checkModule(const std::string& name) {
 		core::print(core::PrintColors::red, "'", name, "' can't be loaded!\n",
 			"This module requires NRC version " + requiresVersionMessage
 		);
+		return false;
 	}
 
 	try {
@@ -501,7 +537,9 @@ void core::main::checkModule(const std::string& name) {
 	}
 	catch (std::exception &e) {
 	  	std::cout << e.what() << '\n';
+		return false;
 	}
+	return true;
 }
 
 void nothing() {}

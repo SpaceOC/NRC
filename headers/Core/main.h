@@ -29,7 +29,7 @@ namespace core {
 			void loop();
 			#ifndef NRC_DISABLE_EXPERIMENTAL_FEATURES
 			void searchModules();
-			void checkModule(const std::string& name);
+			bool checkModule(const std::string& name);
 			#endif
 			std::function<void()> loopedFunc;
 			std::function<void()> startFunc;

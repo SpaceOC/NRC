@@ -4,7 +4,6 @@
 #include <string>
 #include <functional>
 #include <map>
-#include "Core/settings.h"
 #include "Core/command/command_parser.h"
 #include "Core/users/user_permissions_enum.h"
 #include "Core/command/command_structs.h"

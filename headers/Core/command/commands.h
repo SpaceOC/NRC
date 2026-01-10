@@ -1,7 +1,6 @@
 #ifndef NRC_BASE_COMMAND_COMMANDS_H_
 #define NRC_BASE_COMMAND_COMMANDS_H_
 
-#include "Core/settings.h"
 #include <string>
 #include <vector>
 

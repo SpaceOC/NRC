@@ -2,7 +2,6 @@
 #include <fstream>
 #include <nlohmann/json.hpp>
 #include "Core/users/user_manager.h"
-#include "Core/settings.h"
 #include "Core/print/print.h"
 #include "Core/filesystem/pseudo_fs.h"
 #include "Core/filesystem/nrfs.h"

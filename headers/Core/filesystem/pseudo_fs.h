@@ -6,7 +6,6 @@
 #include <map>
 #include <memory>
 #include <nlohmann/json.hpp>
-#include "Core/settings.h"
 
 namespace core {
 	class NRFS;

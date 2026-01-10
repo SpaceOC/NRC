@@ -66,7 +66,7 @@ class VersionC {
 			if (versionStr.empty()) return 0.0;
 			double result = 0.f;
 
-			// rd = 10 * rd (при этом если rd равен 0, то умножается на 1)
+			// rd = 10 * rd (если rd равен 0, то умножается на 1)
 			int rd = 0;
 			for (size_t i = 0; i < versionStr.size(); i++) {
 				if (!isdigit(versionStr[i])) continue;

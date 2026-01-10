@@ -4,7 +4,6 @@
 #include <string>
 #include <vector>
 #include <map>
-#include "Core/settings.h"
 #include "Core/users/user_permissions_enum.h"
 
 namespace core {

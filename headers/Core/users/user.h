@@ -3,7 +3,6 @@
 
 #include <string>
 #include <functional>
-#include "Core/settings.h"
 #include "Core/print/print_tools.h"
 #include "Core/other/variable_type_enum.h"
 #include "Core/users/user_permissions_enum.h"
