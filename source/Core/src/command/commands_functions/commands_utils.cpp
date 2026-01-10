@@ -33,8 +33,8 @@ std::string core::checkUserPermissionsForCommand(core::User* who) {
 }
 
 std::string core::checkUserPermissionsForPFSCommand(core::User* who, const core::FileData& target) {
-	if (target.link)
-		return core::checkUserPermissionsForPFSCommand(who, *(target.link));
+	if (target.realFilePointer)
+		return core::checkUserPermissionsForPFSCommand(who, *(target.realFilePointer));
 	else if (target.system && !target.owner && who->getPermissions() < core::UserPermissions::ADMIN)
 		return "Insufficient rights to operate on a system file: administrator rights required";
 	else if (target.owner && target.owner != who && who->getPermissions() < core::UserPermissions::ADMIN)
@@ -43,8 +43,8 @@ std::string core::checkUserPermissionsForPFSCommand(core::User* who, const core:
 }
 
 std::string core::checkUserPermissionsForPFSCommand(core::User* who, const core::FolderData& target) {
-	if (target.link)
-		return core::checkUserPermissionsForPFSCommand(who, *(target.link));
+	if (target.realFolderPointer)
+		return core::checkUserPermissionsForPFSCommand(who, *(target.realFolderPointer));
 	else if (target.system && !target.owner && who->getPermissions() < core::UserPermissions::ADMIN)
 		return "Insufficient rights to work with the system folder: administrator rights required";
 	else if (target.owner && target.owner != who && who->getPermissions() < core::UserPermissions::ADMIN)

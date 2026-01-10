@@ -8,14 +8,13 @@
 #include <string>
 
 namespace core {
-
-class CommandSenderBasic {
-	protected:
-		int lastError;
-		std::string lastMessageError;
+	class CommandSenderBasic {
+	private:
+		mutable std::string _lastMessageError;
+		//int _lastError;
 	public:
 		virtual void zone() const;
-};
-
+		std::string lastMessageError() { return _lastMessageError; }
+	};
 };
 #endif

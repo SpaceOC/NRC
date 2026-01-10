@@ -19,8 +19,8 @@ namespace core {
 
 	class User : public PrintableClass {
 		private:
-			bool userCreated = false;
-			bool havePasswordV = false;
+			bool _isUserCreated = false;
+			bool _havePassword = false;
 
 			friend class UserManager;
 			#ifdef NRC_WEB
@@ -40,7 +40,7 @@ namespace core {
 			#endif
 		public:
 			std::string toString() const override {
-				return "[User] | { Username - " + username + " | Display Name - " + displayName + " | Language - " + language + " | havePassword - " + (havePasswordV ? "true" : "false") + " }";
+				return "[User] | { Username - " + username + " | Display Name - " + displayName + " | Language - " + language + " | havePassword - " + (_havePassword ? "true" : "false") + " }";
 			}
 
 			User();

@@ -72,11 +72,11 @@ std::string core::commands::CORE_COMMAND_time(core::User* who, core::CommandObje
 
 	for (const std::string& anotherTemp : thisObj->args) {
 		if (anotherTemp != thisObj->args.at(0))
-			temp += (anotherTemp == core::commandsHandler()->getCommandSeparator() ? "" : "\"") + anotherTemp + (anotherTemp != thisObj->args.back() ? (anotherTemp == core::commandsHandler()->getCommandSeparator() ? "" : "\" ") : (anotherTemp == core::commandsHandler()->getCommandSeparator() ? "" : "\""));
+			temp += (anotherTemp == core::commandsHandler()->commandSeparator() ? "" : "\"") + anotherTemp + (anotherTemp != thisObj->args.back() ? (anotherTemp == core::commandsHandler()->commandSeparator() ? "" : "\" ") : (anotherTemp == core::commandsHandler()->commandSeparator() ? "" : "\""));
 		else
 			temp += anotherTemp + " ";
 	}
-	core::CommandObject command = core::commandsHandler()->getParser()->parse(temp).at(0);
+	core::CommandObject command = core::commandsHandler()->parser()->parse(temp).at(0);
 	std::string result;
 
 	if (!thisObj->returnable)
@@ -100,7 +100,7 @@ std::string core::commands::CORE_COMMAND_addLocalVar(core::User* who, core::Comm
 
 	if (thisObj->args.at(1) != "func") {
 		int code;
-		size_t curDisk = core::pseudoFS()->getCurDiskId();
+		size_t curDisk = core::pseudoFS()->currentDiskId();
 		who->addVar(
 			thisObj->args.at(0),
 			(thisObj->args.at(1) == "command" ? core::VariableType::COMMAND : (thisObj->args.at(1) == "name" ? core::VariableType::NAME : core::VariableType::JS_CODE)),

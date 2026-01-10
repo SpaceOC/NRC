@@ -4,14 +4,14 @@
 
 core::User::User() {}
 core::User::User(const std::string& username, const core::UserPermissions& permissions, const std::string& language, const std::string& password) {
-	if (!userCreated) {
+	if (!_isUserCreated) {
 		this->vm = new core::VariablesManager(false);
 		this->username = this->displayName = username;
 		this->permissions = permissions;
 		this->language = language;
 		this->password = password;
-		userCreated = true;
-		havePasswordV = havePassword();
+		_isUserCreated = true;
+		_havePassword = havePassword();
 	}
 }
 core::User::User(core::User& user) {
@@ -24,14 +24,14 @@ core::User::User(core::User& user) {
 	this->vm = new core::VariablesManager(*user.vm);
 	this->permissions = user.permissions;
 	this->language = user.language;
-	this->userCreated = true;
-	this->havePasswordV = havePassword();
+	this->_isUserCreated = true;
+	this->_havePassword = havePassword();
 }
 
 void core::User::editUsername(const std::string& newUsername) { this->username = newUsername; }
 void core::User::editDisplayName(const std::string& newDisplayName) { this->displayName = newDisplayName; }
 void core::User::editLanguage(const std::string& newLanguage) { this->language = newLanguage; }
-void core::User::editPassword(const std::string& newPassword) { this->password = newPassword; havePasswordV = havePassword(); }
+void core::User::editPassword(const std::string& newPassword) { this->password = newPassword; _havePassword = havePassword(); }
 void core::User::editPermissions(const core::UserPermissions& newPermissions) { this->permissions = newPermissions; }
 
 bool core::User::truePassword(const std::string& password) { return password == this->password; }
@@ -95,7 +95,7 @@ core::User core::User::operator=(const User& user) {
 	this->vm = new core::VariablesManager(*user.vm);
 	this->permissions = user.permissions;
 	this->language = user.language;
-	this->userCreated = true;
-	this->havePasswordV = havePassword();
+	this->_isUserCreated = true;
+	this->_havePassword = havePassword();
 	return *this;
 }

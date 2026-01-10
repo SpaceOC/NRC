@@ -19,50 +19,54 @@ namespace core {
 	#ifndef NRC_DISABLE_EXPERIMENTAL_FEATURES
 	class ModuleBase;
 	#endif
-	class main {
-		private:
-			void fixNOW();
+	class Main {
+	private:
+		std::function<void()> _loopedFunc;
+		std::function<void()> _startFunc;
+		CommandSenderBasic* _commandSender;
+		#ifndef NRC_DISABLE_EXPERIMENTAL_FEATURES
+		std::vector<ModuleBase*> _modules;
+		#endif
+		bool _isCommandSenderReplaced = false;
+
+		void fixNOW();
 			
-			// Adding all standard commands.
-			void addCommands();
-			void addCRules();
-			void loop();
-			#ifndef NRC_DISABLE_EXPERIMENTAL_FEATURES
-			void searchModules();
-			bool checkModule(const std::string& name);
-			#endif
-			std::function<void()> loopedFunc;
-			std::function<void()> startFunc;
-			CommandSenderBasic* commandSender;
-			#ifndef NRC_DISABLE_EXPERIMENTAL_FEATURES
-			std::vector<ModuleBase*> modules;
-			#endif
-			bool commandSenderReplaced = false;
-		protected:
-			std::atomic<bool> work = true;
-		public:
-			const VersionC version = VersionC(CORE_VERSION);
+		// Adding all standard commands.
+		void addCommands();
+		void addCRules();
+		void loop();
+		#ifndef NRC_DISABLE_EXPERIMENTAL_FEATURES
+		void searchModules();
+		bool checkModule(const std::string& name);
+		#endif
 
-			main();
-			main(std::function<void()> start, std::function<void()> loop);
-			main(std::function<void()> start);
-			~main();
+	protected:
+		std::atomic<bool> work = true;
 
-			/**
-			 * Инициализация NRC.
-			 * @note Обязательно вызывайте этот метод перед start()
-			 */
-			void init();
-			/**
-			 * Запуск NRC
-			 * @note Обязательно вызывайте этот метод после init()
-			 */
-			void start();
-			void stopWork();
-			void setCommandSender(CommandSenderBasic* newCommandSender);
-			#ifndef NRC_DISABLE_EXPERIMENTAL_FEATURES
-			void* getRequiredClassPtr(const std::string& request, ModuleBase* module);
-			#endif
+	public:
+		static inline const VersionC kCoreVersion = VersionC(CORE_VERSION);
+
+		Main();
+		Main(std::function<void()> start, std::function<void()> loop);
+		Main(std::function<void()> start);
+		~Main();
+
+		/**
+		 * Инициализация NRC.
+		 * @note Обязательно вызывайте этот метод перед start()
+		 */
+		void init();
+
+		/**
+		 * Запуск NRC
+		 * @note Обязательно вызывайте этот метод после init()
+		 */
+		void start();
+		void stopWork();
+		void setCommandSender(CommandSenderBasic* newCommandSender);
+		#ifndef NRC_DISABLE_EXPERIMENTAL_FEATURES
+		void* getRequiredClassPtr(const std::string& request, ModuleBase* module);
+		#endif
 	};
 }
 

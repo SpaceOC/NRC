@@ -23,7 +23,7 @@
 
 #include "Core/experimental/run_js_code.h"
 
-void core::main::addCommands() {
+void core::Main::addCommands() {
 	commandsHandler()->addCommand(
 		"help",
 		{"shows a list of all commands", {"name"}},
@@ -384,10 +384,10 @@ void core::main::addCommands() {
 	);
 }
 
-void core::main::addCRules() {
+void core::Main::addCRules() {
 	// Adding a check that the command name is a call to an environment variable
 	commandsHandler()->addCustomRules("variable", [](const core::CommandObject& c, core::User* who, std::string& ret, std::string&) -> bool {
-		if (!commandsHandler()->thisVariable(c.name))
+		if (!commandsHandler()->isVariable(c.name))
 			return false;
 		std::string varName = c.name.substr(1, c.name.length() - 2);
 		if (who->varExists(varName))
@@ -407,9 +407,9 @@ void core::main::addCRules() {
 		}
 
 		int code;
-		size_t curDisk = core::pseudoFS()->getCurDiskId();
+		size_t curDisk = core::pseudoFS()->currentDiskId();
 		std::string commandLinesFileCode = core::pseudoFS()->getFileData(
-			core::pseudoFS()->getCurrentPath() + c.name.substr(2, c.name.length()),
+			core::pseudoFS()->currentPath() + c.name.substr(2, c.name.length()),
 			curDisk,
 			code
 		).content;
@@ -422,7 +422,7 @@ void core::main::addCRules() {
 		std::string output;
 		#endif
 		for (const std::string& uir : clfc) {
-			std::vector<core::CommandObject> parsedCommands = core::commandsHandler()->getParser()->parse(uir);
+			std::vector<core::CommandObject> parsedCommands = core::commandsHandler()->parser()->parse(uir);
 			for (core::CommandObject& command : parsedCommands) {
 				#ifndef NRC_WEB
 				command.returnable = false;
@@ -447,7 +447,7 @@ void core::main::addCRules() {
 
 // TODO: Добавить конфигурационный файл modules.json, его загрузку и сохранение
 // TODO 2: Привести код в порядок
-void core::main::searchModules() {
+void core::Main::searchModules() {
 	bool fileExists = false;
 	nlohmann::json j;
 	if (std::filesystem::exists("Data/modules.json")) {
@@ -489,7 +489,7 @@ void core::main::searchModules() {
 	}
 }
 
-bool core::main::checkModule(const std::string& name) {
+bool core::Main::checkModule(const std::string& name) {
 	std::string modulePath = "./Modules/" + name + "/";
 	if (!std::filesystem::exists(modulePath + "lib.json")) {
 		std::cout << "lib.json not found!\n";
@@ -511,7 +511,7 @@ bool core::main::checkModule(const std::string& name) {
 	ModuleMetadata moduleMetadata;
 	nlohmann::json j = nlohmann::json::parse(other_util::getFileContent(modulePath + "lib.json"));
 	moduleMetadata.makeMetadataFromJSON(j);
-	if (moduleMetadata.requiredVersionInRange && (*(moduleMetadata.uses[0]) > version && *(moduleMetadata.uses[1]) < version)) {
+	if (moduleMetadata.requiredVersionInRange && (*(moduleMetadata.uses[0]) > kCoreVersion && *(moduleMetadata.uses[1]) < kCoreVersion)) {
 		std::string requiresVersionMessage = 
 			(
 				moduleMetadata.uses[0]->getVersionStr() != moduleMetadata.uses[1]->getVersionStr() ?
@@ -528,11 +528,11 @@ bool core::main::checkModule(const std::string& name) {
 	try {
 	  	std::string binName = moduleMetadata.layout[OS_NAME_STR];
 	  	dylib::library moduleRaw(modulePath + "bin/" + (binName.empty() ? OS_NAME_STR : binName));
-	  	auto createModuleFunction = moduleRaw.get_function<ModuleBase *(ModuleMetadata *, main *)>("createModule");
+	  	auto createModuleFunction = moduleRaw.get_function<ModuleBase *(ModuleMetadata *, Main *)>("createModule");
 	  	auto moduleb = createModuleFunction(&moduleMetadata, this);
 	  	if (moduleb) {
 			//std::unique_ptr<ModuleBase> moduleInUniquePtr(std::move(moduleb));
-			modules.push_back(std::move(moduleb));
+			_modules.push_back(std::move(moduleb));
 	  	}
 	}
 	catch (std::exception &e) {
@@ -544,7 +544,7 @@ bool core::main::checkModule(const std::string& name) {
 
 void nothing() {}
 
-void* core::main::getRequiredClassPtr(const std::string& request, ModuleBase*) {
+void* core::Main::getRequiredClassPtr(const std::string& request, ModuleBase*) {
 	/*
 	if (modules.empty())
 		return 0;
@@ -572,50 +572,50 @@ void* core::main::getRequiredClassPtr(const std::string& request, ModuleBase*) {
 
 #endif
 
-void core::main::loop() {
+void core::Main::loop() {
 	while (work) {
-		loopedFunc();
+		_loopedFunc();
 	}
 };
 
-void core::main::stopWork() {
+void core::Main::stopWork() {
 	work = false;
 }
 
-void core::main::setCommandSender(CommandSenderBasic* newCommandSender) {
+void core::Main::setCommandSender(CommandSenderBasic* newCommandSender) {
 	if (!newCommandSender)
 		return;
-	commandSender = newCommandSender;
-	commandSenderReplaced = true;
+	_commandSender = newCommandSender;
+	_isCommandSenderReplaced = true;
 }
 
-core::main::main() {
-	loopedFunc = [this]() -> void {
+core::Main::Main() {
+	_loopedFunc = [this]() -> void {
 		#ifndef NRC_WEB
-		commandSender->zone();
+		_commandSender->zone();
 		#endif
 	};
 
-	startFunc = []() -> void {
+	_startFunc = []() -> void {
 		core::print("Welcome to NRC!\n");
 	};
 }
 
-core::main::main(std::function<void()> start, std::function<void()> loop) {
-	startFunc = std::move(start);
-	loopedFunc = std::move(loop);
+core::Main::Main(std::function<void()> start, std::function<void()> loop) {
+	_startFunc = std::move(start);
+	_loopedFunc = std::move(loop);
 }
 
-core::main::main(std::function<void()> start) {
-	startFunc = std::move(start);
-	loopedFunc = [this]() -> void {
+core::Main::Main(std::function<void()> start) {
+	_startFunc = std::move(start);
+	_loopedFunc = [this]() -> void {
 		#ifndef NRC_WEB
-		commandSender->zone();
+		_commandSender->zone();
 		#endif
 	};
 }
 
-void core::main::init() {
+void core::Main::init() {
 	fixNOW();
 	addCommands();
 	addCRules();
@@ -649,35 +649,35 @@ void core::main::init() {
 	core::userManager()->readAllUsersData();
 	core::pseudoFS()->postInit();
 
-	if (!commandSenderReplaced) {
-		commandSender = new CommandSenderBasic();
+	if (!_isCommandSenderReplaced) {
+		_commandSender = new CommandSenderBasic();
 	}
 }
 
-void core::main::start() {
+void core::Main::start() {
 	#ifndef NRC_WEB
-	core::userManager()->checkOOBE();
-	if (!core::userManager()->getOOBEPassed() && core::userManager()->yourUsername().empty())      
-		OOBE();
+	core::userManager()->checkLaunchStatus();
+	if (!core::userManager()->isFirstLaunch() && core::userManager()->getYourUsername().empty())      
+		startFirstLaunch();
 	else
 		core::userManager()->userLists();
 	#endif
 	
-	startFunc();
+	_startFunc();
 	loop();
 };
 
-core::main::~main() {
+core::Main::~Main() {
 	#ifndef NRC_DISABLE_EXPERIMENTAL_FEATURES
 	core::experimental::structDataEvents::NRCShutdownEvent eventData = {
-		core::userManager()->yourUsername(),
-		core::userManager()->currentUserData().getPermissions(),
-		static_cast<size_t>(core::userManager()->userVectorPos(core::userManager()->yourUsername()))
+		core::userManager()->getYourUsername(),
+		core::userManager()->getCurrentUserData().getPermissions(),
+		static_cast<size_t>(core::userManager()->getPosInVector(core::userManager()->getYourUsername()))
 	};
 
 	core::experimental::EventManager::eventsStart(NRC_SHUTDOWN_EVENT, eventData);
 	#endif
 
 	core::pseudoFS()->getNRFS()->saveData();
-	std::cout << "Goodbye, " + (core::userManager()->yourUsername() != "" ? core::userManager()->yourUsername() : "user") + ".\n";
+	std::cout << "Goodbye, " + (core::userManager()->getYourUsername() != "" ? core::userManager()->getYourUsername() : "user") + ".\n";
 }

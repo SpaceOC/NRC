@@ -17,7 +17,7 @@ core::VariablesManager* core::systemVariablesManager() {
 core::VariablesManager::VariablesManager() {}
 
 core::VariablesManager::VariablesManager(core::VariablesManager& r) {
-	this->data = r.data;
+	this->_data = r._data;
 	this->isSystem = false;
 }
 
@@ -32,11 +32,11 @@ void core::VariablesManager::addVar(const std::string& name, const VariableType&
 		v.permissionsRun = (!isSystem ? permissionsRun : core::UserPermissions::ROOT);
 		if (type == VariableType::COMMAND) {
 			auto func = [](VariableData a) -> std::string {
-				std::vector<core::CommandObject> tc = core::commandsHandler()->getParser()->parse(a.str);
+				std::vector<core::CommandObject> tc = core::commandsHandler()->parser()->parse(a.str);
 				std::string output;
 				core::User* who = (
 					!a.username.empty() && core::userManager()->userExist(a.username) ? 
-					&core::userManager()->getUser(a.username) :
+					&core::userManager()->getUserData(a.username) :
 					NULL
 				);
 
@@ -59,7 +59,7 @@ void core::VariablesManager::addVar(const std::string& name, const VariableType&
 			auto func = [](VariableData a) -> std::string {
 				core::User* who = (
 					!a.username.empty() && core::userManager()->userExist(a.username) ? 
-					&core::userManager()->getUser(a.username) :
+					&core::userManager()->getUserData(a.username) :
 					NULL
 				);
 				
@@ -82,7 +82,7 @@ void core::VariablesManager::addVar(const std::string& name, const VariableType&
 			v.function = func;
 		}
 		#ifndef NRC_DISABLE_EXPERIMENTAL_FEATURES
-		this->data.push_back(v);
+		this->_data.push_back(v);
 		#else
 		if (type != VariableType::JS_CODE) {
 			this->data.push_back(v);
@@ -104,7 +104,7 @@ void core::VariablesManager::addVar(const std::string& name, const VariableType&
 		v.str = "";
 		v.permissionsRun = (!isSystem ? permissionsRun : core::UserPermissions::ROOT);
 		v.function = f;
-		this->data.push_back(v);
+		this->_data.push_back(v);
 	}
 	catch (const std::exception& e) {
 		print(e.what(), PrintColors::red);
@@ -112,7 +112,7 @@ void core::VariablesManager::addVar(const std::string& name, const VariableType&
 }
 
 core::VariableData core::VariablesManager::getVariable(std::string_view name) {
-	for (const auto& a : data) {
+	for (const auto& a : _data) {
 		if (a.name == name) {
 			return a;
 		}
@@ -121,7 +121,7 @@ core::VariableData core::VariablesManager::getVariable(std::string_view name) {
 }
 
 bool core::VariablesManager::exists(std::string_view name) {
-	for (const auto& a : data) {
+	for (const auto& a : _data) {
 		if (a.name == name) {
 			return true;
 		}
@@ -130,7 +130,7 @@ bool core::VariablesManager::exists(std::string_view name) {
 }
 
 void core::VariablesManager::start(std::string_view variableName) {
-	for (const auto& a : data) {
+	for (const auto& a : _data) {
 		if (a.name == variableName) {
 			a.function(a);
 			break;
@@ -139,7 +139,7 @@ void core::VariablesManager::start(std::string_view variableName) {
 }
 
 void core::VariablesManager::start(std::string_view variableName, std::string& str) {
-	for (const auto& a : data) {
+	for (const auto& a : _data) {
 		if (a.name == variableName) {
 			str = a.function(a);
 			break;
@@ -148,7 +148,7 @@ void core::VariablesManager::start(std::string_view variableName, std::string& s
 }
 
 void core::VariablesManager::rename(const std::string& oldName, const std::string& newName) {
-	for (auto& a : data) {
+	for (auto& a : _data) {
 		if (a.name == oldName) {
 			a.name = newName;
 			break;
@@ -157,8 +157,8 @@ void core::VariablesManager::rename(const std::string& oldName, const std::strin
 }
 
 std::vector<core::VariableData> core::VariablesManager::getAllVars() {
-	if (data.empty()) return {};
+	if (_data.empty()) return {};
 	std::vector<core::VariableData> temp;
-	for (const auto& a : data) temp.push_back(a);
+	for (const auto& a : _data) temp.push_back(a);
 	return temp;
 }

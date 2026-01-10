@@ -32,7 +32,7 @@ namespace core {
 
 	class VariablesManager {
 		private:
-			std::vector<VariableData> data = {};
+			std::vector<VariableData> _data = {};
 		protected:
 			bool isSystem = false;
 		public:

@@ -3,7 +3,7 @@
 #endif
 #include "Core/main.h"
 
-void core::main::fixNOW() {
+void core::Main::fixNOW() {
 	#ifdef _WIN32
 	SetConsoleOutputCP(CP_UTF8);
 	SetConsoleCP(CP_UTF8);

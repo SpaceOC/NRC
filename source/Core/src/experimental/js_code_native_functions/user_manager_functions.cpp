@@ -57,7 +57,7 @@ void core::experimental::addUserManagerFunctions(mjs::interpreter& i, mjs::gc_he
 			throw native_error_exception{native_error_type::eval, i.global()->stack_trace(), "The user doesn't exist"};
 		}
 
-		return value(objectUserData(gc, &core::userManager()->getUser(username)));
+		return value(objectUserData(gc, &core::userManager()->getUserData(username)));
 	}, 1);
 }
 #endif

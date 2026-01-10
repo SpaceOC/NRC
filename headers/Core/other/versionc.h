@@ -16,48 +16,53 @@ class VersionC {
 		/**
 		 * @param r версия в виде типа std::string (примеры: 1.0; 0.1; 3.5.1)
 		 */
-		VersionC(const std::string& r) : versionStr(r) {};
+		VersionC(const std::string& r) : _versionStr(r) {
+			_calculatedVer = convVersionStrToDouble(r);
+		}
 
 		constexpr bool operator==(const VersionC& ver) {
-			return (this->versionStr == ver.versionStr);
+			return (this->_versionStr == ver._versionStr);
 		}
 
 		constexpr bool operator!=(const VersionC& ver) {
-			return (this->versionStr != ver.versionStr);
+			return (this->_versionStr != ver._versionStr);
 		}
 
 		constexpr bool operator<(const VersionC& ver) {
-			double thisV = convVersionStrToDouble(versionStr);
-			double v = convVersionStrToDouble(ver.versionStr);
+			double thisV = convVersionStrToDouble(_versionStr);
+			double v = convVersionStrToDouble(ver._versionStr);
 
 			return (thisV < v);
 		}
 
 		constexpr bool operator>(const VersionC& ver) {
-			double thisV = convVersionStrToDouble(versionStr);
-			double v = convVersionStrToDouble(ver.versionStr);
+			double thisV = convVersionStrToDouble(_versionStr);
+			double v = convVersionStrToDouble(ver._versionStr);
 
 			return (thisV > v);
 		}
 
 		constexpr bool operator<=(const VersionC& ver) {
-			double thisV = convVersionStrToDouble(versionStr);
-			double v = convVersionStrToDouble(ver.versionStr);
+			double thisV = convVersionStrToDouble(_versionStr);
+			double v = convVersionStrToDouble(ver._versionStr);
 
 			return (thisV <= v);
 		}
 
 		constexpr bool operator>=(const VersionC& ver) {
-			double thisV = convVersionStrToDouble(versionStr);
-			double v = convVersionStrToDouble(ver.versionStr);
+			double thisV = convVersionStrToDouble(_versionStr);
+			double v = convVersionStrToDouble(ver._versionStr);
 
 			return (thisV >= v);
 		}
 
 
-		const std::string& getVersionStr() { return versionStr; }
+		std::string getVersionStr() { return _versionStr; }
+		operator std::string() { return _versionStr; }
+		operator double() { return _calculatedVer; }
 	private:
-		std::string versionStr;
+		std::string _versionStr;
+		double _calculatedVer;
 
 		/**
 		 * Преобразует std::string версии в double для последующих операции != == <= >=

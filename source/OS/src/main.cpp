@@ -4,12 +4,12 @@
 
 extern void OSStart();
 
-core::main* nrc;
+core::Main* nrc;
 
 int main() {
 	try
 	{
-		nrc = new core::main(OSStart);
+		nrc = new core::Main(OSStart);
 		nrc->init();
 		nrc->start();
 		delete nrc;

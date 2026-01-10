@@ -7,7 +7,7 @@
 #include "Core/command/command_structs.h"
 #include "Core/main.h"
 
-extern core::main* nrc;
+extern core::Main* nrc;
 
 namespace core {
 class User;

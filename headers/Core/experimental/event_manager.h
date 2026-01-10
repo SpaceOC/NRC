@@ -73,27 +73,28 @@ namespace core::experimental {
 		using SDNRCShutdownEvent = core::experimental::structDataEvents::NRCShutdownEvent;
 		using SDPFSInit = core::experimental::structDataEvents::PFSInit;
 		using SDPFSPostInit = core::experimental::structDataEvents::PFSPostInit;
+		
+	private:
+		static inline std::vector<std::function<SDUserAddEvent(SDUserAddEvent)>> userAddEvents;
+		static inline std::vector<std::function<SDUserDeleteEvent(SDUserDeleteEvent)>> userDeleteEvents;
+		static inline std::vector<std::function<SDUserChangeEvent(SDUserChangeEvent)>> userChangeEvents;
+		static inline std::vector<std::function<SDNRCShutdownEvent(SDNRCShutdownEvent)>> NRCShutdownEvents;
+		static inline std::vector<std::function<SDPFSInit(SDPFSInit)>> pseudoFSInitEvents;
+		static inline std::vector<std::function<SDPFSPostInit(SDPFSPostInit)>> pseudoFSPostInitEvents;
 
-		private:
-			static inline std::vector<std::function<SDUserAddEvent(SDUserAddEvent)>> userAddEvents;
-			static inline std::vector<std::function<SDUserDeleteEvent(SDUserDeleteEvent)>> userDeleteEvents;
-			static inline std::vector<std::function<SDUserChangeEvent(SDUserChangeEvent)>> userChangeEvents;
-			static inline std::vector<std::function<SDNRCShutdownEvent(SDNRCShutdownEvent)>> NRCShutdownEvents;
-			static inline std::vector<std::function<SDPFSInit(SDPFSInit)>> pseudoFSInitEvents;
-			static inline std::vector<std::function<SDPFSPostInit(SDPFSPostInit)>> pseudoFSPostInitEvents;
-		public:
-			static inline bool enableEvents = false;
+	public:
+		static inline bool enableEvents = false;
 
-			// Starts all functions of a certain event.
-			static void eventsStart(int eventId, std::any event);
-			//auto eventStart(std::string name, std::any event, size_t id);
+		// Starts all functions of a certain event.
+		static void eventsStart(int eventId, std::any event);
+		//auto eventStart(std::string name, std::any event, size_t id);
 
-			static void addEvent(std::function<SDUserAddEvent(SDUserAddEvent)> func);
-			static void addEvent(std::function<SDUserDeleteEvent(SDUserDeleteEvent)> func);
-			static void addEvent(std::function<SDUserChangeEvent(SDUserChangeEvent)> func);
-			static void addEvent(std::function<SDNRCShutdownEvent(SDNRCShutdownEvent)> func);
-			static void addEvent(std::function<SDPFSInit(SDPFSInit)> func);
-			static void addEvent(std::function<SDPFSPostInit(SDPFSPostInit)> func);
+		static void addEvent(std::function<SDUserAddEvent(SDUserAddEvent)> func);
+		static void addEvent(std::function<SDUserDeleteEvent(SDUserDeleteEvent)> func);
+		static void addEvent(std::function<SDUserChangeEvent(SDUserChangeEvent)> func);
+		static void addEvent(std::function<SDNRCShutdownEvent(SDNRCShutdownEvent)> func);
+		static void addEvent(std::function<SDPFSInit(SDPFSInit)> func);
+		static void addEvent(std::function<SDPFSPostInit(SDPFSPostInit)> func);
 	};
 
 };

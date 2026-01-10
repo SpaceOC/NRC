@@ -15,14 +15,14 @@ std::vector<core::CommandObject> core::CommandParser::parse(const std::string& r
 	CommandObject* obj = nullptr;
 
 	for (size_t i = 0; i < raw.size(); i++) {
-		if (!__isCommandSeparator(raw, i) && !obj) {
-			obj = __parseSingleCommand(raw, i, parseVars, who);
+		if (!isCommandSeparator(raw, i) && !obj) {
+			obj = parseSingleCommand(raw, i, parseVars, who);
 		}
-		else if ((__isCommandSeparator(raw, i) || i == (raw.size() - 1)) && obj) {
+		else if ((isCommandSeparator(raw, i) || i == (raw.size() - 1)) && obj) {
 			result.push_back(std::move(*obj));
 			obj = nullptr;
 			if (i != (raw.size() - 1)) {
-				i += commandsHandler()->getCommandSeparator().size() - 1;
+				i += commandsHandler()->commandSeparator().size() - 1;
 			}
 		}
 	}
@@ -30,14 +30,14 @@ std::vector<core::CommandObject> core::CommandParser::parse(const std::string& r
 	return result;
 }
 
-core::CommandObject* core::CommandParser::__parseSingleCommand(const std::string& raw, size_t startIndex, bool parseVars, core::User* who) {
+core::CommandObject* core::CommandParser::parseSingleCommand(const std::string& raw, size_t startIndex, bool parseVars, core::User* who) {
 	if (raw.empty() || (raw.size() <= startIndex)) return NULL;
 
 	CommandObject* result = new CommandObject();
 	std::string str;
 
 	for (size_t i = startIndex; i < raw.size(); i++) {
-		if (__isCommandSeparator(raw, i)) {
+		if (isCommandSeparator(raw, i)) {
 			break;
 		}
 
@@ -45,7 +45,7 @@ core::CommandObject* core::CommandParser::__parseSingleCommand(const std::string
 			str += raw[i];
 		}
 		if (i != 0 && raw[i] == '>' && raw[i - 1] == '-') {
-			bool done = __setReturnableOnSingleCommand(result, raw, i);
+			bool done = setReturnableOnSingleCommand(result, raw, i);
 			if (done) {
 				break;
 			}
@@ -56,7 +56,7 @@ core::CommandObject* core::CommandParser::__parseSingleCommand(const std::string
 			str = "";
 		}
 		else if ((raw[i] == ' ' || (i + 1) >= raw.size()) && !result->name.empty()) {
-			if (parseVars && who && commandsHandler()->thisVariable(str)) {
+			if (parseVars && who && commandsHandler()->isVariable(str)) {
 				std::string varName = str.substr(1, str.length() - 2);
 
 				if (systemVariablesManager()->exists(varName) && systemVariablesManager()->getVariable(varName).type == VariableType::NAME) {
@@ -74,7 +74,7 @@ core::CommandObject* core::CommandParser::__parseSingleCommand(const std::string
 			if (i != 0 && raw[i - 1] == '\\') continue;
 
 			size_t endIndex = i;
-			str = __getStringInQ(raw, i, endIndex);
+			str = getStringInQ(raw, i, endIndex);
 
 			if (endIndex != 0) i = endIndex;
 
@@ -94,7 +94,7 @@ core::CommandObject* core::CommandParser::__parseSingleCommand(const std::string
 	return result;
 }
 
-std::string core::CommandParser::__getStringInQ(const std::string& original, size_t startIndex, size_t& end) {
+std::string core::CommandParser::getStringInQ(const std::string& original, size_t startIndex, size_t& end) {
 	if (original.empty() || (original.size() <= startIndex)) {
 		end = 0;
 		return "";
@@ -171,10 +171,10 @@ std::map<std::string, std::string> core::CommandParser::getMapArgsFromVector(con
 	return result;
 }
 
-bool core::CommandParser::__isCommandSeparator(const std::string& original, size_t startIndex) {
+bool core::CommandParser::isCommandSeparator(const std::string& original, size_t startIndex) {
 	if (original.empty() || (original.size() <= startIndex)) return false;
 
-	std::string separator = commandsHandler()->getCommandSeparator();
+	std::string separator = commandsHandler()->commandSeparator();
 	size_t originalIndex = startIndex;
 	size_t end = startIndex + separator.size();
 
@@ -192,7 +192,7 @@ bool core::CommandParser::__isCommandSeparator(const std::string& original, size
 	return true;
 }
 
-bool core::CommandParser::__setReturnableOnSingleCommand(core::CommandObject* target, const std::string& raw, size_t startIndex) {
+bool core::CommandParser::setReturnableOnSingleCommand(core::CommandObject* target, const std::string& raw, size_t startIndex) {
 	if ((startIndex + 1) == raw.size() || (startIndex + 2) == raw.size()) return false;
 	else if (raw[startIndex + 1] != ' ') return false;
 
@@ -201,7 +201,7 @@ bool core::CommandParser::__setReturnableOnSingleCommand(core::CommandObject* ta
 		std::string str;
 
 		for (size_t _ = startIndex + 2; _ < raw.size(); _++) {
-			if (__isCommandSeparator(raw, _)) {
+			if (isCommandSeparator(raw, _)) {
 				if (raw[_ - 1] == ' ') --spaces;
 				break;
 			}
@@ -221,7 +221,7 @@ bool core::CommandParser::__setReturnableOnSingleCommand(core::CommandObject* ta
 	}
 	else if (raw[startIndex + 2] == '"') {
 		size_t endIndex = startIndex;
-		std::string str = __getStringInQ(raw, startIndex, endIndex);
+		std::string str = getStringInQ(raw, startIndex, endIndex);
 
 		if (endIndex == 0) return false;
 

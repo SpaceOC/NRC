@@ -14,13 +14,12 @@ namespace core {
 	// User Management in the NRC.
 	class UserManager {
 		private:
-			bool OOBEPassed = false;
-			bool userIsLogined = false; // Whether the user is logged in to their account
-			const int maxUsers = 10; // Maximum number of users.
-			std::string currentUser; // Current username
-			std::vector<User*> users;
-			const std::string mainDataFilePath = "Data/main.json";
-			const std::string usersPath = "Data/Users/";
+			// old name
+			//bool OOBEPassed = false;
+			bool _isFirstLaunch = false;
+			bool _isUserLogined = false; // Whether the user is logged in to their account
+			std::string _currentUser; // Current username
+			std::vector<User*> _users;
 			
 			// Selecting an account and logging into it (logging into the account is done in the userLogin function).
 			void userLogic();
@@ -34,14 +33,14 @@ namespace core {
 			void addUserFromData(const std::string& username, const std::string& displayName, const UserPermissions& permissions, const std::string& language, const std::string& password = "");
 		public:
 			UserManager();
-			bool userIsYou(const std::string& username);
+			bool isUserEqualsYou(const std::string& username);
 			bool userExist(const std::string& username);
 			bool havePassword(const std::string& username);
-			bool userHaveAdminPermissions(const std::string& username);
+			bool haveAdminPermissions(const std::string& username);
 			// The current user's permissions are lower than the other user's
-			bool permissionsHighCurrentUser(const std::string& username);
-			bool getUserIsLogined();
-			bool getOOBEPassed();
+			bool isPermsHighCurrentUser(const std::string& username);
+			bool isUserLogined();
+			bool isFirstLaunch();
 
 			#ifdef NRC_WEB
 			// Log in to the selected user's account.
@@ -53,17 +52,17 @@ namespace core {
 			* @param username Username
 			* @return Position (if user exists) or -1
 			*/
-			int userVectorPos(const std::string& username);
-			User &currentUserData();
-			User &getUser(const std::string& username);
-			const std::string& yourUsername();
+			int getPosInVector(const std::string& username);
+			User &getCurrentUserData();
+			User &getUserData(const std::string& username);
+			const std::string& getYourUsername();
 			std::map<std::string, std::string> getUserMap();
 			std::vector<core::VariableData> getLocalVarsMap(const std::string& username);
 			std::map<std::string, std::string> getLanguageMap();
 			std::map<std::string, UserPermissions> getPermissionsMap();
 
 			// Checks the value of OOBE_Passed in the MainData.json file (which is in the Data folder) and changes the value of OOBE_Passed to true or false depending on the value.
-			void checkOOBE();
+			void checkLaunchStatus();
 
 			/*
 			* Create a new user with administrator rights.
@@ -125,6 +124,10 @@ namespace core {
 			* If the user exists and his file also exists, then the user data is simply updated (using the readUserData function).
 			*/
 			void readAllUsersData();
+
+			static inline const int kMaxUsers = 10; // Maximum number of users.
+			static inline const std::string kMainDataFilePath = "Data/main.json";
+			static inline const std::string kUsersPath = "Data/Users/";
 	};
 
 	extern UserManager* userManager();

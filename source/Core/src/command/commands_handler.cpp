@@ -25,19 +25,19 @@ core::CommandsHandler* core::commandsHandler() {
 }
 
 core::CommandsHandler::CommandsHandler() {
-	parser = new CommandParser();
+	_parser = new CommandParser();
 }
 
-bool core::CommandsHandler::thisVariable(const std::string& command) {
+bool core::CommandsHandler::isVariable(const std::string& command) {
 	return (command.substr(0, 1) == "%" && command.substr(command.length() - 1, command.length()) == "%");
 }
 
 void core::CommandsHandler::sendCommand(const core::CommandObject& command) {
-	sendCommand(&core::userManager()->currentUserData(), command);
+	sendCommand(&core::userManager()->getCurrentUserData(), command);
 }
 
 void core::CommandsHandler::sendCommand(const core::CommandObject& command, std::string& str) {
-	sendCommand(&core::userManager()->currentUserData(), command, str);
+	sendCommand(&core::userManager()->getCurrentUserData(), command, str);
 }
 
 void core::CommandsHandler::sendCommand(const core::UserPermissions permissions, const core::CommandObject& command) {
@@ -53,15 +53,16 @@ void core::CommandsHandler::sendCommand(const core::UserPermissions permissions,
 }
 
 void core::CommandsHandler::sendCommand(core::User* who, const core::CommandObject& command) {
-	auto it = commandMap.find(command.name);
+	auto it = _commandMap.find(command.name);
 	std::string str, err;
 	bool findCustomRule = false;
 	core::CommandObject* thisObj = new CommandObject(command);
-	for (auto pair : customRules) {
+	for (auto pair : _customRules) {
 		if ((findCustomRule = pair.second(command, who, str, err))) {
 			break;
 		}
 	}
+
 	if (findCustomRule) {
 		std::cout << str << '\n';
 	}
@@ -69,7 +70,7 @@ void core::CommandsHandler::sendCommand(core::User* who, const core::CommandObje
 		core::print(err, core::PrintColors::red);
 		core::print();
 	}
-	else if (it != commandMap.end()) {
+	else if (it != _commandMap.end()) {
 		if (std::holds_alternative<SimpleCommand>(it->second)) {
 			SimpleCommand simpleCommand = std::get<SimpleCommand>(it->second);
 			std::cout << simpleCommand(who, thisObj);
@@ -93,20 +94,21 @@ void core::CommandsHandler::sendCommand(core::User* who, const core::CommandObje
 }
 
 void core::CommandsHandler::sendCommand(core::User* who, const core::CommandObject& command, std::string& str) {
-	auto it = commandMap.find(command.name);
+	auto it = _commandMap.find(command.name);
 	std::string ret, err;
 	bool findCustomRule = false;
 	core::CommandObject* thisObj = new CommandObject(command);
-	for (auto pair : customRules) {
+	for (auto pair : _customRules) {
 		if ((findCustomRule = pair.second(command, who, ret, err))) {
 			break;
 		}
 	}
+
 	if (findCustomRule)
 		str = ret;
 	else if (!err.empty())
 		str = err;
-	else if (it != commandMap.end()) {
+	else if (it != _commandMap.end()) {
 		if (std::holds_alternative<SimpleCommand>(it->second)) {
 			SimpleCommand simpleCommand = std::get<SimpleCommand>(it->second);
 			str = simpleCommand(who, thisObj);
@@ -134,8 +136,8 @@ void core::CommandsHandler::addCommand(const std::string& name, const std::strin
 	int spacesToAdd = std::max(10, 46 - static_cast<int>(name.length()));
 	temp += std::string(spacesToAdd, ' ');
 	temp += std::string(STRING_TAB) + "  " + description;
-	commandMap[name] = function;
-	commandInfo[name].description = temp;
+	_commandMap[name] = function;
+	_commandInfo[name].description = temp;
 }
 
 void core::CommandsHandler::addCommand(const std::string& name, const core::CommandDescription& data, core::SimpleCommand function, int minArgs, int maxArgs, const CommandRules& rules) {
@@ -144,39 +146,39 @@ void core::CommandsHandler::addCommand(const std::string& name, const core::Comm
 	temp += std::string(spacesToAdd, ' ');
 	temp += std::string(STRING_TAB) + "  " + data.description;
 	ExtentedCommand com = {minArgs, maxArgs, function, new CommandRules(rules)};
-	commandMap[name] = com;
-	commandInfo[name].description = temp;
-	commandInfo[name].argsNames = data.argsNames;
+	_commandMap[name] = com;
+	_commandInfo[name].description = temp;
+	_commandInfo[name].argsNames = data.argsNames;
 }
 
 void core::CommandsHandler::addCustomRules(const std::string& id, const CustomRulesFunc& f) {
-	customRules[id] = f;
+	_customRules[id] = f;
 }
 
 void core::CommandsHandler::deleteCustomRules(const std::string& id) {
-	if (customRules.count(id)) {
-		customRules.erase(id);
+	if (_customRules.count(id)) {
+		_customRules.erase(id);
 	}
 }
 
 void core::CommandsHandler::deleteCommand(const std::string& name) {
-	if (commandMap.count(name)) {
-		commandMap.erase(name);
+	if (_commandMap.count(name)) {
+		_commandMap.erase(name);
 	}
 	
-	if (commandInfo.count(name)) {
-		commandInfo.erase(name);
+	if (_commandInfo.count(name)) {
+		_commandInfo.erase(name);
 	}
 }
 
 bool core::CommandsHandler::commandExists(const std::string& name) {
-	return commandInfo.count(name) && commandMap.count(name);
+	return _commandInfo.count(name) && _commandMap.count(name);
 }
 
 const core::CommandDescription& core::CommandsHandler::getCommand(const std::string& name) {
-	return commandInfo[name];
+	return _commandInfo[name];
 }
 
 const std::map<std::string, core::CommandDescription>& core::CommandsHandler::getAllCommands() {
-	return commandInfo;
+	return _commandInfo;
 }

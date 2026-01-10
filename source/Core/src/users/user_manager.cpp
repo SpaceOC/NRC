@@ -26,7 +26,7 @@ void core::UserManager::userLogic() {
 	}
 	std::getline(std::cin, usernameTemp);
 
-	for (auto& user : users) temp.push_back(user->getUsername());
+	for (auto& user : _users) temp.push_back(user->getUsername());
 	if (std::find(temp.begin(), temp.end(), usernameTemp) != temp.end())
 		userLogin(usernameTemp);
 	else { 
@@ -49,48 +49,49 @@ void core::UserManager::userLogin(const std::string& username) {
 			}
 			std::getline(std::cin, password);
 
-			if (!users[userVectorPos(username)]->truePassword(password))
+			if (!_users[getPosInVector(username)]->truePassword(password))
 				print("Wrong password!\n", PrintColors::red);
 			else {
 				passwordNotPassed = false;
-				currentUser = username;
-				userIsLogined = true;
+				_currentUser = username;
+				_isUserLogined = true;
 			}
 		}
 	}
 	else {
-		currentUser = username;
-		userIsLogined = true;
+		_currentUser = username;
+		_isUserLogined = true;
 	}
 }
 #else
 void core::UserManager::userLogin(const std::string& username, const std::string& password) {
 	if (havePassword(username)) {
-		if (!users[userVectorPos(username)]->truePassword(password)) {
+		if (!_users[getPosInVector(username)]->truePassword(password)) {
 			print("Wrong password!\n", PrintColors::red);
 		}
 		else {
-			currentUser = username;
-			userIsLogined = true;
+			_currentUser = username;
+			_isUserLogined = true;
 		}
 	}
 	else {
-		currentUser = username;
-		userIsLogined = true;
+		_currentUser = username;
+		_isUserLogined = true;
 	}
 }
 #endif
 
 void core::UserManager::addUserFromData(const std::string& username, const std::string& displayName, const core::UserPermissions& permissions, const std::string& language, const std::string& password) {
-	users.push_back(new User(username, permissions, language, password));
-	users[userVectorPos(username)]->editDisplayName(displayName);
+	_users.push_back(new User(username, permissions, language, password));
+	_users[getPosInVector(username)]->editDisplayName(displayName);
+	int pos = getPosInVector(username);
 
 	#ifndef NRC_DISABLE_EXPERIMENTAL_FEATURES
 	core::experimental::structDataEvents::UserAddEvent eventData = {
 		username,
-		users[userVectorPos(username)]->displayName,
-		users[userVectorPos(username)]->permissions,
-		static_cast<size_t>(userVectorPos(username))
+		_users[pos]->displayName,
+		_users[pos]->permissions,
+		static_cast<size_t>(pos)
 	};
 
 	core::experimental::EventManager::eventsStart(USER_ADD_EVENT, eventData);
@@ -107,57 +108,57 @@ void core::UserManager::addUserFromData(const std::string& username, const std::
 }
 
 core::UserManager::UserManager() {}
-bool core::UserManager::userIsYou(const std::string& username) { return username == currentUser; }
+bool core::UserManager::isUserEqualsYou(const std::string& username) { return username == _currentUser; }
 bool core::UserManager::userExist(const std::string& username) {
-	for (User* user : users) {
+	for (User* user : _users) {
 		if (user->getUsername() == username) return true;
 	}
 	return false;
 }
-bool core::UserManager::havePassword(const std::string& username) { return users[userVectorPos(username)]->havePassword(); }
-bool core::UserManager::userHaveAdminPermissions(const std::string& username) { return users[userVectorPos(username)]->getPermissions() >= UserPermissions::ADMIN; }
+bool core::UserManager::havePassword(const std::string& username) { return _users[getPosInVector(username)]->havePassword(); }
+bool core::UserManager::haveAdminPermissions(const std::string& username) { return _users[getPosInVector(username)]->getPermissions() >= UserPermissions::ADMIN; }
 
-bool core::UserManager::permissionsHighCurrentUser(const std::string& username) { 
-	return users[userVectorPos(currentUser)]->getPermissions() < users[userVectorPos(username)]->getPermissions();
+bool core::UserManager::isPermsHighCurrentUser(const std::string& username) { 
+	return _users[getPosInVector(_currentUser)]->getPermissions() < _users[getPosInVector(username)]->getPermissions();
 }
 
-bool core::UserManager::getUserIsLogined() { return userIsLogined; }
-bool core::UserManager::getOOBEPassed() { return OOBEPassed; }
+bool core::UserManager::isUserLogined() { return _isUserLogined; }
+bool core::UserManager::isFirstLaunch() { return _isFirstLaunch; }
 
-int core::UserManager::userVectorPos(const std::string& username) {
-	int realUsersSize = users.size() - (users.size() == 1 ? 0 : 1);
+int core::UserManager::getPosInVector(const std::string& username) {
+	int realUsersSize = _users.size() - (_users.size() == 1 ? 0 : 1);
 	for (int i = 0; i <= realUsersSize; i++) {
-		if (users[i]->getUsername() == username) return i;
+		if (_users[i]->getUsername() == username) return i;
 	}
 	return -1;
 }
 
-core::User &core::UserManager::currentUserData() {
-	return *users[userVectorPos(currentUser)];
+core::User &core::UserManager::getCurrentUserData() {
+	return *_users[getPosInVector(_currentUser)];
 }
-core::User &core::UserManager::getUser(const std::string& username) {
-	return *users[userVectorPos(username)];
+core::User &core::UserManager::getUserData(const std::string& username) {
+	return *_users[getPosInVector(username)];
 }
-const std::string& core::UserManager::yourUsername() { return currentUser; }
+const std::string& core::UserManager::getYourUsername() { return _currentUser; }
 
 std::map<std::string, std::string> core::UserManager::getUserMap() {
 	std::map<std::string, std::string> temp;
 
-	for (User* user : users)
+	for (User* user : _users)
 		temp[user->getUsername()] = user->getDisplayName();
 	return temp;
 }
 
 std::vector<core::VariableData> core::UserManager::getLocalVarsMap(const std::string& username) {
 	if (userExist(username))
-		return users[userVectorPos(username)]->getAllVars();
+		return _users[getPosInVector(username)]->getAllVars();
 	return {};
 }
 
 std::map<std::string, std::string> core::UserManager::getLanguageMap() {
 	std::map<std::string, std::string> temp;
 
-	for (User* user : users)
+	for (User* user : _users)
 		temp[user->getUsername()] = user->getLanguage();
 	return temp;
 }
@@ -165,29 +166,30 @@ std::map<std::string, std::string> core::UserManager::getLanguageMap() {
 std::map<std::string, core::UserPermissions> core::UserManager::getPermissionsMap() {
 	std::map<std::string, core::UserPermissions> temp;
 
-	for (User* user : users)
+	for (User* user : _users)
 		temp[user->getUsername()] = user->getPermissions();
 	return temp;
 }
 
-void core::UserManager::checkOOBE() {
-	if (std::filesystem::exists(mainDataFilePath)) {
-		nlohmann::json data = nlohmann::json::parse(core::other_util::getFileContent(mainDataFilePath));
-		OOBEPassed = data.at("OOBE_Passed").get<bool>();
+void core::UserManager::checkLaunchStatus() {
+	if (std::filesystem::exists(kMainDataFilePath)) {
+		nlohmann::json data = nlohmann::json::parse(core::other_util::getFileContent(kMainDataFilePath));
+		_isFirstLaunch = data.at("OOBE_Passed").get<bool>();
 	}
 }
 
 void core::UserManager::systemAddUser(const std::string& username) {
-	users.push_back(new User(username, UserPermissions::ADMIN));
-	currentUser = username;
-	userIsLogined = true;
+	_users.push_back(new User(username, UserPermissions::ADMIN));
+	_currentUser = username;
+	_isUserLogined = true;
+	int pos = getPosInVector(username);
 
 	#ifndef NRC_DISABLE_EXPERIMENTAL_FEATURES
 	core::experimental::structDataEvents::UserAddEvent eventData = {
 		username,
-		users[userVectorPos(username)]->getDisplayName(),
-		users[userVectorPos(username)]->getPermissions(),
-		static_cast<size_t>(userVectorPos(username))
+		_users[pos]->displayName,
+		_users[pos]->permissions,
+		static_cast<size_t>(pos)
 	};
 
 	core::experimental::EventManager::eventsStart(USER_ADD_EVENT, eventData);
@@ -202,27 +204,28 @@ void core::UserManager::systemAddUser(const std::string& username) {
 	core::pseudoFS()->getNRFS()->saveData();
 	saveUserData(username);
 
-	nlohmann::json data = nlohmann::json::parse(core::other_util::getFileContent(mainDataFilePath));
+	nlohmann::json data = nlohmann::json::parse(core::other_util::getFileContent(kMainDataFilePath));
 	data["OOBE_Passed"] = true;
-	std::ofstream file(mainDataFilePath, std::ios::out);
+	std::ofstream file(kMainDataFilePath, std::ios::out);
 	file << data.dump(2);
 	file.close();
 
-	checkOOBE();
+	checkLaunchStatus();
 }
 
 void core::UserManager::addUser(const std::string& username, const core::UserPermissions& permissions) {
-	if (!userExist(username) && userHaveAdminPermissions(currentUser)
-	&& (users.size() < static_cast<size_t>(maxUsers))) 
+	if (!userExist(username) && haveAdminPermissions(_currentUser)
+	&& (_users.size() < static_cast<size_t>(kMaxUsers))) 
 	{
-		users.push_back(new User(username, permissions));
+		_users.push_back(new User(username, permissions));
+		int pos = getPosInVector(username);
 
 		#ifndef NRC_DISABLE_EXPERIMENTAL_FEATURES
 		core::experimental::structDataEvents::UserAddEvent eventData = {
 			username,
-			users[userVectorPos(username)]->getDisplayName(),
-			users[userVectorPos(username)]->getPermissions(),
-			static_cast<size_t>(userVectorPos(username))
+			_users[pos]->displayName,
+			_users[pos]->permissions,
+			static_cast<size_t>(pos)
 		};
 
 		core::experimental::EventManager::eventsStart(USER_ADD_EVENT, eventData);
@@ -241,23 +244,24 @@ void core::UserManager::addUser(const std::string& username, const core::UserPer
 }
 
 void core::UserManager::deleteUser(const std::string& username) {
-	if (userExist(username) && !permissionsHighCurrentUser(username) && 
-	userHaveAdminPermissions(currentUser) && !userIsYou(username)) 
+	if (userExist(username) && !isPermsHighCurrentUser(username) && 
+	haveAdminPermissions(_currentUser) && !isUserEqualsYou(username)) 
 	{
-		auto iter = users.begin();
-		for (User* user : users) {
+		auto iter = _users.begin();
+		for (User* user : _users) {
 			if (user->getUsername() == username) {
+				int pos = getPosInVector(username);
 				#ifndef NRC_DISABLE_EXPERIMENTAL_FEATURES
 				core::experimental::structDataEvents::UserDeleteEvent eventData = {
 					username,
-					users[userVectorPos(username)]->getDisplayName(),
-					users[userVectorPos(username)]->getPermissions()
+					_users[pos]->displayName,
+					_users[pos]->permissions
 				};
 
 				core::experimental::EventManager::eventsStart(USER_DELETE_EVENT, eventData);
 				#endif
 
-				users.erase(iter);
+				_users.erase(iter);
 				int code;
 				core::pseudoFS()->getFolderData("./home/" + username, 0, code);
 				if (code == core::PseudoFSCodes::OK) core::pseudoFS()->deleteFolder("./home/" + username, 0);
@@ -266,25 +270,26 @@ void core::UserManager::deleteUser(const std::string& username) {
 			}
 			iter++;
 		}
-		if (std::filesystem::exists(usersPath + username + ".json"))
-			std::filesystem::remove(usersPath + username + ".json");
+		if (std::filesystem::exists(kUsersPath + username + ".json"))
+			std::filesystem::remove(kUsersPath + username + ".json");
 	}
 	else print("This user could not be deleted\n", PrintColors::red);
 }
 
 void core::UserManager::renameUser(const std::string& username, const std::string& newUsername) {
-	if (userExist(username) && userHaveAdminPermissions(currentUser) && 
-	!permissionsHighCurrentUser(username) && !userIsYou(username)) 
+	if (userExist(username) && haveAdminPermissions(_currentUser) && 
+	!isPermsHighCurrentUser(username) && !isUserEqualsYou(username)) 
 	{
-		users[userVectorPos(username)]->editUsername(newUsername);
-		std::filesystem::rename(usersPath + username + ".json", usersPath + newUsername + ".json");
+		int pos = getPosInVector(username);
+		_users[pos]->editUsername(newUsername);
+		std::filesystem::rename(kUsersPath + username + ".json", kUsersPath + newUsername + ".json");
 
 		#ifndef NRC_DISABLE_EXPERIMENTAL_FEATURES
 		core::experimental::structDataEvents::UserChangeEvent eventData = {
 			username, newUsername,
-			users[userVectorPos(username)]->getDisplayName(), users[userVectorPos(username)]->getDisplayName(),
-			users[userVectorPos(username)]->getPermissions(), users[userVectorPos(username)]->getPermissions(),
-			static_cast<size_t>(userVectorPos(username))
+			_users[pos]->displayName, _users[pos]->displayName,
+			_users[pos]->permissions, _users[pos]->permissions,
+			static_cast<size_t>(pos)
 		};
 
 		core::experimental::EventManager::eventsStart(USER_CHANGE_EVENT, eventData);
@@ -294,22 +299,23 @@ void core::UserManager::renameUser(const std::string& username, const std::strin
 }
 
 void core::UserManager::changePermissionsUser(const std::string& username, const core::UserPermissions& newPermissions) {
-	if (userExist(username) && !permissionsHighCurrentUser(username) && userHaveAdminPermissions(currentUser)) {
-		core::UserPermissions past = users[userVectorPos(username)]->getPermissions();
-		users[userVectorPos(username)]->editPermissions(newPermissions);
+	if (userExist(username) && !isPermsHighCurrentUser(username) && haveAdminPermissions(_currentUser)) {
+		int pos = getPosInVector(username);
+		core::UserPermissions past = _users[pos]->permissions;
+		_users[pos]->editPermissions(newPermissions);
 
-		nlohmann::json data = core::other_util::getFileContent(usersPath + username + ".json");
+		nlohmann::json data = core::other_util::getFileContent(kUsersPath + username + ".json");
 		data["Permissions"] = static_cast<int>(newPermissions);
-		std::ofstream file(usersPath + username + ".json", std::ios::out);
+		std::ofstream file(kUsersPath + username + ".json", std::ios::out);
 		file << data.dump(2);
 		file.close();
 
 		#ifndef NRC_DISABLE_EXPERIMENTAL_FEATURES
 		core::experimental::structDataEvents::UserChangeEvent eventData = {
 			username, username,
-			users[userVectorPos(username)]->getDisplayName(), users[userVectorPos(username)]->getDisplayName(),
-			past, users[userVectorPos(username)]->getPermissions(),
-			static_cast<size_t>(userVectorPos(username))
+			_users[pos]->displayName, _users[pos]->displayName,
+			past, _users[pos]->permissions,
+			static_cast<size_t>(pos)
 		};
 
 		core::experimental::EventManager::eventsStart(USER_CHANGE_EVENT, eventData);
@@ -323,20 +329,20 @@ void core::UserManager::userLists() {
 	#ifndef NRC_WEB
 	std::cout << " - [ Users ] -" << '\n';
 
-	for (auto& user : users)
+	for (auto& user : _users)
 		std::cout << " - " << user->getUsername() << '\n';
 	userLogic();
 	#endif
 }
 
 void core::UserManager::userLogout() {
-	currentUser = ""; userIsLogined = false;
+	_currentUser = ""; _isUserLogined = false;
 	userLists();
 }
 
 void core::UserManager::saveUserData(const std::string& username) {
-	int userPos = userVectorPos(username);
-	User* who = users.at(userPos);
+	int userPos = getPosInVector(username);
+	User* who = _users.at(userPos);
 
 	nlohmann::json data;
 	data["Display Name"] = who->displayName;
@@ -356,17 +362,17 @@ void core::UserManager::saveUserData(const std::string& username) {
 		data["Variables"].push_back(varData);
 	}
 
-	std::ofstream file(usersPath + username + ".json", std::ios::out);
+	std::ofstream file(kUsersPath + username + ".json", std::ios::out);
 	file << data.dump(2);
 	file.close();
 }
 
 void core::UserManager::readUserData(const std::string& username) {
-	int userPos = userVectorPos(username);
+	int userPos = getPosInVector(username);
 	if (userPos == -1) return;
-	User* who = users.at(userPos);
+	User* who = _users.at(userPos);
 
-	std::string c = core::other_util::getFileContent(usersPath + username + ".json");
+	std::string c = core::other_util::getFileContent(kUsersPath + username + ".json");
 	if (c.empty()) return;
 	nlohmann::json data = nlohmann::json::parse(c);
 

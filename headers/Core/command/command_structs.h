@@ -13,7 +13,8 @@ namespace core {
 	class User;
 
 	struct CommandRules {
-		size_t offParser = 1000; // is used to define after how many arguments to switch off the parser and save all other data in one argument
+		// is used to define after how many arguments to switch off the parser and save all other data in one argument
+		size_t enabledParserBorder = 1000;
 	};
 
 	using SimpleCommand = std::string(*)(core::User*, core::CommandObject*);

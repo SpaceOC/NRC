@@ -91,11 +91,11 @@ nlohmann::json core::FileData::buildJSON() {
 	j["data"] = {};
 	j["data"].push_back(this->name);
 	j["data"].push_back(this->content);
-	j["data"].push_back(this->timeCreate);
-	j["data"].push_back(this->timeEdit);
+	j["data"].push_back(this->createTime);
+	j["data"].push_back(this->lastEditTime);
 	j["data"].push_back(this->system);
 	j["data"].push_back(this->hidden);
-	j["data"].push_back(this->linkPath);
+	j["data"].push_back(this->realFilePath);
 	j["data"].push_back((this->owner ? this->owner->getUsername() : ""));
 
 	return j;
@@ -107,11 +107,11 @@ nlohmann::json core::FolderData::buildJSON() {
 	j["type"] = "folder";
 	j["data"] = {};
 	j["data"].push_back(this->name);
-	j["data"].push_back(this->timeCreate);
-	j["data"].push_back(this->timeEdit);
+	j["data"].push_back(this->createTime);
+	j["data"].push_back(this->lastEditTime);
 	j["data"].push_back(this->system);
 	j["data"].push_back(this->hidden);
-	j["data"].push_back(this->linkPath);
+	j["data"].push_back(this->realFolderPath);
 	j["data"].push_back((this->owner ? this->owner->getUsername() : ""));
 
 	j["objects"] = {};
@@ -228,25 +228,21 @@ void core::NRFS::loadData() {
 	isLoadedFromFile = true;
 }
 
-int core::NRFSDisk::updateHelper(const std::vector<std::shared_ptr<FolderData>>& folders) {
-	int temp = 0;
+// TODO: Make it not recursive function
+void core::NRFSDisk::updateHelper(const std::vector<std::shared_ptr<FolderData>>& folders) {
 	for (const std::shared_ptr<FolderData>& folder : folders) {
-		foldersSize++;
-		filesSize += folder->files.size() - (folder->files.size() == 1 ? 0 : 1);
-		temp += folder->files.size() - (folder->files.size() == 1 ? 0 : 1);
-		temp += updateHelper(folder->folders);
+		_foldersSize++;
+		_filesSize += folder->files.size() - (folder->files.size() == 1 ? 0 : 1);
+		updateHelper(folder->folders);
 	}
-	return temp;
 }
 
 void core::NRFSDisk::update() {
-	filesSize = 0;
-	foldersSize = 0;
-	diskSize = 0;
+	_filesSize = 0;
+	_foldersSize = 0;
 	if (folders.empty() && files.empty()) return;
-	if (files.size() > 0) filesSize += files.size() - (files.size() == 1 ? 0 : 1);
-	this->diskSize = filesSize;
-	this->diskSize += this->updateHelper(folders);
+	if (files.size() > 0) _filesSize += files.size() - (files.size() == 1 ? 0 : 1);
+	updateHelper(folders);
 }
 
 core::NRFS::NRFS() {

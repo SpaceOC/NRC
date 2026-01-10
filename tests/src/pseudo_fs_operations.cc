@@ -161,19 +161,19 @@ TEST(PFS_Operations, ChangePath) {
     
     code = pseudoFilesystem.changePath("./test/test2/test3", 0);
     EXPECT_EQ(code, PseudoFSCodes::OK);
-    EXPECT_EQ(pseudoFilesystem.getCurrentPath(), "./test/test2/test3");
+    EXPECT_EQ(pseudoFilesystem.currentPath(), "./test/test2/test3");
 
     code = pseudoFilesystem.changePath("./test/test2", 0);
     EXPECT_EQ(code, PseudoFSCodes::OK);
-    EXPECT_EQ(pseudoFilesystem.getCurrentPath(), "./test/test2");
+    EXPECT_EQ(pseudoFilesystem.currentPath(), "./test/test2");
 
     code = pseudoFilesystem.changePath("./test", 0);
     EXPECT_EQ(code, PseudoFSCodes::OK);
-    EXPECT_EQ(pseudoFilesystem.getCurrentPath(), "./test");
+    EXPECT_EQ(pseudoFilesystem.currentPath(), "./test");
 
     code = pseudoFilesystem.changePath("./", 0);
     EXPECT_EQ(code, PseudoFSCodes::OK);
-    EXPECT_EQ(pseudoFilesystem.getCurrentPath(), "./");
+    EXPECT_EQ(pseudoFilesystem.currentPath(), "./");
 }
 
 TEST(PFS_Operations, ChangeDirectory) {
@@ -192,37 +192,37 @@ TEST(PFS_Operations, ChangeDirectory) {
     
     code = pseudoFilesystem.changeDirectory("test/test2/test3", 0);
     EXPECT_EQ(code, PseudoFSCodes::OK);
-    EXPECT_EQ(pseudoFilesystem.getCurrentPath(), "./test/test2/test3/");
+    EXPECT_EQ(pseudoFilesystem.currentPath(), "./test/test2/test3/");
 
     code = pseudoFilesystem.changeDirectory("..", 0);
     EXPECT_EQ(code, PseudoFSCodes::OK);
-    EXPECT_EQ(pseudoFilesystem.getCurrentPath(), "./test/test2/");
+    EXPECT_EQ(pseudoFilesystem.currentPath(), "./test/test2/");
 
     code = pseudoFilesystem.changeDirectory("test3", 0);
     EXPECT_EQ(code, PseudoFSCodes::OK);
-    EXPECT_EQ(pseudoFilesystem.getCurrentPath(), "./test/test2/test3/");
+    EXPECT_EQ(pseudoFilesystem.currentPath(), "./test/test2/test3/");
 
     code = pseudoFilesystem.changeDirectory("..", 0);
     EXPECT_EQ(code, PseudoFSCodes::OK);
-    EXPECT_EQ(pseudoFilesystem.getCurrentPath(), "./test/test2/");
+    EXPECT_EQ(pseudoFilesystem.currentPath(), "./test/test2/");
 
     code = pseudoFilesystem.changeDirectory("..", 0);
     EXPECT_EQ(code, PseudoFSCodes::OK);
-    EXPECT_EQ(pseudoFilesystem.getCurrentPath(), "./test/");
+    EXPECT_EQ(pseudoFilesystem.currentPath(), "./test/");
 
     code = pseudoFilesystem.changeDirectory("test2", 0);
     EXPECT_EQ(code, PseudoFSCodes::OK);
-    EXPECT_EQ(pseudoFilesystem.getCurrentPath(), "./test/test2/");
+    EXPECT_EQ(pseudoFilesystem.currentPath(), "./test/test2/");
 
     code = pseudoFilesystem.changeDirectory("..", 0);
     EXPECT_EQ(code, PseudoFSCodes::OK);
-    EXPECT_EQ(pseudoFilesystem.getCurrentPath(), "./test/");
+    EXPECT_EQ(pseudoFilesystem.currentPath(), "./test/");
 
     code = pseudoFilesystem.changeDirectory("..", 0);
     EXPECT_EQ(code, PseudoFSCodes::OK);
-    EXPECT_EQ(pseudoFilesystem.getCurrentPath(), "./");
+    EXPECT_EQ(pseudoFilesystem.currentPath(), "./");
 
     code = pseudoFilesystem.changeDirectory("..", 0);
     EXPECT_EQ(code, PseudoFSCodes::SMALL_SIZE);
-    EXPECT_EQ(pseudoFilesystem.getCurrentPath(), "./");
+    EXPECT_EQ(pseudoFilesystem.currentPath(), "./");
 }

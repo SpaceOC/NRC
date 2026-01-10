@@ -14,52 +14,57 @@ namespace core {
 
 	class CommandsHandler {
 		friend core::VariablesManager;
-		private:
-			std::map<std::string, CommandVariant> commandMap = {};
-			std::map<std::string, CommandDescription> commandInfo = {};
-			std::map<std::string, CustomRulesFunc> customRules = {};
-			std::string commandSeparator = "&/"; // Command separator.
-			CommandParser* parser = nullptr;
-		protected:
-			// Executes a command (if it exists and meets the required execution conditions). If the command is a variable call, it starts the variable.
-			void sendCommand(const core::UserPermissions permissions, const core::CommandObject& command);
-			// Executes a command (if it exists and meets the required execution conditions). If the command is a variable call, it starts the variable.
-			void sendCommand(const core::UserPermissions permissions, const core::CommandObject& command, std::string& str);
-		public:
-			CommandsHandler();
-			CommandsHandler(CommandsHandler&) = delete;
-			CommandsHandler(const CommandsHandler&&) = delete;
-			CommandsHandler operator=(const CommandsHandler& right) = delete;
 
-			// Checks if the argument is a variable call.
-			bool thisVariable(const std::string& command);
+	private:
+		// Store all commands
+		std::map<std::string, CommandVariant> _commandMap = {};
+		std::map<std::string, CommandDescription> _commandInfo = {};
+		std::map<std::string, CustomRulesFunc> _customRules = {};
+		// Command separator.
+		std::string _commandSeparator = "&/";
+		CommandParser* _parser = nullptr;
 
-			// Executes a command (if it exists and meets the required execution conditions). If the command is a variable call, it starts the variable.
-			void sendCommand(const core::CommandObject& command);
-			// Executes a command (if it exists and meets the required execution conditions). If the command is a variable call, it starts the variable.
-			void sendCommand(const core::CommandObject& command, std::string& str);
-			// Executes a command (if it exists and meets the required execution conditions). If the command is a variable call, it starts the variable.
-			void sendCommand(core::User* who, const core::CommandObject& command);
-			// Executes a command (if it exists and meets the required execution conditions). If the command is a variable call, it starts the variable.
-			void sendCommand(core::User* who, const core::CommandObject& command, std::string& str);
+	protected:
+		// Executes a command (if it exists and meets the required execution conditions). If the command is a variable call, it starts the variable.
+		void sendCommand(const core::UserPermissions permissions, const core::CommandObject& command);
+		// Executes a command (if it exists and meets the required execution conditions). If the command is a variable call, it starts the variable.
+		void sendCommand(const core::UserPermissions permissions, const core::CommandObject& command, std::string& str);
+		
+	public:
+		CommandsHandler();
+		CommandsHandler(CommandsHandler&) = delete;
+		CommandsHandler(const CommandsHandler&&) = delete;
+		CommandsHandler operator=(const CommandsHandler& right) = delete;
 
-			void setCommandSeparator(const std::string& newCommandSeparator) { commandSeparator = newCommandSeparator; }
-			const std::string& getCommandSeparator() { return commandSeparator; }
+		// Checks if the argument is a variable call.
+		bool isVariable(const std::string& command);
 
-			void setCommandParser(CommandParser* newParser) { parser = newParser; }
-			CommandParser* getParser() { return parser; }
+		// Executes a command (if it exists and meets the required execution conditions). If the command is a variable call, it starts the variable.
+		void sendCommand(const core::CommandObject& command);
+		// Executes a command (if it exists and meets the required execution conditions). If the command is a variable call, it starts the variable.
+		void sendCommand(const core::CommandObject& command, std::string& str);
+		// Executes a command (if it exists and meets the required execution conditions). If the command is a variable call, it starts the variable.
+		void sendCommand(core::User* who, const core::CommandObject& command);
+		// Executes a command (if it exists and meets the required execution conditions). If the command is a variable call, it starts the variable.
+		void sendCommand(core::User* who, const core::CommandObject& command, std::string& str);
 
-			void addCommand(const std::string& name, const std::string& description, core::SimpleCommand function);
-			void addCommand(const std::string& name, const CommandDescription& data, core::SimpleCommand function, int minArgs, int maxArgs, const CommandRules& rules);
+		void setCommandSeparator(const std::string& newCommandSeparator) { _commandSeparator = newCommandSeparator; }
+		const std::string& commandSeparator() { return _commandSeparator; }
 
-			void addCustomRules(const std::string& id, const CustomRulesFunc& f);
-			void deleteCustomRules(const std::string& id);
+		void setCommandParser(CommandParser* newParser) { _parser = newParser; }
+		CommandParser* parser() { return _parser; }
 
-			void deleteCommand(const std::string& name);
+		void addCommand(const std::string& name, const std::string& description, core::SimpleCommand function);
+		void addCommand(const std::string& name, const CommandDescription& data, core::SimpleCommand function, int minArgs, int maxArgs, const CommandRules& rules);
 
-			bool commandExists(const std::string& name);
-			const CommandDescription& getCommand(const std::string& name);
-			const std::map<std::string, CommandDescription>& getAllCommands();
+		void addCustomRules(const std::string& id, const CustomRulesFunc& f);
+		void deleteCustomRules(const std::string& id);
+
+		void deleteCommand(const std::string& name);
+
+		bool commandExists(const std::string& name);
+		const CommandDescription& getCommand(const std::string& name);
+		const std::map<std::string, CommandDescription>& getAllCommands();
 	};
 
 	extern CommandsHandler* commandsHandler();

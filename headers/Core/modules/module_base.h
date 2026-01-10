@@ -6,12 +6,12 @@
 #include <map>
 
 namespace core {
-	class main;
+	class Main;
 	struct ModuleMetadata;
 
 class ModuleBase {
 	public:
-		explicit ModuleBase(ModuleMetadata* meta, main* core);
+		explicit ModuleBase(ModuleMetadata* meta, Main* core);
 		//explicit ModuleBase() {} // временно используется для тестов
 		virtual ~ModuleBase() {};
 		ModuleBase(const ModuleBase &) = delete;
@@ -44,10 +44,10 @@ class ModuleBase {
 
 		ModuleMetadata getMetadata();
 	private:
-		std::string path;
-		std::map<std::string, std::string> currentLanguage;
-		ModuleMetadata* metadata;
-		main* core;
+		std::string _path;
+		std::map<std::string, std::string> _currentLanguage;
+		ModuleMetadata* _metadata;
+		Main* _core;
 };
 
 }; // namespace core

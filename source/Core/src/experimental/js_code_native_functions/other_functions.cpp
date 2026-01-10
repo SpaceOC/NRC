@@ -76,7 +76,7 @@ void core::experimental::addOtherFunctions(mjs::interpreter& i, core::User* user
 		}
 
 		std::string rawCommand(args.at(0).string_value().view().begin(), args.at(0).string_value().view().end());
-		auto commands = core::commandsHandler()->getParser()->parse(rawCommand);
+		auto commands = core::commandsHandler()->parser()->parse(rawCommand);
 		for (const auto& command : commands) {
 			core::commandsHandler()->sendCommand(user, command);
 		}
@@ -89,7 +89,7 @@ void core::experimental::addOtherFunctions(mjs::interpreter& i, core::User* user
 		}
 
 		std::string rawCommand(args.at(0).string_value().view().begin(), args.at(0).string_value().view().end());
-		auto commands = core::commandsHandler()->getParser()->parse(rawCommand);
+		auto commands = core::commandsHandler()->parser()->parse(rawCommand);
 		std::string output;
 		for (const auto& command : commands) {
 			std::string str;

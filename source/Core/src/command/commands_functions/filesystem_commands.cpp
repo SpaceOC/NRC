@@ -20,19 +20,19 @@ std::string core::commands::CORE_COMMAND_cd(core::User*, core::CommandObject* th
 	else {
 		std::string where = (thisObj->args.at(0) == ".." && !thisObj->args.at(0)._Starts_with("./") ? ".." : thisObj->args.at(0));
 		int code;
-		size_t curDisk = core::pseudoFS()->getCurDiskId();
+		size_t curDisk = core::pseudoFS()->currentDiskId();
 		FolderData* folder = (where == ".." ? nullptr :
 			new FolderData(core::pseudoFS()->getFolderData(
 				(
-				(thisObj->args.at(0)._Starts_with("./") ? thisObj->args.at(0) : core::pseudoFS()->getCurrentPath() + where)
+				(thisObj->args.at(0)._Starts_with("./") ? thisObj->args.at(0) : core::pseudoFS()->currentPath() + where)
 				),
 				curDisk,
 				code
 			)
 		));
 		if ((where != ".." || thisObj->args.at(0)._Starts_with("./"))) {
-			if (folder && folder->link != nullptr && !folder->linkPath.empty()) {
-				if (!core::pseudoFS()->changePath(folder->linkPath, curDisk)) {
+			if (folder && folder->realFolderPointer != nullptr && !folder->realFolderPath.empty()) {
+				if (!core::pseudoFS()->changePath(folder->realFolderPath, curDisk)) {
 					return core::gprint("Error: Change path operation failed!\n", core::PrintColors::red);
 				}
 			}
@@ -60,12 +60,12 @@ std::string core::commands::CORE_COMMAND_createFile(core::User* who, core::Comma
 	std::string checkResult = core::checkUserPermissionsForCommand(who);
 	COMMAND_ERROR_OUTPUT(checkResult)
 
-	std::string where = (thisObj->args.at(0)._Starts_with("./") ? thisObj->args.at(0) : core::pseudoFS()->getCurrentPath() + thisObj->args.at(0));
+	std::string where = (thisObj->args.at(0)._Starts_with("./") ? thisObj->args.at(0) : core::pseudoFS()->currentPath() + thisObj->args.at(0));
 	if (!checkPath(where)) {
 		return "Command error: bad path\n";
 	}
 
-	size_t curDisk = core::pseudoFS()->getCurDiskId();
+	size_t curDisk = core::pseudoFS()->currentDiskId();
 	int code = core::pseudoFS()->createFile(where, curDisk);
 	if (code == core::PseudoFSCodes::ALREADY_EXISTS) {
 		FileData file{
@@ -101,14 +101,14 @@ std::string core::commands::CORE_COMMAND_createLinkFile(core::User* who, core::C
 	std::string checkResult = core::checkUserPermissionsForCommand(who);
 	COMMAND_ERROR_OUTPUT(checkResult)
 
-	std::string where = (thisObj->args.at(0)._Starts_with("./") ? thisObj->args.at(0) : core::pseudoFS()->getCurrentPath() + thisObj->args.at(0));
-	std::string where2 = (thisObj->args.at(1)._Starts_with("./") ? thisObj->args.at(1) : core::pseudoFS()->getCurrentPath() + thisObj->args.at(1));
+	std::string where = (thisObj->args.at(0)._Starts_with("./") ? thisObj->args.at(0) : core::pseudoFS()->currentPath() + thisObj->args.at(0));
+	std::string where2 = (thisObj->args.at(1)._Starts_with("./") ? thisObj->args.at(1) : core::pseudoFS()->currentPath() + thisObj->args.at(1));
 	if (!checkPath(where) || !checkPath(where2)) {
 		return "Command error: bad path\n";
 	}
 
 	int code;
-	size_t curDisk = core::pseudoFS()->getCurDiskId();
+	size_t curDisk = core::pseudoFS()->currentDiskId();
 	FileData file = core::pseudoFS()->getFileData(where, curDisk, code);
 	checkResult = core::checkFileCodeForPFSCommand(code);
 	COMMAND_ERROR_OUTPUT(checkResult)
@@ -144,13 +144,13 @@ std::string core::commands::CORE_COMMAND_deleteFile(core::User* who, core::Comma
 	std::string checkResult = core::checkUserPermissionsForCommand(who);
 	COMMAND_ERROR_OUTPUT(checkResult)
 
-	std::string where = (thisObj->args.at(0)._Starts_with("./") ? thisObj->args.at(0) : core::pseudoFS()->getCurrentPath() + thisObj->args.at(0));
+	std::string where = (thisObj->args.at(0)._Starts_with("./") ? thisObj->args.at(0) : core::pseudoFS()->currentPath() + thisObj->args.at(0));
 	if (!checkPath(where)) {
 		return "Command error: bad path\n";
 	}
 	
 	int code;
-	size_t curDisk = core::pseudoFS()->getCurDiskId();
+	size_t curDisk = core::pseudoFS()->currentDiskId();
 	core::pseudoFS()->getFileData(where, curDisk, code);
 	checkResult = core::checkFileCodeForPFSCommand(code);
 	COMMAND_ERROR_OUTPUT(checkResult)
@@ -171,13 +171,13 @@ std::string core::commands::CORE_COMMAND_renameFile(core::User* who, core::Comma
 	std::string checkResult = core::checkUserPermissionsForCommand(who);
 	COMMAND_ERROR_OUTPUT(checkResult)
 
-	std::string where = (thisObj->args.at(0)._Starts_with("./") ? thisObj->args.at(0) : core::pseudoFS()->getCurrentPath() + thisObj->args.at(0));
+	std::string where = (thisObj->args.at(0)._Starts_with("./") ? thisObj->args.at(0) : core::pseudoFS()->currentPath() + thisObj->args.at(0));
 	if (!checkPath(where)) {
 		return "Command error: bad path\n";
 	}	
 	
 	int code;
-	size_t curDisk = core::pseudoFS()->getCurDiskId();
+	size_t curDisk = core::pseudoFS()->currentDiskId();
 	FileData f = core::pseudoFS()->getFileData(where, curDisk, code);
 	checkResult = core::checkFileCodeForPFSCommand(code);
 	COMMAND_ERROR_OUTPUT(checkResult)
@@ -187,7 +187,7 @@ std::string core::commands::CORE_COMMAND_renameFile(core::User* who, core::Comma
 
 	code = core::pseudoFS()->renameFile(thisObj->args.at(0), curDisk, thisObj->args.at(1));
 	if (code == core::PseudoFSCodes::ALREADY_EXISTS) {
-		f.timeEdit = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+		f.lastEditTime = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
 		fixCreateSamePFSObject(where, curDisk, f, code);
 	}
 
@@ -207,7 +207,7 @@ std::string core::commands::CORE_COMMAND_moveFile(core::User* who, core::Command
 	COMMAND_ERROR_OUTPUT(checkResult)
 
 	int code;
-	size_t curDisk = core::pseudoFS()->getCurDiskId();
+	size_t curDisk = core::pseudoFS()->currentDiskId();
 	FileData f = core::pseudoFS()->getFileData(thisObj->args.at(0), curDisk, code);
 	checkResult = core::checkFileCodeForPFSCommand(code);
 	COMMAND_ERROR_OUTPUT(checkResult)
@@ -233,13 +233,13 @@ std::string core::commands::CORE_COMMAND_editFile(core::User* who, core::Command
 	std::string checkResult = core::checkUserPermissionsForCommand(who);
 	COMMAND_ERROR_OUTPUT(checkResult)
 
-	std::string where = (thisObj->args.at(0)._Starts_with("./") ? thisObj->args.at(0) : core::pseudoFS()->getCurrentPath() + thisObj->args.at(0));
+	std::string where = (thisObj->args.at(0)._Starts_with("./") ? thisObj->args.at(0) : core::pseudoFS()->currentPath() + thisObj->args.at(0));
 	if (!checkPath(where)) {
 		return "Command error: bad path\n";
 	}
 	
 	int code;
-	size_t curDisk = core::pseudoFS()->getCurDiskId();
+	size_t curDisk = core::pseudoFS()->currentDiskId();
 	FileData f = core::pseudoFS()->getFileData(where, curDisk, code);
 	checkResult = core::checkFileCodeForPFSCommand(code);
 	COMMAND_ERROR_OUTPUT(checkResult)
@@ -294,8 +294,8 @@ std::string core::commands::CORE_COMMAND_showFileData(core::User* who, core::Com
 	COMMAND_ERROR_OUTPUT(checkResult)
 
 	int code;
-	size_t curDisk = core::pseudoFS()->getCurDiskId();
-	std::string where = (thisObj->args.at(0)._Starts_with("./") ? thisObj->args.at(0) : core::pseudoFS()->getCurrentPath() + thisObj->args.at(0));
+	size_t curDisk = core::pseudoFS()->currentDiskId();
+	std::string where = (thisObj->args.at(0)._Starts_with("./") ? thisObj->args.at(0) : core::pseudoFS()->currentPath() + thisObj->args.at(0));
 	if (!checkPath(where)) {
 		return "Command error: bad path\n";
 	}
@@ -321,8 +321,8 @@ std::string core::commands::CORE_COMMAND_readFile(core::User* who, core::Command
 	COMMAND_ERROR_OUTPUT(checkResult)
 
 	int code;
-	size_t curDisk = core::pseudoFS()->getCurDiskId();
-	std::string where = (thisObj->args.at(0)._Starts_with("./") ? thisObj->args.at(0) : core::pseudoFS()->getCurrentPath() + thisObj->args.at(0));
+	size_t curDisk = core::pseudoFS()->currentDiskId();
+	std::string where = (thisObj->args.at(0)._Starts_with("./") ? thisObj->args.at(0) : core::pseudoFS()->currentPath() + thisObj->args.at(0));
 	if (!checkPath(where)) {
 		return "Command error: bad path\n";
 	}
@@ -342,12 +342,12 @@ std::string core::commands::CORE_COMMAND_writeOnNewLineFile(core::User* who, cor
 	std::string checkResult = core::checkUserPermissionsForCommand(who);
 	COMMAND_ERROR_OUTPUT(checkResult)
 
-	std::string where = (thisObj->args.at(0)._Starts_with("./") ? thisObj->args.at(0) : core::pseudoFS()->getCurrentPath() + thisObj->args.at(0));
+	std::string where = (thisObj->args.at(0)._Starts_with("./") ? thisObj->args.at(0) : core::pseudoFS()->currentPath() + thisObj->args.at(0));
 	if (!checkPath(where)) {
 		return "Command error: bad path\n";
 	}
 	
-	size_t curDisk = core::pseudoFS()->getCurDiskId();
+	size_t curDisk = core::pseudoFS()->currentDiskId();
 	int code;
 	const FileData f = core::pseudoFS()->getFileData(where, curDisk, code);
 	std::string content = f.content + "\n" + thisObj->args.at(1);
@@ -369,13 +369,13 @@ std::string core::commands::CORE_COMMAND_writeFile(core::User* who, core::Comman
 	std::string checkResult = core::checkUserPermissionsForCommand(who);
 	COMMAND_ERROR_OUTPUT(checkResult)
 
-	std::string where = (thisObj->args.at(0)._Starts_with("./") ? thisObj->args.at(0) : core::pseudoFS()->getCurrentPath() + thisObj->args.at(0));
+	std::string where = (thisObj->args.at(0)._Starts_with("./") ? thisObj->args.at(0) : core::pseudoFS()->currentPath() + thisObj->args.at(0));
 	if (!checkPath(where)) {
 		return "Command error: bad path\n";
 	}
 	
 	int code;
-	size_t curDisk = core::pseudoFS()->getCurDiskId();
+	size_t curDisk = core::pseudoFS()->currentDiskId();
 	const FileData f = core::pseudoFS()->getFileData(where, curDisk, code);
 	std::string content = f.content + thisObj->args.at(1);
 	checkResult = core::checkFileCodeForPFSCommand(code);
@@ -396,13 +396,13 @@ std::string core::commands::CORE_COMMAND_rewriteFile(core::User* who, core::Comm
 	std::string checkResult = core::checkUserPermissionsForCommand(who);
 	COMMAND_ERROR_OUTPUT(checkResult)
 
-	std::string where = (thisObj->args.at(0)._Starts_with("./") ? thisObj->args.at(0) : core::pseudoFS()->getCurrentPath() + thisObj->args.at(0));
+	std::string where = (thisObj->args.at(0)._Starts_with("./") ? thisObj->args.at(0) : core::pseudoFS()->currentPath() + thisObj->args.at(0));
 	if (!checkPath(where)) {
 		return "Command error: bad path\n";
 	}
 	
 	int code;
-	size_t curDisk = core::pseudoFS()->getCurDiskId();
+	size_t curDisk = core::pseudoFS()->currentDiskId();
 	const FileData f = core::pseudoFS()->getFileData(where, curDisk, code);
 	checkResult = core::checkFileCodeForPFSCommand(code);
 	COMMAND_ERROR_OUTPUT(checkResult)
@@ -422,13 +422,13 @@ std::string core::commands::CORE_COMMAND_clearFile(core::User* who, core::Comman
 	std::string checkResult = core::checkUserPermissionsForCommand(who);
 	COMMAND_ERROR_OUTPUT(checkResult)
 
-	std::string where = (thisObj->args.at(0)._Starts_with("./") ? thisObj->args.at(0) : core::pseudoFS()->getCurrentPath() + thisObj->args.at(0));
+	std::string where = (thisObj->args.at(0)._Starts_with("./") ? thisObj->args.at(0) : core::pseudoFS()->currentPath() + thisObj->args.at(0));
 	if (!checkPath(where)) {
 		return "Command error: bad path\n";
 	}
 	
 	int code;
-	size_t curDisk = core::pseudoFS()->getCurDiskId();
+	size_t curDisk = core::pseudoFS()->currentDiskId();
 	const FileData f = core::pseudoFS()->getFileData(where, curDisk, code);
 	checkResult = core::checkFileCodeForPFSCommand(code);
 	COMMAND_ERROR_OUTPUT(checkResult)
@@ -449,7 +449,7 @@ std::string core::commands::CORE_COMMAND_setNewFileOwner(core::User* who, core::
 	COMMAND_ERROR_OUTPUT(checkResult)
 
 	int code;
-	size_t curDisk = core::pseudoFS()->getCurDiskId();
+	size_t curDisk = core::pseudoFS()->currentDiskId();
 	const FileData f = core::pseudoFS()->getFileData(thisObj->args.at(0), curDisk, code);
 	checkResult = core::checkFileCodeForPFSCommand(code);
 	COMMAND_ERROR_OUTPUT(checkResult)
@@ -457,7 +457,7 @@ std::string core::commands::CORE_COMMAND_setNewFileOwner(core::User* who, core::
 	checkResult = core::checkUserPermissionsForPFSCommand(who, f);
 	COMMAND_ERROR_OUTPUT(checkResult)
 
-	core::pseudoFS()->setFileAtt(thisObj->args.at(0), curDisk, "owner", (thisObj->args.at(1) != "[ NONE ]" ? &core::userManager()->getUser(thisObj->args.at(1)) : nullptr));
+	core::pseudoFS()->setFileAtt(thisObj->args.at(0), curDisk, "owner", (thisObj->args.at(1) != "[ NONE ]" ? &core::userManager()->getUserData(thisObj->args.at(1)) : nullptr));
 	core::pseudoFS()->getNRFS()->saveData();
 	return "";
 }
@@ -470,8 +470,8 @@ std::string core::commands::CORE_COMMAND_createFolder(core::User* who, core::Com
 	COMMAND_ERROR_OUTPUT(checkResult)
 
 	int code;
-	size_t curDisk = core::pseudoFS()->getCurDiskId();
-	std::string where = (thisObj->args.at(0)._Starts_with("./") ? thisObj->args.at(0) : core::pseudoFS()->getCurrentPath() + thisObj->args.at(0));
+	size_t curDisk = core::pseudoFS()->currentDiskId();
+	std::string where = (thisObj->args.at(0)._Starts_with("./") ? thisObj->args.at(0) : core::pseudoFS()->currentPath() + thisObj->args.at(0));
 	if (!checkPath(where)) {
 		return "Command error: bad path\n";
 	}	
@@ -504,14 +504,14 @@ std::string core::commands::CORE_COMMAND_createLinkFolder(core::User* who, core:
 	std::string checkResult = core::checkUserPermissionsForCommand(who);
 	COMMAND_ERROR_OUTPUT(checkResult)
 
-	std::string where = (thisObj->args.at(0)._Starts_with("./") ? thisObj->args.at(0) : core::pseudoFS()->getCurrentPath() + thisObj->args.at(0));
-	std::string where2 = (thisObj->args.at(1)._Starts_with("./") ? thisObj->args.at(1) : core::pseudoFS()->getCurrentPath() + thisObj->args.at(1));
+	std::string where = (thisObj->args.at(0)._Starts_with("./") ? thisObj->args.at(0) : core::pseudoFS()->currentPath() + thisObj->args.at(0));
+	std::string where2 = (thisObj->args.at(1)._Starts_with("./") ? thisObj->args.at(1) : core::pseudoFS()->currentPath() + thisObj->args.at(1));
 	if (!checkPath(where) || !checkPath(where2)) {
 		return "Command error: bad path\n";
 	}	
 	
 	int code;
-	size_t curDisk = core::pseudoFS()->getCurDiskId();
+	size_t curDisk = core::pseudoFS()->currentDiskId();
 	FolderData folder = core::pseudoFS()->getFolderData(where, curDisk, code);
 	checkResult = core::checkFileCodeForPFSCommand(code);
 	COMMAND_ERROR_OUTPUT(checkResult)
@@ -546,12 +546,12 @@ std::string core::commands::CORE_COMMAND_deleteFolder(core::User* who, core::Com
 	std::string checkResult = core::checkUserPermissionsForCommand(who);
 	COMMAND_ERROR_OUTPUT(checkResult)
 
-	std::string where = (thisObj->args.at(0)._Starts_with("./") ? thisObj->args.at(0) : core::pseudoFS()->getCurrentPath() + thisObj->args.at(0));
+	std::string where = (thisObj->args.at(0)._Starts_with("./") ? thisObj->args.at(0) : core::pseudoFS()->currentPath() + thisObj->args.at(0));
 	if (!checkPath(where)) {
 		return "Command error: bad path\n";
 	}
 	
-	size_t curDisk = core::pseudoFS()->getCurDiskId();
+	size_t curDisk = core::pseudoFS()->currentDiskId();
 	int code;
 	const FolderData f = core::pseudoFS()->getFolderData(where, curDisk, code);
 	checkResult = core::checkFileCodeForPFSCommand(code);
@@ -572,16 +572,16 @@ std::string core::commands::CORE_COMMAND_renameFolder(core::User* who, core::Com
 	std::string checkResult = core::checkUserPermissionsForCommand(who);
 	COMMAND_ERROR_OUTPUT(checkResult)
 
-	std::string where = (thisObj->args.at(0)._Starts_with("./") ? thisObj->args.at(0) : core::pseudoFS()->getCurrentPath() + thisObj->args.at(0));
+	std::string where = (thisObj->args.at(0)._Starts_with("./") ? thisObj->args.at(0) : core::pseudoFS()->currentPath() + thisObj->args.at(0));
 	if (!checkPath(where)) {
 		return "Command error: bad path\n";
 	}
 	
-	size_t curDisk = core::pseudoFS()->getCurDiskId();
+	size_t curDisk = core::pseudoFS()->currentDiskId();
 	int code;
 	FolderData f = core::pseudoFS()->getFolderData(where, curDisk, code);
 	if (code == core::PseudoFSCodes::ALREADY_EXISTS) {
-		f.timeEdit = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+		f.lastEditTime = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
 		fixCreateSamePFSObject(where, curDisk, f, code);
 	}
 	
@@ -603,7 +603,7 @@ std::string core::commands::CORE_COMMAND_moveFolder(core::User* who, core::Comma
 	std::string checkResult = core::checkUserPermissionsForCommand(who);
 	COMMAND_ERROR_OUTPUT(checkResult)
 
-	size_t curDisk = core::pseudoFS()->getCurDiskId();
+	size_t curDisk = core::pseudoFS()->currentDiskId();
 	int code;
 	FolderData f = core::pseudoFS()->getFolderData(thisObj->args.at(0), curDisk, code);
 	if (code == core::PseudoFSCodes::ALREADY_EXISTS) {
@@ -631,9 +631,9 @@ std::string core::commands::CORE_COMMAND_showFolderData(core::User* who, core::C
 	std::string checkResult = core::checkUserPermissionsForCommand(who);
 	COMMAND_ERROR_OUTPUT(checkResult)
 
-	size_t curDisk = core::pseudoFS()->getCurDiskId();
+	size_t curDisk = core::pseudoFS()->currentDiskId();
 	int code;
-	std::string where = (thisObj->args.at(0)._Starts_with("./") ? thisObj->args.at(0) : core::pseudoFS()->getCurrentPath() + thisObj->args.at(0));
+	std::string where = (thisObj->args.at(0)._Starts_with("./") ? thisObj->args.at(0) : core::pseudoFS()->currentPath() + thisObj->args.at(0));
 	if (!checkPath(where)) {
 		return "Command error: bad path\n";
 	}
@@ -658,9 +658,9 @@ std::string core::commands::CORE_COMMAND_setNewFolderOwner(core::User* who, core
 	std::string checkResult = core::checkUserPermissionsForCommand(who);
 	COMMAND_ERROR_OUTPUT(checkResult)
 
-	size_t curDisk = core::pseudoFS()->getCurDiskId();
+	size_t curDisk = core::pseudoFS()->currentDiskId();
 	int code;
-	std::string where = (thisObj->args.at(0)._Starts_with("./") ? thisObj->args.at(0) : core::pseudoFS()->getCurrentPath() + thisObj->args.at(0));
+	std::string where = (thisObj->args.at(0)._Starts_with("./") ? thisObj->args.at(0) : core::pseudoFS()->currentPath() + thisObj->args.at(0));
 	if (!checkPath(where)) {
 		return "Command error: bad path\n";
 	}
@@ -672,7 +672,7 @@ std::string core::commands::CORE_COMMAND_setNewFolderOwner(core::User* who, core
 	checkResult = core::checkUserPermissionsForPFSCommand(who, targetFolder);
 	COMMAND_ERROR_OUTPUT(checkResult)
 
-	core::pseudoFS()->setFolderAtt(thisObj->args.at(0), curDisk, "owner", (thisObj->args.at(1) != "[ NONE ]" ? &core::userManager()->getUser(thisObj->args.at(1)) : nullptr));
+	core::pseudoFS()->setFolderAtt(thisObj->args.at(0), curDisk, "owner", (thisObj->args.at(1) != "[ NONE ]" ? &core::userManager()->getUserData(thisObj->args.at(1)) : nullptr));
 	core::pseudoFS()->getNRFS()->saveData();
 	return "";
 }
@@ -683,9 +683,9 @@ std::string core::commands::CORE_COMMAND_dir(core::User*, core::CommandObject* t
 	bool showHidden = (thisObj->args.empty() ? false : thisObj->args.at(0) == "h");
 	int fCount = 0;
 	int code;
-	size_t curDisk = core::pseudoFS()->getCurDiskId();
-	const std::vector<std::shared_ptr<FolderData>> folders = (core::pseudoFS()->getCurrentPath() == "./" ? core::pseudoFS()->getNRFS()->getRoot()->getFolders() : core::pseudoFS()->getFolderData(core::pseudoFS()->getCurrentPath(), curDisk, code).folders);
-	const std::vector<std::shared_ptr<FileData>> files = (core::pseudoFS()->getCurrentPath() == "./" ? core::pseudoFS()->getNRFS()->getRoot()->getFiles() : core::pseudoFS()->getFolderData(core::pseudoFS()->getCurrentPath(), curDisk, code).files);
+	size_t curDisk = core::pseudoFS()->currentDiskId();
+	const std::vector<std::shared_ptr<FolderData>> folders = (core::pseudoFS()->currentPath() == "./" ? core::pseudoFS()->getNRFS()->getRoot()->getFolders() : core::pseudoFS()->getFolderData(core::pseudoFS()->currentPath(), curDisk, code).folders);
+	const std::vector<std::shared_ptr<FileData>> files = (core::pseudoFS()->currentPath() == "./" ? core::pseudoFS()->getNRFS()->getRoot()->getFiles() : core::pseudoFS()->getFolderData(core::pseudoFS()->currentPath(), curDisk, code).files);
 
 	for (const auto& folder : folders) {
 		if (folder.get() == nullptr) continue;
@@ -721,7 +721,7 @@ std::string core::commands::CORE_COMMAND_dir(core::User*, core::CommandObject* t
 }
 
 std::string core::commands::CORE_COMMAND_tree(core::User*, core::CommandObject* thisObj) {
-	size_t curDisk = core::pseudoFS()->getCurDiskId();
+	size_t curDisk = core::pseudoFS()->currentDiskId();
 	std::string str;
 	if (thisObj->args.empty()) {
 		core::pseudoFS()->showTree(false, curDisk, false, "./", str);
@@ -739,7 +739,7 @@ std::string core::commands::CORE_COMMAND_tree(core::User*, core::CommandObject* 
 }
 
 std::string core::commands::CORE_COMMAND_showAll(core::User*, core::CommandObject* thisObj) {
-	size_t curDisk = core::pseudoFS()->getCurDiskId();
+	size_t curDisk = core::pseudoFS()->currentDiskId();
 	std::string str;
 	if (thisObj->args.empty()) {
 		core::pseudoFS()->printAll(false, curDisk, "./", str);
@@ -761,7 +761,7 @@ std::string core::commands::CORE_COMMAND_searchFile(core::User*, core::CommandOb
 	}
 
 	std::string result = "";
-	std::string path = (thisObj->args.size() > 1 ? thisObj->args.at(1) : core::pseudoFS()->getCurrentPath());
+	std::string path = (thisObj->args.size() > 1 ? thisObj->args.at(1) : core::pseudoFS()->currentPath());
 	bool fullSearch = thisObj->args.size() < 2;
 	std::vector<std::string> parsedPath = core::string_util::split(path, '/');
 	for (std::weak_ptr<FileData> file : core::pseudoFS()->getNRFS()->getRoot()->getFiles()) {
@@ -816,7 +816,7 @@ std::string core::commands::CORE_COMMAND_searchFileHelper(const core::FolderData
 }
 
 std::string core::commands::CORE_COMMAND_printDiskSize(core::User*, core::CommandObject*) {
-	size_t curDisk = core::pseudoFS()->getCurDiskId();
+	size_t curDisk = core::pseudoFS()->currentDiskId();
 	int filesSize = core::pseudoFS()->getNRFS()->getDisks().at(curDisk)->getFilesSize();
 	int foldersSize = core::pseudoFS()->getNRFS()->getDisks().at(curDisk)->getFoldersSize();
 	int diskSize = core::pseudoFS()->getNRFS()->getDisks().at(curDisk)->getDiskSize();
@@ -831,11 +831,11 @@ std::string core::commands::CORE_COMMAND_printDiskSize(core::User*, core::Comman
 }
 
 std::string core::commands::CORE_COMMAND_whereIm(core::User*, core::CommandObject*) {
-	std::vector<std::string> parsedPath = core::string_util::split(core::pseudoFS()->getCurrentPath(), '/');
+	std::vector<std::string> parsedPath = core::string_util::split(core::pseudoFS()->currentPath(), '/');
 
 	std::string result = gprint(core::PrintColors::aqua, "You're in the folder: " + parsedPath.back() + "\n",
-		"Full path: " + core::pseudoFS()->getCurrentPath() + "\n",
-		"Disk: ", core::pseudoFS()->getNRFS()->getDisks().at(core::pseudoFS()->getCurDiskId())->getLetter(), "\n"
+		"Full path: " + core::pseudoFS()->currentPath() + "\n",
+		"Disk: ", core::pseudoFS()->getNRFS()->getDisks().at(core::pseudoFS()->currentDiskId())->getLetter(), "\n"
 	);
 	
 	return result;

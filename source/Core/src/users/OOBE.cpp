@@ -3,7 +3,7 @@
 #include "Core/print/print.h"
 #include "Core/users/user_manager.h"
 
-void core::OOBE() {
+void core::startFirstLaunch() {
 	#ifndef NRC_WEB
 	std::string firstUsername;
 	print("Enter username: ", PrintColors::aqua);

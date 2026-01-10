@@ -59,7 +59,7 @@ void core::experimental::addPseudoFileSystemFunctions(mjs::interpreter& i, core:
 		fileObj->put(string(gc, "owner"), objectUserData(gc, file.owner), property_attribute::read_only);
 		fileObj->put(string(gc, "system"), value(file.system), property_attribute::read_only);
 		fileObj->put(string(gc, "hidden"), value(file.hidden), property_attribute::read_only);
-		fileObj->put(string(gc, "link_path"), getCString(file.linkPath, gc), property_attribute::read_only);
+		fileObj->put(string(gc, "link_path"), getCString(file.realFilePath, gc), property_attribute::read_only);
 		return value(fileObj);
 	}, 1);
 	
@@ -83,7 +83,7 @@ void core::experimental::addPseudoFileSystemFunctions(mjs::interpreter& i, core:
 		folderData->put(string(gc, "owner"), objectUserData(gc, folder.owner), property_attribute::read_only);
 		folderData->put(string(gc, "system"), value(folder.system), property_attribute::read_only);
 		folderData->put(string(gc, "hidden"), value(folder.hidden), property_attribute::read_only);
-		folderData->put(string(gc, "link_path"), getCString(folder.linkPath, gc), property_attribute::read_only);
+		folderData->put(string(gc, "link_path"), getCString(folder.realFolderPath, gc), property_attribute::read_only);
 		return value(folderData);
 	}, 1);
 
@@ -238,7 +238,7 @@ void core::experimental::addPseudoFileSystemFunctions(mjs::interpreter& i, core:
 				type,
 				(
 					type == "owner" ?
-					(&core::userManager()->getUser(std::any_cast<std::string>(attribute))) :
+					(&core::userManager()->getUserData(std::any_cast<std::string>(attribute))) :
 					attribute
 				)
 			);
@@ -253,7 +253,7 @@ void core::experimental::addPseudoFileSystemFunctions(mjs::interpreter& i, core:
 				type,
 				(
 					type == "owner" ?
-					(&core::userManager()->getUser(std::any_cast<std::string>(attribute))) :
+					(&core::userManager()->getUserData(std::any_cast<std::string>(attribute))) :
 					attribute
 				)
 			);
