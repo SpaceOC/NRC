@@ -16,6 +16,12 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_C_COMPILER_FORCED TRUE)
 set(CMAKE_CXX_COMPILER_FORCED TRUE)
 
+set(NRC_USE_TUI TRUE)
+
+if(NRC_USE_TUI)
+add_compile_definitions(USETUI)
+endif()
+
 include(FetchContent)
 
 # Я не знаю, как отключить тесты (при попытке скомпилировать их выходит ошибка).
@@ -36,43 +42,35 @@ include(FetchContent)
 #FetchContent_MakeAvailable(cereal)
 
 FetchContent_Declare(
-	googletest
-	URL https://github.com/google/googletest/archive/03597a01ee50ed33e9dfd640b249b4be3799d395.zip
-)
-
-FetchContent_Declare(
 		dylib
 		GIT_REPOSITORY  "https://github.com/martin-olivier/dylib"
 		GIT_TAG         "v3.0.1"
 )
 
+if(NRC_USE_TUI)
+# fetch FTXUI
+set(FETCHCONTENT_UPDATES_DISCONNECTED ON)
+set(FETCHCONTENT_QUIET OFF)
+
+FetchContent_Declare(ftxui
+  GIT_REPOSITORY https://github.com/arthursonzogni/ftxui.git
+  GIT_TAG        v6.1.9
+  GIT_PROGRESS   TRUE
+  GIT_SHALLOW    TRUE
+  EXCLUDE_FROM_ALL
+)
+endif()
+
 # For Windows: Prevent overriding the parent project's compiler/linker settings
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
-FetchContent_MakeAvailable(googletest)
 FetchContent_MakeAvailable(dylib)
+
+if(NRC_USE_TUI)
+FetchContent_MakeAvailable(ftxui)
+endif()
 
 include_directories(headers)
 
 add_subdirectory(${CMAKE_SOURCE_DIR}/source/ThirdParty/mjs)
 add_subdirectory(${CMAKE_SOURCE_DIR}/source/Core)
 add_subdirectory(${CMAKE_SOURCE_DIR}/source/OS)
-
-set(TESTS_SOURCE_DIR ${CMAKE_SOURCE_DIR}/tests/src)
-
-link_directories(${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
-
-enable_testing()
-
-add_executable(
-	tests
-	${TESTS_SOURCE_DIR}/pseudo_fs_operations.cc
-	${TESTS_SOURCE_DIR}/disk.cc
-	${TESTS_SOURCE_DIR}/command_parser.cc
-	#${TESTS_SOURCE_DIR}/module_test.cc
-)
-
-target_link_libraries(tests PUBLIC GTest::gtest_main PRIVATE NRC
-)
-
-include(GoogleTest)
-gtest_discover_tests(tests)

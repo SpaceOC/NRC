@@ -2,6 +2,17 @@ cmake_minimum_required(VERSION 3.11)
 #set(CMAKE_BUILD_TYPE Release)
 project(NRC)
 
+include(FetchContent)
+
+FetchContent_Declare(
+	googletest
+	URL https://github.com/google/googletest/archive/03597a01ee50ed33e9dfd640b249b4be3799d395.zip
+)
+
+# For Windows: Prevent overriding the parent project's compiler/linker settings
+set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+FetchContent_MakeAvailable(googletest)
+
 set(CORE_SOURCE_DIR ${CMAKE_SOURCE_DIR}/source/Core/src)
 
 add_library(NRC STATIC
@@ -37,7 +48,12 @@ add_library(NRC STATIC
                 ${CORE_SOURCE_DIR}/modules/module_base.cpp
                 ${CORE_SOURCE_DIR}/main.cpp)
 
-target_link_libraries(NRC PUBLIC mjs_lib dylib)
+target_link_libraries(NRC
+  PUBLIC mjs_lib dylib
+  PRIVATE ftxui::screen
+  PRIVATE ftxui::dom
+  PRIVATE ftxui::component
+)
 
 target_compile_options(NRC
     PUBLIC
@@ -66,3 +82,23 @@ add_custom_command(
 #    COMMAND ${CMAKE_COMMAND} -D "URL=https://cdn.simplelocalize.io/public/v1/locales" -D "OUTPUT=${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/data/locales.json" -P ${CMAKE_SOURCE_DIR}/cmake_files/download.cmake
 #    COMMENT "Downloading local codes from SimpleLocalize" # Я надеюсь... всё будет ок..?
 #)
+
+set(TESTS_SOURCE_DIR ${CMAKE_SOURCE_DIR}/source/Core/tests/src)
+
+link_directories(${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+
+enable_testing()
+
+add_executable(
+	tests
+	${TESTS_SOURCE_DIR}/pseudo_fs_operations.cc
+	${TESTS_SOURCE_DIR}/disk.cc
+	${TESTS_SOURCE_DIR}/command_parser.cc
+	#${TESTS_SOURCE_DIR}/module_test.cc
+)
+
+target_link_libraries(tests PUBLIC GTest::gtest_main PRIVATE NRC
+)
+
+include(GoogleTest)
+gtest_discover_tests(tests)
