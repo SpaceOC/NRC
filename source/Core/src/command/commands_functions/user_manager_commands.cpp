@@ -11,6 +11,12 @@
 #include "Core/command/command_structs.h"
 #include "Core/utils/other_util.h"
 
+#ifdef USETUI
+#include "Core/tui/screens/user_info_screen.h"
+#include "Core/tui/screens/user_manager_screen.h"
+#include "Core/tui/screen_manager.h"
+#endif
+
 std::string core::commands::CORE_COMMAND_setPassword(core::User* who, core::CommandObject* thisObj) {
 	if (thisObj->returnable)
 		return "Not supported\n";
@@ -154,6 +160,7 @@ std::string core::commands::CORE_COMMAND_infoUser(core::User*, core::CommandObje
 }
 
 std::string core::commands::CORE_COMMAND_allInfoUsers(core::User*, core::CommandObject*) {
+#ifndef USETUI
 	std::string result = "  - [ All Users Info ] -  \n";
 	for (auto& user : core::userManager()->getUserMap()) {
 		result += " - " + user.first + " | " + user.second + "\n";
@@ -161,6 +168,13 @@ std::string core::commands::CORE_COMMAND_allInfoUsers(core::User*, core::Command
 		result += "Permissions: " + userPermissionsS(core::userManager()->getPermissionsMap()[user.first]) + "\n";
 	}
 	return result;
+#else
+	core::BaseScreen* userManagerScreen = new core::UserManagerScreen();
+	core::screenManager()->changeScreen(userManagerScreen);
+	userManagerScreen->draw();
+	std::cout << '\n';
+	return "";
+#endif
 }
 
 std::string core::commands::CORE_COMMAND_logout(core::User*, core::CommandObject* thisObj) {

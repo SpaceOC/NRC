@@ -15,6 +15,25 @@ FetchContent_MakeAvailable(googletest)
 
 set(CORE_SOURCE_DIR ${CMAKE_SOURCE_DIR}/source/Core/src)
 
+set(NRC_OPTIONAL_FILES)
+set(NRC_OPTIONAL_LIBS)
+if(NRC_USE_TUI)
+  set(NRC_OPTIONAL_FILES 
+    ${CORE_SOURCE_DIR}/tui/elements/StrElement.cpp
+    ${CORE_SOURCE_DIR}/tui/elements/ListElement.cpp
+    ${CORE_SOURCE_DIR}/tui/screens/base_list_screen.cpp
+    ${CORE_SOURCE_DIR}/tui/screens/user_info_screen.cpp
+    ${CORE_SOURCE_DIR}/tui/screens/user_manager_screen.cpp
+    ${CORE_SOURCE_DIR}/tui/screen_manager.cpp
+  )
+
+  set(NRC_OPTIONAL_LIBS 
+    ftxui::screen
+    ftxui::dom
+    ftxui::component
+  )
+endif()
+
 add_library(NRC STATIC
                 ${CORE_SOURCE_DIR}/utils/string_util.cpp
                 ${CORE_SOURCE_DIR}/utils/other_util.cpp
@@ -46,13 +65,12 @@ add_library(NRC STATIC
                 ${CORE_SOURCE_DIR}/other/fix.cpp
                 ${CORE_SOURCE_DIR}/modules/module_metadata.cpp
                 ${CORE_SOURCE_DIR}/modules/module_base.cpp
+                ${NRC_OPTIONAL_FILES}
                 ${CORE_SOURCE_DIR}/main.cpp)
 
 target_link_libraries(NRC
   PUBLIC mjs_lib dylib
-  PRIVATE ftxui::screen
-  PRIVATE ftxui::dom
-  PRIVATE ftxui::component
+  PRIVATE ${NRC_OPTIONAL_LIBS}
 )
 
 target_compile_options(NRC
