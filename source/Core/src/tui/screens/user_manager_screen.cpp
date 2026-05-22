@@ -62,11 +62,11 @@ void core::UserManagerScreen::draw() {
 	for (size_t i = 0; i < size; i++) {
 		char color = colors[i];
 		if (color == 0)
-			table.SelectCell(3, i+1).Decorate(ftxui::color(ftxui::Color::Green));
+			table.SelectCell(3, i+1).DecorateCells(ftxui::color(ftxui::Color::Green));
 		else if (color == 1)
-			table.SelectCell(3, i+1).Decorate(ftxui::color(ftxui::Color::Blue));
+			table.SelectCell(3, i+1).DecorateCells(ftxui::color(ftxui::Color::Blue));
 		else
-			table.SelectCell(3, i+1).Decorate(ftxui::color(ftxui::Color::Red));
+			table.SelectCell(3, i+1).DecorateCells(ftxui::color(ftxui::Color::Red));
 	}
 
 	delete[] colors;
